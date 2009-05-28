@@ -14,11 +14,11 @@
 #	 You should have received a copy of the GNU General Public License
 #	 along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-LIBS = -shared -lSDL -lGL -lGLU -O3 -Wall
+LIBS = -shared -lSDL -lGL -lGLU -Wall
 LOCATION = clibs/
 
 compile:
-	gcc -c $(LOCATION)GLee.c -o $(LOCATION)GLee.o
+	#gcc -c $(LOCATION)GLee.c -o $(LOCATION)GLee.o
 	gcc $(LOCATION)gsl-bindings.c $(LOCATION)GLee.o $(LIBS)	-o $(LOCATION)gsl-bindings.so
 	gcc $(LOCATION)gsl-gl-bindings.c $(LOCATION)GLee.o $(LIBS) -o $(LOCATION)gsl-gl-bindings.so
 	gcc $(LOCATION)gsl-sdl-bindings.c $(LIBS) -o $(LOCATION)gsl-sdl-bindings.so

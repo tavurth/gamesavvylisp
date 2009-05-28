@@ -74,25 +74,23 @@
 (defmacro glu-perspective (&key (fov 75) (aspect (/ (* *width* 1.0) *height*)) (near_clip 0.1) (far_clip 10000.0))
   `(glu_perspective ,fov ,aspect ,near_clip ,far_clip))
 
-(defmacro gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (pos nil p_supplied))
+(defun gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (pos nil p_supplied))
   (if p_supplied
-    `(let ((temp ,pos))	;Temp so we can pop values withought losing data						(deylen - 14/5/2009)
-       (gl_translate (pop->float temp) (pop->float temp) (pop->float temp)))
-    `(gl_translate ,(i->float x) ,(i->float y) ,(i->float z))))	;Else just use x y z					(deylen - 14/5/2009)
+    (gl_translate (i->float (first pos)) (i->float (second pos)) (i->float (third pos)))
+    (gl_translate (i->float x) (i->float y) (i->float z))))	;Else just use x y z					(deylen - 14/5/2009)
 
-(defmacro gl-rotate (amount &rest rest)
-  (let ((x 0.0) (y 0.0) (z 0.0))
-    (dolist (arg rest)
-      (cond
-	((equalp arg '+x+) (setf x 1.0))
-	((equalp arg '+y+) (setf y 1.0))
-	((equalp arg '+z+) (setf z 1.0))))
-    `(gl_rotate ,amount ,x ,y ,z)))
+(defmacro gl-rotate (&key (x 0) (y 0) (z 0))
+  (let ((list nil))
+    ;;Push the different rotation operations to a list (all at once are allowed)
+    (when x (push `(gl_rotate ,x 1.0 0.0 0.0) list))
+    (when y (push `(gl_rotate ,y 0.0 1.0 0.0) list))
+    (when z (push `(gl_rotate ,z 0.0 0.0 1.0) list))
+    (return-from gl-rotate `(progn ,@list))))
 
-(defmacro gl-vertex (&optional (x 0.0) (y 0.0) (z 0.0))
-  `(gl_vertex_3f ,(i->float x) ,(i->float y) ,(i->float z)))
+(defun gl-vertex (&optional (x 0.0) (y 0.0) (z 0.0))
+  (gl_vertex_3f (i->float x) (i->float y) (i->float z)))
 
-(defmacro gl-color (&optional (r 0.0 r_def) (g 0.0 g_def) (b 0.0 b_def) (a 1.0 a_def))
+(defmacro gl-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0))
   `(gl_color_4f ,(i->float r) ,(i->float g) ,(i->float b) ,(i->float a)))
 
 (defmacro gl-clear-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0))

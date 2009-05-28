@@ -46,7 +46,7 @@
 (defun make-tex (loc id width height);;{{{
   (make-instance 'tex :loc loc :id id :width width :height height));;}}}
 
-(defun gsl-load-tex (loc);;{{{
+(defun gsl-load-tex (loc &key (filter-min +GL-LINEAR-MIPMAP-NEAREST+) (filter-mag +GL-NEAREST+) (wrap-t +GL-REPEAT+) (wrap-s +GL-REPEAT+));;{{{
   "Loads and returns a texture, only returns the texture if it already exists"
   ;;If the texture location is already in the hash table, return the tex.
 

@@ -68,13 +68,19 @@
      ,@rest
      (gl-pop-matrix)));;}}}
 
+(defmacro gsl-with-translate (pos &rest rest);;{{{
+  `(gsl-with-pushmatrix
+     (gl-translate :pos ,pos)
+     ,@rest))
+;;}}}
+
 (defmacro gsl-with-shader (shader &rest rest);;{{{
   `(progn
      (gsl-shader-use ,shader)
      ,@rest
      (gsl-shader-use ,*GSL-CURRENT-SHADER*)));;}}}
 
-(defmacro gsl-with-fbo (fbo &rest rest)
+(defmacro gsl-with-fbo (fbo &rest rest);;{{{
   (if (numberp fbo)
     nil
     `(progn
@@ -83,4 +89,11 @@
        (gsl-fbo-use ,fbo)
        ,@rest
        (gsl-fbo-use 0)
-       (gl-pop-attrib))))
+       (gl-pop-attrib))));;}}}
+
+(defmacro gsl-with-draw (type &rest rest);;{{{
+  `(progn
+     (gl-begin ,type)
+     ,@rest
+     (gl-end)))
+;;}}}

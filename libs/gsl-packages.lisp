@@ -21,6 +21,7 @@
 	   :gsl_init_video
 	   :gsl_new_font
 	   :gsl_draw_tex
+	   :gsl_draw_cube
 	   :gsl_pump_events
 	   :gsl_load_texture
 	   :gsl_load_texture2
@@ -43,8 +44,11 @@
 	   :gsl-set-update-file))
 ;;}}}
 
+(defpackage :gsl-gl-bits;;{{{
+  (:use :common-lisp :gsl-shared));;}}}
+
 (defpackage :gsl-gl;;{{{
-  (:use :common-lisp :gsl-shared :gsl-c-funcs)
+  (:use :common-lisp :gsl-shared :gsl-c-funcs :gsl-gl-bits)
   (:export :glu-perspective
 	   :gl-clear
 	   :gl-clear-color
@@ -72,7 +76,7 @@
 ;;}}}
 
 (defpackage :gsl-classes;;{{{
-  (:use :common-lisp :gsl-shared :gsl-c-funcs :gsl-gl)
+  (:use :common-lisp :gsl-shared :gsl-c-funcs :gsl-gl :gsl-gl-bits)
   (:export ;;Rect class
            :gsl-make-rect
 	   :gsl-draw-shadow
@@ -134,13 +138,15 @@
 	   :gsl-load-updates));;}}}
 
 (defpackage :gsl-with;;{{{
-  (:use :common-lisp :gsl-gl :gsl-shader :gsl-globals :gsl-classes)
+  (:use :common-lisp :gsl-gl :gsl-shader :gsl-globals :gsl-classes :gsl-gl-bits)
   (:export :gsl-with-color
 	   :gsl-with-colormask
+	   :gsl-with-draw
 	   :gsl-with-textures
 	   :gsl-with-stencilfunc
 	   :gsl-with-blendfunc
 	   :gsl-with-pushmatrix
+	   :gsl-with-translate
 	   :gsl-with-font
 	   :gsl-with-stencilop
 	   :gsl-with-shader
@@ -158,14 +164,14 @@
 ;;}}}
 
 (defpackage :gsl-draw;;{{{
-  (:use :common-lisp :gsl-shared :gsl-globals :gsl-classes :gsl-gl :gsl-c-funcs :gsl-with)
+  (:use :common-lisp :gsl-shared :gsl-globals :gsl-classes :gsl-gl :gsl-c-funcs :gsl-with :gsl-gl-bits)
   (:export :gsl-draw
 	   :gsl-draw-points
 	   :gsl-draw-tex
 	   :gsl-draw-char
 	   :gsl-draw-string
 	   :gsl-draw-rect
-	   :gsl-with-draw))
+	   :gsl-draw-cube))
 ;;}}}
 
 (defpackage :gsl-console;;{{{
@@ -178,7 +184,7 @@
 ;;}}}
 
 (defpackage :gsl;;{{{
-  (:use :common-lisp :gsl-shared :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string)
+  (:use :common-lisp :gsl-shared :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gl-bits)
   (:export :gsl-init
 	   :gsl-quit
 	   :gsl-init-video
@@ -187,7 +193,6 @@
 	   :gsl-draw-string
 	   :gsl-draw-tex
 	   :gsl-draw-points
-	   :gsl-with-draw
 	   :gsl-draw-rect
 	   :gsl-draw
 	   :use-all))
@@ -195,6 +200,7 @@
 
 ;;Loading libs;;{{{
 (load (gsl-lisp-relative "gsl-shared.lisp"))
+(load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 (load (gsl-lisp-relative "gsl-classes.lisp"))
 (load (gsl-lisp-relative "gsl-sdl.lisp"))
 (load (gsl-lisp-relative "gsl-c-funcs.lisp"))

@@ -23,6 +23,9 @@
 ;;Drawing;;{{{
 (new-c-func gsl_draw_tex		"gsl_draw_tex"		((id int) (x int) (y int) (z int) (w int) (h int)))
 (new-c-func gsl_draw_rect_shadow	"gsl_draw_rect_shadow"	((x int) (y int) (x1 int) (y1 int) (x2 int) (y2 int)))
+(new-c-func gsl_draw_cube		"gsl_draw_cube"		((x int) (y int) (z int) (sizex int) (sizey int) (sizez int)
+									 (tex_left int) (tex_right int) (tex_front int) (tex_back int)
+									 (tex_top int) (tex_bot int)))
 ;;}}}
 
 ;;Initialisation;;{{{

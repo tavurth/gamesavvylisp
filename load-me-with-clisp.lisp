@@ -24,6 +24,8 @@
 (setf *fbo* (gsl-fbo-new *width* *height*))
 ;;Adding a color buffer to thi fbo
 (gsl-fbo-add-color *fbo* 0)
+(gsl-fbo-add-depth *fbo*)
+(setf *tex* (gsl-load-tex "grass.tga"))
 
 ;;Setting the clear color to black
 (gl-clear-color 0 0 0)
@@ -36,8 +38,8 @@
   (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit))
 
   ;;Rotation of the box
-  (incf (first *camera*) 5)
-  (incf (second *camera*) 5)
+  (incf (first *camera*) 1)
+  (incf (second *camera*) 1)
 
   ;;Movement of the camera (x y)
   (incf (third *camera*) (/ (gsl-mouse-motion +x+) 50.0))
@@ -57,8 +59,9 @@
      (gl-translate :pos (cddr *camera*))
      (gl-rotate :x (first *camera*) :y (second *camera*))
      ;;Draw the box
-     (gsl-with-color (1 1 0)
-	(gsl-draw-cube)))
+  (gl-clear +GL-DEPTH-BUFFER-BIT+)
+	(gsl-with-textures
+	  (gsl-draw-cube :tex-a (gsl-tex-id *tex*))))
 
   ;;Draw the fbo's color buffre to the normal screen with blending enabled
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)

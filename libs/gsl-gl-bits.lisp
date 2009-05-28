@@ -18,7 +18,7 @@
 ;;--------------------------------------;;
 ;;	Bit Flags			;;
 ;;--------------------------------------;;
-(in-package :gsl-gl)
+(in-package :gsl-gl-bits)
 
 (const +GL-ZERO+				#x0000)
 (const +GL-ONE+					#x0001)
@@ -159,6 +159,16 @@
 (const +GL-Q+					#x2003)
 (const +GL-TEXTURE-GEN-R+			#x0C62)
 (const +GL-TEXTURE-GEN-Q+			#x0C63)
+(const +GL-FOG+					#x0B60)
+(const +GL-FOG-MODE+				#x0B65)
+(const +GL-FOG-DENSITY+				#x0B62)
+(const +GL-FOG-COLOR+				#x0B66)
+(const +GL-FOG-INDEX+				#x0B61)
+(const +GL-FOG-START+				#x0B63)
+(const +GL-FOG-END+				#x0B64)
+(const +GL-LINEAR+				#x2601)
+(const +GL-EXP+					#x0800)
+(const +GL-EXP2+				#x0801)
 ;;}}}
 
 ;;	FRAMEBUFFER BIT FLAGS	;;;;{{{

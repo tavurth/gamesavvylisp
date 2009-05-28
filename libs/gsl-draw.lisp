@@ -26,13 +26,6 @@
   (gl-end))
 ;;}}}
 
-(defmacro gsl-with-draw (type &rest rest);;{{{
-  `(progn
-     (gl-begin ,type)
-     ,@rest
-     (gl-end)))
-;;}}}
-
 (defun gsl-draw-char (char x y z w h);;{{{
   "Draws a character at the specified coordinates"
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
@@ -74,3 +67,7 @@
       (return-from gsl-draw-rect form))))			;Just return the drawing commands
 
 ;;}}}
+
+(defun gsl-draw-cube (&key (x 0) (y 0) (z 0) (size 5) (tex-l 0) (tex-r 0) (tex-f 0) (tex-b 0) (tex-t 0) (tex-b 0) (tex-a nil))
+  (when tex-a (setf tex-f tex-a tex-b tex-a tex-l tex-a tex-r tex-a tex-t tex-a tex-b tex-a))
+  (gsl_draw_cube x y z size size size tex-l tex-r tex-f tex-b tex-t tex-b))

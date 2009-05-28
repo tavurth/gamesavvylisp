@@ -25,7 +25,7 @@ typedef struct {
 	GLuint id;
         int width, height;
 	short bpp;
-       	int nUsed, n;		/* position of the Tex in texList 									(deylen - 14/5/2009)*/
+       	int nUsed, n;		/* position of the Tex in texList 			(deylen - 14/5/2009)*/
 }Tex;
 
 struct {
@@ -69,7 +69,7 @@ int nImgs;
 /*}}}*/
 
 //		DEFINES/*{{{*/
-/* Removing costly calls to sizeof() 														(deylen - 14/5/2009)*/
+/* Removing costly calls to sizeof() 						(deylen - 14/5/2009)*/
 #define size_tex (sizeof(Tex))
 #define size_tex_p (sizeof(Tex *))
 
@@ -136,7 +136,7 @@ void pfatal(char * error)
 
 char * strcpyN(char * text, char * tocopy, int n)
 {
-	/* Copy n characters from <tocopy> into <text> incrementing both tocopy and text							(deylen - 14/5/2009)*/
+	/* Copy n characters from <tocopy> into <text> incrementing both tocopy and text			(deylen - 14/5/2009)*/
 	int a;
 	char * p = text, *p2 = tocopy;
 
@@ -198,7 +198,7 @@ void cleanAllTextures();/*}}}*/
 
 inline void ** newList(size_t t, int n)
 {
-	//function for creating new lists, Object list etc.											(deylen - 14/5/2009)
+	//function for creating new lists, Object list etc.					(deylen - 14/5/2009)
 
 	void ** temp;
 
@@ -210,7 +210,7 @@ inline void ** newList(size_t t, int n)
 
 inline void ** resizeList(void ** list, size_t t, int n)
 {
-	//same as newList, but for resizing;													(deylen - 14/5/2009)
+	//same as newList, but for resizing;					(deylen - 14/5/2009)
 
 	if ((list = (void **) realloc(list, t * (n + 1))) == NULL)
 		pfatal("Could not resize list, Out of memory");
@@ -219,7 +219,7 @@ inline void ** resizeList(void ** list, size_t t, int n)
 
 void ** listAdd(void ** list, size_t t, void * p, int * len)
 {
-	//adds the pointer p to the list, then extends the list if needs be;									(deylen - 14/5/2009)
+	//adds the pointer p to the list, then extends the list if needs be;			(deylen - 14/5/2009)
 
 	void ** templist;
 
@@ -270,6 +270,35 @@ void drawImageRepeat(GLuint tex, int x, int y, int w, int h, int sizex, int size
 		glTexCoord2d(0,repeatY);	glVertex3f(0, 1, 0);
 	glEnd();
 	glPopMatrix();
+}
+
+void drawImageRotate(GLuint tex, int x, int y, int z, int w, int h, int rotatex, int rotatey, int rotatez)
+{
+	glPushMatrix();
+	glTranslatef(x,y,z);
+	glRotatef(rotatex, 1, 0, 0);
+	glRotatef(rotatey, 0, 1, 0);
+	glRotatef(rotatez, 0, 0, 1);
+	drawImage(tex, 0, 0, 0, w, h);
+	glPopMatrix();
+}
+
+void gsl_draw_cube(int x, int y, int z, int sizex, int sizey, int sizez,
+		int left_tex, int right_tex, int front_tex, int back_tex, int top_tex, int bot_tex)
+{
+	glEnable(GL_DEPTH_TEST);
+	glNormal3f(0, 0, -1);
+	drawImageRotate(front_tex, x,	    y,	     z,       sizex, sizey, 0, 0,   0);
+	glNormal3f(1, 0, 0);
+	drawImageRotate(right_tex, x+sizex, y,	     z,       sizex, sizey, 0, 90,  0);
+	glNormal3f(0, 0, 1);
+	drawImageRotate(back_tex,  x+sizex, y,	     z-sizez, sizex, sizey, 0, 180, 0);
+	glNormal3f(-1, 0, 0);
+	drawImageRotate(left_tex,  x,       y,	     z-sizez, sizex, sizey, 0, 270, 0);
+	glNormal3f(-1, 0, 0);
+	drawImageRotate(top_tex,   x,       y+sizey, z,	      sizex, sizey, 180, 0,  0);
+	glNormal3f(0, -1, 0);
+	drawImageRotate(bot_tex,   x,       y,       z,       sizex, sizey, 90,  0, 270);
 }
 
 void gsl_draw_tex (int id, int x, int y, int z, int w, int h) {
@@ -364,7 +393,7 @@ void gsl_init (int flags, int options) {
 void gsl_pump_events () {
 	SDL_PumpEvents();
 	mods = SDL_GetModState();
-	//Get the state of the keyboard modifiers;												(deylen - 14/5/2009)
+	//Get the state of the keyboard modifiers;				(deylen - 14/5/2009)
 
 	if (OPTIONS & GSL_CATCH_MOUSE) {
 		Mouse.state = SDL_GetMouseState(&Mouse.motionX, &Mouse.motionY);
@@ -374,7 +403,7 @@ void gsl_pump_events () {
 		//Calculate the motion from how much we have moved since last frame (mouse was centered (WIDTH / 2, HEIGHT / 2) last frame);	(deylen - 14/5/2009)
 		
 		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
-		//Center the mouse for next frame calculations;											(deylen - 14/5/2009)
+		//Center the mouse for next frame calculations;					(deylen - 14/5/2009)
 	}
 }
 
@@ -438,7 +467,7 @@ void gsl_draw_rect_shadow(int x, int y, int x1, int y1, int x2, int y2)
 {
 	double angle;
 	int range = 500000;
-	//This one might take some explaining, if you are confused ask and i'll try to draw a diagram :D					(deylen - 14/05/2009)
+	//This one might take some explaining, if you are confused ask and i'll try to draw a diagram :D			(deylen - 14/05/2009)
 
 	glBegin(GL_POLYGON);
 		//LEFT SIDE
@@ -540,12 +569,12 @@ void gsl_draw_rect_shadow(int x, int y, int x1, int y1, int x2, int y2)
 #define NUSED 3
 #define POSITION 4
 
-char * loadTGA(int * x, int *y, short * bpp, FILE * f);
+char * loadTGA(char * loc, int * x, int *y, short * bpp);
 GLuint loadGLTex(char * loc, int *x, int *y, short *bpp);
 
 void cleanTexF(Tex * t)
 {
-	/*Force the cleaning of a tex 														(deylen - 14/5/2009)*/
+	/*Force the cleaning of a tex 						(deylen - 14/5/2009)*/
 
 //	#ifdef _DEBUG
 //		printf("Freeing: %s\n", t->u->loc);
@@ -578,7 +607,7 @@ void delTex(Tex * t)
 
 void cleanAllTextures()
 {
-	/* Force cleaning of all textures 													(deylen - 14/5/2009)*/
+	/* Force cleaning of all textures 					(deylen - 14/5/2009)*/
 	int a = 0;
 	if (nTex) {
 		for (; a < nTex; a++)
@@ -598,7 +627,7 @@ void gsl_delete_tex (Tex * t) {
 
 int * gsl_load_tex(char * loc)
 {
-	/*Creates and returns a new Texture												(deylen - 14/5/2009)*/
+	/*Creates and returns a new Texture				(deylen - 14/5/2009)*/
 	int * temp = (int *) c_malloc(size_int * 333);
 	short bpp = 0;
 	temp[0] = loadGLTex(loc, &temp[1], &temp[2], &bpp); 
@@ -606,91 +635,101 @@ int * gsl_load_tex(char * loc)
 	return temp;
 }
 
-GLuint makeGLTex(char * data, int x, int y, int bpp)
+GLuint makeGLTex_options(char * data, int x, int y, int bpp, int WRAP_S, int WRAP_T, int MAG_FILTER, int MIN_FILTER)
 {
-	/* Make an OpenGL texture from data <data> and size (x y) 										(deylen - 14/5/2009)*/
+	/* Make an OpenGL texture from data <data> and size (x y) 				(deylen - 14/5/2009)*/
 	GLuint tex;
 
 	glGenTextures(1, &tex);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glTexEnvf(GL_TEXTURE_2D, GL_TEXTURE_ENV, GL_BLEND);
 
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, WRAP_S);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, WRAP_T);
 
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, MAG_FILTER);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, MIN_FILTER);
 
-	if (bpp == 4)
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, x, y, GL_RGBA, GL_UNSIGNED_BYTE, data);
-	else
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, x, y, GL_RGB, GL_UNSIGNED_BYTE, data);
+	GLuint result;
+	switch (bpp) {
+		case 4:
+			result = gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, x, y, GL_BGRA, GL_UNSIGNED_BYTE, data);
+			break;
+		case 3:
+			fatal("Please use only textures with alpha channels for the moment");
+			result = gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, x, y, GL_BGRA, GL_UNSIGNED_BYTE, data);
+			break;
+
+		default:
+			fatal("Unknown image format");
+	}
+
+	if (result)
+		switch (result) {
+			case GL_INVALID_VALUE:
+				fatal("OpenGL Error -> GL_INVALID_VALUE");
+			case GL_INVALID_ENUM:
+				fatal("OpenGL Error -> GL_INVALID_ENUM");
+			case GL_INVALID_OPERATION:
+				fatal("OpenGL Error -> GL_INVALID_OPERATION");
+
+			default:
+				printf("OpenGL Error -> Unknown %d", result);
+				fatal("");
+		}
 
 	return tex;
 }
 
+GLuint makeGLTex(char * data, int x, int y, int bpp) 
+{
+	return makeGLTex_options(data, x, y, bpp, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_LINEAR_MIPMAP_NEAREST);
+}
+
 GLuint loadGLTex(char * loc, int *x, int *y, short * bpp)
 {
-	/* Load the texture data from file 													(deylen - 14/5/2009)*/
+	/* Load the texture data from file 					(deylen - 14/5/2009)*/
 	char * data;
-	FILE * f;
 
+	if (!strstr(loc, ".tga"))
+		fatal("Sorry only TGA image format is supported at the moment");
+
+	data = loadTGA(loc, x, y, bpp);
+	return makeGLTex(data, *x, *y, *bpp);
+}
+
+char * loadTGA(char * loc, int * x, int *y, short * bpp)
+{
+	int size;
+	char * data;
+	unsigned short w, h;
+	FILE * f;
+	
 	if ((f = fopen(loc, "rb")) == NULL){
 		printf("Could not open file %s", loc);
 		pfatal("");
 	}
 	
-	if (strstr(loc, ".tga"))
-		data = loadTGA(x, y, bpp, f);
-	else
-		pfatal("Sorry only TGA image format is supported at the moment");
-
-	fclose(f);
-
-	return makeGLTex(data, *x, *y, *bpp);
-}
-
-char * BGR_RGB(char * data, int len)
-{
-	/*flipping R & B pixels															(deylen - 14/5/2009)*/
-	
-	int a;
-	char * p, c;
-
-	for (a=0; a < len; a+=4){
-		p = &data[a];
-
-		c = *p;		//store the color in a temporary var										(deylen - 14/5/2009)
-	*p = *(p+2);
-	*(p+2) = c;	//restore the color from temp var										(deylen - 14/5/2009)
-	}
-
-	return data;
-}
-
-char * loadTGA(int * x, int *y, short * bpp, FILE * f)
-{
-	int size;
-	char * data;
-	unsigned short w, h;
-	
-	fseek(f, 12, SEEK_SET);
-	fread(&w, 2, 1, f);
-	fread(&h, 2, 1, f);
+	fseek(f,   12, SEEK_SET);
+	fread(&w,  2, 1, f);
+	fread(&h,  2, 1, f);
 	fread(bpp, 1, 1, f);
-	fseek(f, 18, SEEK_SET);
+	fseek(f,   18, SEEK_SET);
 	*x = w; *y = h; *bpp /= 8;
 
 	size = (*x) * (*y) * (*bpp);
 
 	data = newStr(size);
-	if (fread(data, sizeof(unsigned char), size, f) < size)
+	if (fread(data, sizeof(unsigned char), size, f) < size) {
+		free(data);
 		pfatal("Could not read all of data from file. Make sure you have saved the Image without RLE compression\n");
+	}
 
-	data = BGR_RGB(data, size);
+	fclose(f);
 	
 	return data;
-}/*}}}*/
+}
+/*}}}*/
 
 //			FONT_TEXT_FUNCTIONS			/*{{{*/
 
@@ -709,7 +748,7 @@ Tex * newTexChar(char * data, int w, int h, int bpp)
 
 Tex * newLetter(char * data, int x, int y, int size, int bpp, int w)
 {
-	/* Create a single letter														(deylen - 14/5/2009)*/
+	/* Create a single letter						(deylen - 14/5/2009)*/
 
 	int a;
 	char * letterDat = newStr(size * (size * bpp));
@@ -717,7 +756,7 @@ Tex * newLetter(char * data, int x, int y, int size, int bpp, int w)
 	Tex * letter;
 
 	p = data + (x * (size * bpp)) + (y * (size * (w * bpp)));
-	/* Setting the start point of our texture 												(deylen - 14/05/2009)*/
+	/* Setting the start point of our texture 				(deylen - 14/05/2009)*/
 
 	/* - - - - - - - - - - *
 	 * - - - - _ _ - - - - *
@@ -727,13 +766,13 @@ Tex * newLetter(char * data, int x, int y, int size, int bpp, int w)
 	 * - - - - - - - - - - *
 	 * - - - - - - - - - - *
 	 *
-	 *   A is the area of the whole texture that we will extract for our letter 								(deylen - 14/05/2009)*/
+	 *   A is the area of the whole texture that we will extract for our letter 				(deylen - 14/05/2009)*/
 
 	for (a=0; a < size; a++){
 		p2 = strcpyN(p2, p, size * bpp);
 		p += w * bpp;
-	}/* copying the data into letterDat by way of pointer p2 										(deylen - 14/05/2009)*/
-	/* add <w * bpp> to move to the next row of the texture 										(deylen - 14/05/2009)*/
+	}/* copying the data into letterDat by way of pointer p2						(deylen - 14/05/2009)*/
+	/* add <w * bpp> to move to the next row of the texture						(deylen - 14/05/2009)*/
 
 	letter = newTexChar(letterDat, size, size, bpp);
 	free(letterDat);
@@ -748,26 +787,19 @@ FFont * newFFont(char * loc)
 	int w, h, size, x, y;
 	short bpp = 0;
 	char * data;
-	FILE * f;
 	Tex * letter;
 	temp->nLetters = 0;
 
-	if ((f = fopen(loc, "rb")) == NULL) {
-		printf("Could not open %s.\n", loc);
-		fatal("");
-	}
-
-	data = loadTGA(&w, &h, &bpp, f);
+	data = loadTGA(loc, &w, &h, &bpp);
 	size = w / 16;
-	fclose(f);
-	/* Loading the data from our font image													(deylen - 14/05/2009)*/
+	/* Loading the data from our font image						(deylen - 14/05/2009)*/
 
 	for (y=0; y < 16; y++)
 		for (x=0; x < 16; x++){
 			letter = newLetter(data, x, 15 - y, size, bpp, w);
 			temp->letters = (Tex **) listAdd((void **) temp->letters, size_tex_p, letter, &temp->nLetters);
 		}
-	/* Running through the image and creating each letter											(deylen - 14/05/2009)*/
+	/* Running through the image and creating each letter					(deylen - 14/05/2009)*/
 
 	temp->size = size / 16.0;
 	free(data);
@@ -780,7 +812,7 @@ int gsl_new_font (char * loc) {
 
 	fontList = (FFont **) listAdd((void **) fontList, size_ffont_p, temp, &nFonts);
 
-	return nFonts-1;	/* -1 because listAdd automatically increments the list 							(deylen - 14/05/2009)*/
+	return nFonts-1;	/* -1 because listAdd automatically increments the list 			(deylen - 14/05/2009)*/
 }
 
 void cleanFFont(FFont * f)
@@ -872,8 +904,8 @@ Uint32 fboAddColorBuffer(Fbo * f, int pos)
 
 	glGenTextures(1, &img);
 	glBindTexture(GL_TEXTURE_2D, img);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, f->width, f->height, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
 	//Set the texture options and create the texture
 

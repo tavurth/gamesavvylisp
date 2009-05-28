@@ -27,6 +27,7 @@
      (use-package :gsl-shared)
      (use-package :gsl-globals)
      (use-package :gsl-input)
+     (use-package :gsl-gl-bits)
      (use-package :gsl-gl)
      (use-package :gsl-sdl)
      (use-package :gsl-console)
