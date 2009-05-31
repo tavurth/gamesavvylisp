@@ -1,0 +1,8 @@
+(GSL) V_0.5:
+
+- Added depth buffer support to fbo.
+- Updated motion blur example.
+- Added OpenGL Lighting support.
+- Added (gsl-draw-cube) function.
+- Added OpenGL Lighting example. 
+- Switched main development environment from Clisp to Clozure (ccl).
