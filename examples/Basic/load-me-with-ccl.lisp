@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(load "gsl.lisp")	;You have to keep gsl.lisp in the same directory as your program as it contains the location of the GSL source on your HD-Drive
+(load "../gsl.lisp")	;You have to keep gsl.lisp in the same directory as your program as it contains the location of the GSL source on your HD-Drive
 
 ;;Initialising GSL
 ;;+GSL_DEFAULT_VIDEO+ Sets up GSL with the optimal video settings
@@ -24,10 +24,10 @@
 
 (defun input ()
   ;;Load any pending gsl source code updates. (see manual) 
-  ;(gsl-load-updates)
-  ;(when *GSL-IS-IN-CONSOLE*
-    ;(gsl-console-input)
-    ;(return-from input))
+  (gsl-load-updates)
+  (when *GSL-IS-IN-CONSOLE*
+    (gsl-console-input)
+    (return-from input))
   ;;gsl-pump-events pumps all event information and updates the mouse structures etc accordingly
   ;;You can retrieve the mouse movement with (gsl-mouse-motion)
   (gsl-pump-events)
@@ -40,14 +40,15 @@
   (gl-clear (logior +GL-COLOR-BUFFER-BIT+))	;Clearing OpenGL's color buffer only
   (gl-load-identity)	
   (gl-translate :z -50)				;You can use :x :y :z and :pos for translating. Pos is a list of 3 numbers (x y z).
-  (gsl-draw-rect :x -10 :y -10 :w 20 :h 20)		;You can specify :tex to apply a texture. However doing this requires that you have a (gsl-with-textures) call above it.
+  (gsl-draw-rect :x -10 :y -10 :w 20 :h 20)	;You can specify :tex to apply a texture. 
+ 						;However doing this requires that you have a (gsl-with-textures) call above it.
   						;eg.
 						;
 						;(gsl-with-textures
 						;	(gsl-draw-rect -10 -10 :w 20 :h 20 :tex *sometexture*))
 
-  ;(when *GSL-IS-IN-CONSOLE*
-    ;(gsl-draw-console))				;Drawing the gsl console if required.
+  (when *GSL-IS-IN-CONSOLE*
+    (gsl-draw-console))				;Drawing the gsl console if required.
   (gl-swap-buffers))
 
 ;; Main loop;

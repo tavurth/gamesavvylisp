@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(load "gsl.lisp")
+(load "../gsl.lisp")
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 
 ;;Creating a single fbo
@@ -59,7 +59,7 @@
   ;;Make sure that blending will take into account our alpha
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
 	(gsl-with-textures
-		(gsl-with-color (1 1 0 0.33)
+		(gsl-with-color (:list '(1 1 0 0.33))
 			(gsl-draw-rect :fill-screen t :with-fbo *fbo*))))
   
   (gl-swap-buffers))

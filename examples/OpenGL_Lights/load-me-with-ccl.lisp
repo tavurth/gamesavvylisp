@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(load "gsl.lisp")
+(load "../gsl.lisp")
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 
 ;;Setting up the fbo and box texture
@@ -60,7 +60,7 @@
   ;;Drawing the fbo to the screen with blending to mimic motion blur
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
 	(gsl-with-textures
-	  (gsl-with-color (1 1 1 0.2)
+	  (gsl-with-color (:list '(1 1 1 0.2))
 		(gsl-draw-rect :fill-screen t :with-fbo *fbo*))))
   
   (gl-swap-buffers))

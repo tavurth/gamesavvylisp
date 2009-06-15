@@ -15,34 +15,26 @@
 ;;;     You should have received a copy of the GNU General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(load "gsl.lisp")
+(load "../gsl.lisp")
 
 ;;			GLOBAL-VARS;;{{{
-(defvar *camera* (list 0 0 -150))	;Setting up our camera;					(deylen - 14/5/2009)
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 (gl-enable +GL-STENCIL-TEST+)
 
 ;;Using +GSL-DEFAULT-VIDEO+ means GSL will set up our perspective options for us;		(deylen - 14/5/2009)
 ;;Using +GET-MOUSE+	means GSL will capture all mouse events for us;				(deylen - 14/5/2009)
 
+;;Setting up our camera;					(deylen - 14/5/2009)
+(defvar *camera* (list 0 0 -150))
+
+;;Loading textures.
 (defconstant *grass01*  (gsl-load-tex "grass.tga"))
-(defconstant *sand01*   (gsl-load-tex "sand.tga"))
 (defconstant *house01*  (gsl-load-tex "house.tga"))
 
+;;Creating our rectangles.
 (defconstant *rect1* (gsl-make-rect 50 0 50 50))
 (defconstant *rect2* (gsl-make-rect -50 -50 50 100))
-(defconstant *font1* (gsl-new-font "font"))
-
-(const +LEFT-KEY+  +SDLK-a+)
-(const +RIGHT-KEY+ +SDLK-s+)
-(const +UP-KEY+    +SDLK-w+)
-(const +DOWN-KEY+  +SDLK-r+);;}}}
-
-(defun main-loop ();;{{{
-  (loop
-    (input)
-    (draw)
-    (sdl-delay 50)));;}}}
+;;}}}
 
 (defun draw ();;{{{
 
@@ -52,28 +44,28 @@
   (gl-translate :pos *camera*)
   
   ;;We want to draw nearly all of the scene using textures
-  ;;Withought this line (gsl-with-textures) textures will show as white. You can also call (gl-enable +GL-TEXTURE-2D+) and then (gl-disable +GL-TEXTURE-2D+)
-  ;;to enable and disable them manually if you wish.
-  ;;
+  ;;Withought this line (gsl-with-textures) textures will show as white.
+  ;;You can also call (gl-enable +GL-TEXTURE-2D+) and then (gl-disable +GL-TEXTURE-2D+)
+  ;;to enable and disable them manually if you wish, or call :with-tex when drawing a rect instead of :tex
+
   (gsl-with-textures
-
        ;;Drawing the terrain for the first time
-       (gsl-with-color (0.5 0.5 0.5)
-           (gsl-draw-rect :x -125 :y -125 :w 250 :h 250 :tex *grass01*))
+       (gsl-with-color (:list '(0.5 0.5 0.5))	;;drawing the terrain with low brightness
+		       (gsl-draw-rect :x -125 :y -125 :w 250 :h 250 :tex *grass01*))
 
-       ;;Drawing the shadows from the rectangles here
+       ;;Drawing the shadows from the rectangles, using the camera as the light
        (gsl-with-colormask (0 0 0 0)
            (gsl-with-stencilop (+GL-KEEP+ +GL-KEEP+ +GL-REPLACE+)
            	(gsl-with-stencilfunc (+GL-ALWAYS+ 1 1)
            		(gsl-draw-shadow *rect1* (mirror (first *camera*)) (mirror (second *camera*)))
            		(gsl-draw-shadow *rect2* (mirror (first *camera*)) (mirror (second *camera*))))))
 
-       ;;Drawing the ground for a second time
+       ;;Drawing the ground for a second time (full color this time)
        (gsl-with-stencilfunc (+GL-NOTEQUAL+ 1 1)
 			     (gsl-draw-tex *grass01* -125 -125 0 250 250))
        
        ;;Drawing the rectangles themselves
-       (gsl-with-color (0.5 0.5 0.5)
+       (gsl-with-color (:list '(0.5 0.5 0.5))
 		      (gsl-draw *rect1* :tex *house01*)
 		      (gsl-draw *rect2* :tex *house01*)))
 
@@ -89,6 +81,7 @@
 
   ;;Drawing the target point
   (gsl-draw-points
+    ;;Mirror inverts the arg that is sent to it (- 0 (first *camera*))
     (mirror (first *camera*)) (mirror (second *camera*)))
 
   (when *GSL-IS-IN-CONSOLE*
@@ -98,6 +91,7 @@
 (defun input ();;{{{
   "All keyboard input is captured here"
 
+  ;;Load any source code updates (loads every 1.5 seconds)
   (gsl-load-updates)
   ;;If the user is currently in console mode, go to a different event handling system	(deylen - 14/5/2009)
   (when *GSL-IS-IN-CONSOLE*
@@ -115,16 +109,12 @@
   (when (gsl-get-key +SDLK-BACKQUOTE+) 
     (gsl-enter-console))
   ;;Exit key;
-  (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit))
-  ;;Reload this source file :D
-  ;(when (gsl-get-key +SDLK-SPACE+) (load "test-sdl.lisp"))
+  (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit)));;}}}
 
-  ;;Left and right movement;
-  (cond ((gsl-get-key +LEFT-KEY+) (incf (first *camera*) 5))
-	((gsl-get-key +RIGHT-KEY+) (decf (first *camera*) 5)))
-
-  ;;Up down movement;
-  (cond ((gsl-get-key +UP-KEY+) (decf (second *camera*) 5))
-	((gsl-get-key +DOWN-KEY+) (incf (second *camera*) 5))));;}}}
+(defun main-loop ();;{{{
+  (loop
+    (input)
+    (draw)
+    (sdl-delay 50)));;}}}
 
 (main-loop)
