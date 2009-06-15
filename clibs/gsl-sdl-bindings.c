@@ -40,6 +40,10 @@ void sdl_delay (int delay) {
 	SDL_Delay(delay);
 }
 
+int sdl_get_ticks () {
+	return SDL_GetTicks();
+}
+
 void sdl_pump_events () {
 	SDL_PumpEvents();
 }

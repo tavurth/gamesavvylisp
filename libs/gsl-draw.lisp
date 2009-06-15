@@ -22,7 +22,7 @@
   (gl-begin +GL-POINTS+)
   (loop
     (if (not rest) (return))
-    (eval `(gl-vertex ,(pop rest) ,(pop rest))))
+    (eval `(gl-vertex :x ,(pop rest) :y ,(pop rest))))
   (gl-end))
 ;;}}}
 
@@ -41,26 +41,41 @@
       (incf x w))))
 ;;}}}
 
-(defmacro gsl-draw-tex (tex x y z w h);;{{{
+(defmacro gsl-draw-tex (tex x y z w h &optional (repeatX 0.0) (repeatY 0.0));;{{{
+  "Draw tex to the OpenGL screen"
   (if (equalp tex 0)
-    `(gsl_draw_tex 0 ,x ,y ,z ,w ,h)
-    `(gsl_draw_tex (gsl-tex-id ,tex) ,x ,y ,z ,w ,h)));;}}}
+    `(gsl_draw_tex 0 (float ,x) (float ,y) (float ,z) (float ,w) (float ,h) (float ,repeatX) (float ,repeatY))
+    `(gsl_draw_tex (gsl-tex-id ,tex) (float ,x) (float ,y) (float ,z) (float ,w) (float ,h) (float ,repeatX) (float ,repeatY))));;}}}
 
-(defmacro gsl-draw-rect (&key (x 0) (y 0) (z 0) (w 512) (h 512) (tex 0) (fill-screen nil) (with-tex nil) (with-fbo nil) (fbo-color-pos 0));;{{{
+(defmacro gsl-draw-rect (&key (x 0) (y 0) (z 0) (pos nil) (w 1) (h 1) (fill-screen nil);;{{{
+			     (tex 0) (with-tex nil) (repeat-sizex 0.0) (repeat-sizey 0.0)
+			     (with-fbo nil) (fbo-color-pos 0)
+			     (anim nil) (with-anim nil))
+  "Draw a new rect on the screen"
   (let ((form nil))
-    (when with-tex (setf tex with-tex)) 
-    (when with-fbo (setf tex `(gsl-fbo-color-pos ,with-fbo ,fbo-color-pos) with-tex t))
+
+    (when pos (setf x `(first ,pos) y `(second ,pos) z `(third ,pos)))
+    ;;Setting up what we are sending to be drawn. We use the tex variable to contain whatever needs to be drawn.
+    (when with-tex  (setf tex with-tex)) 
+    (when with-fbo  (setf tex `(gsl-fbo-color-pos ,with-fbo ,fbo-color-pos) with-tex t))
+    ;;Animations
+    (when with-anim (setf tex `(gsl-anim-current-tex ,with-anim)))
+    (when anim      (setf tex `(gsl-anim-current-tex ,anim)))
+    (when (or with-anim with-fbo) (setf with-tex t))
     
     ;;In this next section we setf form to be one of two options. This form is then returned or used with (gsl-with-textures) and then returned
     ;;Depending on the users options.
 
-    (if fill-screen	;;If we want the texture to completely fill the screen. Useful for fbo and multiple pass sequences.
+    (if fill-screen	;;If we want the texture to completely fill the screen. Useful for fbo and multiple pass drawing sequences.
 	(setf form `(progn
 		      (gsl-with-pushmatrix
 			(gl-load-identity)
-			(gl-translate :z -1)
-			(gsl-draw-tex ,tex (mirror *aspect*) -1 0 (* *aspect* 2) 2))))
-	(setf form `(gsl-draw-tex ,tex ,x ,y ,z ,w ,h)))
+			(let ((x (mirror *width*)))
+			  (gl-translate :z (- x 10))
+			  (setf x (* x 2))
+			  ;;		     X              Y         Z      W                H
+			  (gsl-draw-tex ,tex x (* x *aspect-y*) 0 (* *width* 4) (* (* *width* 4) *aspect-y*))))))
+ 	(setf form `(gsl-draw-tex ,tex ,x ,y ,z ,w ,h ,repeat-sizex ,repeat-sizey)))
 
     (if with-tex
       (return-from gsl-draw-rect `(gsl-with-textures ,form))	;Enable textures only for this texture
@@ -68,6 +83,38 @@
 
 ;;}}}
 
-(defun gsl-draw-cube (&key (x 0) (y 0) (z 0) (size 5) (tex-l 0) (tex-r 0) (tex-f 0) (tex-b 0) (tex-t 0) (tex-b 0) (tex-a nil))
-  (when tex-a (setf tex-f tex-a tex-b tex-a tex-l tex-a tex-r tex-a tex-t tex-a tex-b tex-a))
-  (gsl_draw_cube x y z size size size tex-l tex-r tex-f tex-b tex-t tex-b))
+(defmacro gsl-draw-cube (&key (x 0) (y 0) (z 0) (size nil size_passed) (sizex 5) (sizey 5) (sizez 5);;{{{
+			      (anglex 0.0 anglex_passed) (angley 0.0 angley_passed) (anglez 0.0 anglez_passed)
+			      (centered 0) (tex-left 0) (tex-right 0) (tex-front 0) (tex-back 0) (tex-top 0) (tex-bottom 0) (tex-all nil))
+  "Draw a cuboid on the screen"
+
+  ;;COMPILE TIME:
+  
+  ;;If a global size value is passed set all sizes to it
+  (when size_passed (setf-all sizex sizey sizez size))
+
+  (when centered (setf centered 1))
+
+  ;;Making sure that we pass floats to the function instead of anything ints etc
+  (when anglex_passed (setf anglex `(float ,anglex)))
+  (when angley_passed (setf angley `(float ,angley)))
+  (when anglez_passed (setf anglez `(float ,anglez)))
+
+  ;;Converting our textures to their OpenGL texture ID's
+  (when (not (numberp tex-left))   (setf tex-left   `(gsl-tex-id ,tex-left)))
+  (when (not (numberp tex-right))  (setf tex-right  `(gsl-tex-id ,tex-right)))
+  (when (not (numberp tex-back))   (setf tex-back   `(gsl-tex-id ,tex-back)))
+  (when (not (numberp tex-front))  (setf tex-front  `(gsl-tex-id ,tex-front)))
+  (when (not (numberp tex-top))    (setf tex-top    `(gsl-tex-id ,tex-top)))
+  (when (not (numberp tex-bottom)) (setf tex-bottom `(gsl-tex-id ,tex-bottom)))
+  
+  ;;Creating our texture list
+  (let ((textures (list tex-left tex-right tex-back tex-front tex-top tex-bottom)))
+    
+    ;;If a global texture list has been sent (:tex-all <texture>)  change all textures that have not been explicately specifed to the global.
+    (when tex-all
+      (setf textures (mapcar #'(lambda (tex) (if (numberp tex) `(gsl-tex-id ,tex-all) tex)) textures)))
+    
+    ;;RUN TIME:
+    
+    (return-from gsl-draw-cube `(gsl_draw_cube ,x ,y ,z ,sizex ,sizey ,sizez ,anglex ,angley ,anglez ,centered ,@textures)))) ;;}}}

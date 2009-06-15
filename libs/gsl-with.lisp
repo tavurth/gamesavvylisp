@@ -30,6 +30,13 @@
      ,@rest
      (gl-disable +GL-TEXTURE-2D+)));;}}}
 
+(defmacro gsl-with-depthtest (&rest rest);;{{{
+  "Draw the following with the depth buffer enabled"
+  `(progn
+     (gl-enable +GL-DEPTH-TEST+)
+     ,@rest
+     (gl-disable +GL-DEPTH-TEST+)));;}}}
+
 (defmacro gsl-with-blendfunc (func &rest rest);;{{{
   `(progn
      (gl-push-attrib +GL-COLOR-BUFFER-BIT+)
@@ -70,9 +77,15 @@
 
 (defmacro gsl-with-translate (pos &rest rest);;{{{
   `(gsl-with-pushmatrix
-     (gl-translate :pos ,pos)
+     (gl-translate ,@pos)
      ,@rest))
 ;;}}}
+
+(defmacro gsl-with-rotate (rotation &rest rest)
+  `(gsl-with-pushmatrix
+     (gl-rotate ,@rotation)
+     ,@rest
+     (gl-pop-matrix)))
 
 (defmacro gsl-with-shader (shader &rest rest);;{{{
   `(progn
@@ -97,3 +110,9 @@
      ,@rest
      (gl-end)))
 ;;}}}
+
+(defmacro gsl-with-lights (&rest rest);;{{{
+  `(progn
+     (gl-enable +GL-LIGHTING+)
+     ,@rest
+     (gl-disable +GL-LIGHTING+)));;}}}

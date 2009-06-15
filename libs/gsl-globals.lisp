@@ -21,12 +21,13 @@
 
 (defparam *width*	0)
 (defparam *height*      0)
-(defparam *aspect*      0.0)
+(defparam *aspect-x*    0.0)
+(defparam *aspect-y*    0.0)
 
 (const +X+	#x0000001)
 (const +Y+	#x0000002)
 
-(defparam *GSL-CURRENT-SHADER* 0)
+(defparam *GSL-CURRENT-SHADER* nil)
 
 ;;	INITIALISATION FLAGS;;{{{
 

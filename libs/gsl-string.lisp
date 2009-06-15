@@ -31,15 +31,9 @@
   "Push char onto the end of string"
   `(push-string (string ',char) ,string));;}}}
 
-(defun del-from-string (str index);;{{{
+(defmacro del-from-string (str index);;{{{
   "Deletes char index from string"
-  (let ((len (length str)) (counter index))
-    (setf tempstr (new-adjustable-string (- len 1)))	;Create a new string to store our return value in	(deylen - 14/05/2009)
-    (loop
-      (when 
-	(> (incf counter) (- len 1))
-	(return-from del-from-string (concatenate (subseq str 0 index) tempstr)))	;Return cond 		(deylen - 14/05/2009)
-      (push-string (aref str counter) tempstr))));;}}}
+  `(del-from-array ,str ,index));;}}}
 
 (defmacro backspace (str);;{{{
   "Removes the last character from the string"

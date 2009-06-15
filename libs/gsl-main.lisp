@@ -21,46 +21,75 @@
 
 (defmacro use-all ();;{{{
   "Use all gsl dependancies"
-  `(progn
-     (use-package :gsl)
-     (use-package :gsl-draw)
-     (use-package :gsl-shared)
-     (use-package :gsl-globals)
-     (use-package :gsl-input)
-     (use-package :gsl-gl-bits)
-     (use-package :gsl-gl)
-     (use-package :gsl-sdl)
-     (use-package :gsl-console)
-     (use-package :gsl-classes)
-     (use-package :gsl-with)
-     (use-package :gsl-shader)
-     (use-package :gsl-updates)
-     (in-package  :cl-user)));;}}}
-
-(defmacro gsl-init-video (&optional (width 1024) (height 512) (bpp 32) (flags 0 flags_passed));;{{{
-  (when (not flags_passed) (setf flags +GSL-DEFAULT-VIDEO-FLAGS+))
-  (defparam *width* width)
-  (defparam *height* height)
-  (defparam *aspect* (/ *width* *height*))
-  `(progn
-     (gsl_init_video ,width ,height ,bpp ,flags)))
-     ;(gsl-new-font "font")))	;;Setting up *GSL-DEFAULT-FONT*
+  `(use-packages
+     :gsl
+     :gsl-draw
+     :gsl-shared
+     :gsl-globals
+     :gsl-input
+     :gsl-gl-bits
+     :gsl-gl
+     :gsl-sdl
+     :gsl-console
+     :gsl-classes
+     :gsl-with
+     :gsl-gui
+     :gsl-animation
+     :gsl-updates))
 ;;}}}
 
-(defmacro gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+));;{{{
-  (if (logand flags +GSL-DEFAULT-VIDEO+)
-    `(progn
-       (gsl_init ,flags ,options)
-       (gsl-init-video))
-    `(gsl_init ,flags ,options)));;}}}
+(defmacro use-input ();;{{{
+  "Use all packages required for input"
+  `(use-packages
+    :gsl-shared
+    :gsl
+    :gsl-input
+    :gsl-sdl));;}}}
 
-(defun gsl-quit ()
+(defmacro use-video ();;{{{
+  "Use all packages required for video"
+  `(use-packages
+    :gsl-shared
+    :gsl
+    :gsl-draw
+    :gsl-globals
+    :gsl-classes
+    :gsl-sdl
+    :gsl-gl
+    :gsl-gl-bits
+    :gsl-gui
+    :gsl-with));;}}}
+
+(defmacro gsl-new-font (loc);;{{{
+  `(setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" ,loc) ".tga")))));;}}}
+
+(defun gsl-init-video (&key (width 1024) (height 512) (bpp 32) (flags 0 flags_passed) (options 0) (fov 90) (near_clip 0.1) (far_clip 10000));;{{{
+  (when (not flags_passed) (setf flags +GSL-DEFAULT-VIDEO-FLAGS+))
+  (setf flags (logior flags +SDL-OPENGL+))	;Make sure OpenGL is always enabled
+
+  (defparam *width* width)
+  (defparam *height* height)
+
+  (defparam *aspect-x* (/ *width* *height*))
+  (defparam *aspect-y* (/ 1 *aspect-x*))
+  (progn
+     (gsl_init_video width height bpp flags options (integer fov) (float near_clip) (integer far_clip))
+     (gsl-new-font "font")
+     (setf *GSL-VIDEO-DONE* t)))
+;;}}}
+
+(defun gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+) (width 1024) (height 512));;{{{
+  (if (logand options +GSL-DEFAULT-VIDEO+)
+    (progn
+       (gsl_init flags options)
+       (gsl-init-video :flags flags :options options :width width :height height)
+       (setf *GSL-INIT-DONE* t))))
+;;}}}
+
+(defun gsl-quit ();;{{{
   (progn
     (gsl-delete-all-textures)
     (gsl-delete-all-fbos)
-    (gsl_quit)))
-
-(defmacro gsl-new-font (loc)
-  `(setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" ,loc) ".tga")))))
+    (gsl_quit)));;}}}
 
 ;;}}}

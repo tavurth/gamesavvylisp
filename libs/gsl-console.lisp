@@ -19,17 +19,21 @@
 
 ;;	CONSOLE-UTILS;;{{{
 (defmacro when-mod (mod rest);;{{{
+  "When GSL keymods & mod do <rest>"
   `(when (logand ,mod (gsl-get-mods))
      ,rest));;}}}
 
 (defmacro if-mods (&optional true false);;{{{
+  "If there are any mods active"
   `(if (> (gsl-get-mods) 0) ,true ,false));;}}}
 
 (defmacro when-mods (&rest rest);;{{{
+  "When there are any mods active do <rest>"
   `(when (> (gsl-get-mods) 0)
      ,@rest));;}}}
 
 (defun char-is-num (char);;{{{
+  "If the character passed is a number"
   (when (typep char 'string) (setf char (char char 0)))
   (let ((c-int (char-int char)))
     (when (and (> c-int 47) (< c-int 58))
@@ -55,7 +59,8 @@
       ((string= key "'") (setf key "\""))
       ((string= key "`") (setf key "~"))
       ((string= key "=") (setf key "+"))
-      ((string= key "-") (setf key "_")))
+      ((string= key "-") (setf key "_"))
+      ((string= key "\\")(setf key "|")))
 
     (setf key (string-capitalize key)))
   (return-from shift-case-key key));;}}}
@@ -67,15 +72,18 @@
   (return-from test-key-mods key));;}}}
 
 (defun eval-string (str);;{{{
+  "Lisp evals string that is passed to it"
   (when (> (length str) 0)
     (eval (read-from-string str))));;}}}
 
 (defun gsl-enter-console ();;{{{
-    (setf *console-curr* "")
-    (gsl-skip-events 250)
-    (setf *GSL-IS-IN-CONSOLE* t));;}}}
+  "Enter the console"
+  (setf *console-curr* "")
+  (gsl-skip-events 250)
+  (setf *GSL-IS-IN-CONSOLE* t));;}}}
 
 (defun exit-console ();;{{{
+  "Quit the console"
   (setf *console-curr* ""
   	*GSL-CURSOR-Y* 0
 	*GSL-CURSOR-X* 0
@@ -83,26 +91,32 @@
 ;;}}}
 
 (defmacro remove-oldest (list);;{{{
+  "Remove the oldest string from the console history"
   `(setf ,list (reverse (cdr (reverse ,list)))));;}}}
 
-(defun add-to-console-prev (line);;{{{;;}}}
+(defun add-to-console-prev (line);;{{{
+  "Adds to the consoles command history"
   (when (> (length *console-prev*) *GSL-MAX-CONSOLE-PREV*) (remove-oldest *console-prev*))
-  (push line *console-prev*));;}}}
+  (push line *console-prev*));;}}};;}}}
 
 ;;	CONSOLE-TEXT;;{{{
 (defun add-to-console (line);;{{{
+  "Adds <line> to the console"
   (when (> (length *console*) *GSL-MAX-CONSOLE*) (remove-oldest *console*))
   (push line *console*));;}}}
 
 (defun gsl-clear-console ();;{{{
+  "Clears the console and the console history"
   (setf *console* nil)
   (setf *console-prev* nil));;}}}
 
 (defun set-console-curr (line);;{{{
+  "Sets the consoles current line to <line>"
   (when (not line) (setf line ""))
   (setf *console-curr* line));;}}}
 
 (defun format-console (string args);;{{{
+  "Format but for the GSL-console"
   (let ((list nil))
     (dolist (line args)
       (push (format nil "~s" line) list))
@@ -110,30 +124,33 @@
   (add-to-console (eval `(format nil ,string ,@list)))));;}}}
 
 (defun gsl-print-console (line);;{{{
+  "Use for simple commands instead of format-console"
   (add-to-console line));;}}};;}}}
 
 ;;	DRAW-CONSOLE;;{{{
 (defun draw-console (x y sizex sizey);;{{{
+  "Draws the console history"
   (dolist (line *console*)
     (gsl-draw-string line x (incf y (+ sizey 1)) 0 sizex sizey)))
 ;;}}}
 
 (defun gsl-draw-console ();;{{{
+  "Call this function to draw the console"
   (gl-load-identity)
   (gl-translate :z -25)
 
   ;;Console black background
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
-      (gsl-with-color (0 0 0 0.8)
+      (gsl-with-color (:a 0.8)
           (gsl-draw-rect :x -42 :y -22 :w *width* :h 28)))
 
   ;;Console white edges
-  (gsl-with-color (1 1 1 1)
+  (gsl-with-color (:r 1 :g 1 :b 1 :a 1)
 	 (gsl-with-draw +GL-LINES+
-		(gl-vertex -42 -18)
-		(gl-vertex 42 -18)
-		(gl-vertex -42 6)
-		(gl-vertex 42 6)))
+		(gl-vertex :x -42 :y -18)
+		(gl-vertex :x 42  :y -18)
+		(gl-vertex :x -42 :y 6)
+		(gl-vertex :x 42  :y 6)))
 
   (gsl-with-font 0
 	(gsl-draw-string *console-curr* -41 -20 0 1 1)
@@ -142,17 +159,20 @@
 
 ;;	CONSOLE-INPUT;;{{{
 (defun console-parse-input (line);;{{{
+  "Parses the consoles input (when you hit enter)"
   (when (> (length line) 1)
     (progn
       (add-to-console line)
       (add-to-console-prev line)
       (handler-case
 	(eval-string line)
-	(simple-error (err) (format-console (simple-condition-format-control err) (simple-condition-format-arguments err))))))
+	(simple-condition (err) (format-console (simple-condition-format-control err) (simple-condition-format-arguments err)))
+	(error () (gsl-print-console "An error has occurred")))))
   (exit-console))
 ;;}}}
 
 (defun console-cursor-up ();;{{{
+  "Increments the cursor pointer (up one command history)"
   (let ((len (list-length *console-prev*)))
     (when (> len 0)	;When the list is not empty
       (progn
@@ -161,6 +181,7 @@
 	(incf *GSL-CURSOR-Y*)))))						;For next operation;;}}}
 
 (defun console-cursor-down ();;{{{
+  "De-increments the console cursor position"
   (let ((len (list-length *console-prev*)))
     (when (> len 0)
       (progn
@@ -169,6 +190,7 @@
 	      (t (set-console-curr (nth *GSL-CURSOR-Y* *console-prev*))))))))			;Else just set the cursor to the nth;;;}}}
 
 (defun key-tests (key);;{{{
+  "Test for special keys"
   (cond
     ((when (string= key "escape")	(exit-console)))
     ((when (string= key "backspace") 	(setf *console-curr* (backspace *console-curr*))))
@@ -181,6 +203,7 @@
 ;;}}}
 
 (defun gsl-console-input ();;{{{
+  "Get input in text form for the console"
   (loop					;Loop until there are no more keys being pressed
     (let ((key (gsl-get-charkey)))	;Get our key value					(deylen - 15/05/09)
       (let ((len (length key)))		;Evaluate the length

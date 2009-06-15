@@ -18,9 +18,7 @@
 (in-package :gsl-sdl)
 (load (gsl-lisp-relative "gsl-sdl-keys.lisp"))
 
-;;DEFAULT SETTINGS;
-(default-foreign-language :stdc)
-(default-foreign-library (gsl-clib-relative "gsl-sdl-bindings"))
+(open-shared-library (gsl-clib-relative "gsl-sdl-bindings"))
 
 ;;Globals for intialising SDL;;;{{{
 (const +SDL-INIT-TIMER+ 	#x00000001)
@@ -48,6 +46,7 @@
 (new-c-func sdl-pump-events	"sdl_pump_events"	nil)
 (new-c-func sdl-quit		"sdl_quit"		nil)
 (new-c-func sdl-delay		"sdl_delay" 		((delay int)))
+(new-c-func sdl-get-ticks       "sdl_get_ticks"		nil :int)
 (new-c-func sdl_init		"sdl_init" 		((flags int)))
 (new-c-func sdl_init_video	"sdl_init_video" 	((width int) (height int) (bpp int) (flags int)));;}}}
 

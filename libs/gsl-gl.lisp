@@ -16,16 +16,15 @@
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
 (in-package :gsl)
-(require (gsl-lisp-relative "gsl-gl-bits.lisp"))
+(load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 
-(use-package :ffi)
-(default-foreign-language :stdc)
-(default-foreign-library (gsl-clib-relative "gsl-gl-bindings"))
+(open-shared-library (gsl-clib-relative "gsl-gl-bindings"))
 
 ;;	C OpenGL functions;;{{{
 
 ;;Buffer functions;;{{{
 (new-c-func gl-swap-buffers 	"swap_buffers"		nil)
+(new-c-func gl-bind-renderbuffer "gl_bind_renderbuffer" ((id int)))
 ;;}}}
 
 ;;Draw functions;;{{{
@@ -37,7 +36,7 @@
 ;;Position and perspective;;{{{
 (new-c-func gl-load-identity 	"gl_load_identity" 	nil)
 (new-c-func gl_translate 	"gl_translate" 		((x single-float) (y single-float) (z single-float)))
-(new-c-func gl_rotate		"gl_rotate"		((amount int) (x single-float) (y single-float) (z single-float)))
+(new-c-func gl_rotate		"gl_rotate"		((amount single-float) (x single-float) (y single-float) (z single-float)))
 (new-c-func glu_perspective 	"glu_perspective"	((fov int) (aspect single-float) (near_clip single-float) (far_clip single-float)));;}}}
 
 ;;Enable / disable;;{{{
@@ -62,6 +61,10 @@
 (new-c-func gl-bind-texture	"gl_bind_texture"	((target int) (tex int)))
 (new-c-func gl-blend-func	"gl_blend_func"		((sfactor int) (dfactor int)));;}}}
 
+(new-c-func	gl_light		"gl_light"	     ((light int) (pname int) (param single-float)))
+(new-c-func	gl_light_fv		"gl_light_fv"	     ((light int) (pname int) (paramlist address)))
+(new-c-func     gl_material		"gl_material"	     ((face int) (pname int) (param single-float)))
+(new-c-func	gl_material_fv		"gl_material_fv"     ((face int) (pname int) (params address)))
 (new-c-func	gl-viewport		"gl_viewport"	     ((x int) (y int) (width int) (height int)))
 (new-c-func	gl-delete-texture	"gl_delete_texture"  ((id int)))
 
@@ -71,27 +74,45 @@
 
 ;;	Lisp wrappers to C functions;;{{{
 
-(defmacro glu-perspective (&key (fov 75) (aspect (/ (* *width* 1.0) *height*)) (near_clip 0.1) (far_clip 10000.0))
-  `(glu_perspective ,fov ,aspect ,near_clip ,far_clip))
+(defmacro glu-perspective (&key (fov 90) (aspect (/ (* *width* 1.0) *height*)) (near_clip 0.1) (far_clip 10000.0));;{{{
+  `(glu_perspective ,fov ,aspect ,near_clip ,far_clip));;}}}
 
-(defun gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (pos nil p_supplied))
+(defmacro gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (pos nil p_supplied));;{{{
   (if p_supplied
-    (gl_translate (i->float (first pos)) (i->float (second pos)) (i->float (third pos)))
-    (gl_translate (i->float x) (i->float y) (i->float z))))	;Else just use x y z					(deylen - 14/5/2009)
+    `(gl_translate (float (or (first ,pos) 0.0)) (float (or (second ,pos) 0.0)) (float (or (third ,pos) 0.0)))
+    `(gl_translate (float ,x) (float ,y) (float ,z))))	;Else just use x y z					(deylen - 14/5/2009);;}}}
 
-(defmacro gl-rotate (&key (x 0) (y 0) (z 0))
-  (let ((list nil))
+(defmacro gl-rotate (&key (x nil) (y nil) (z nil));;{{{
     ;;Push the different rotation operations to a list (all at once are allowed)
-    (when x (push `(gl_rotate ,x 1.0 0.0 0.0) list))
-    (when y (push `(gl_rotate ,y 0.0 1.0 0.0) list))
-    (when z (push `(gl_rotate ,z 0.0 0.0 1.0) list))
-    (return-from gl-rotate `(progn ,@list))))
+    (let ((list nil))
+      (when x (push `(gl_rotate (float ,x) 1.0 0.0 0.0) list))
+      (when y (push `(gl_rotate (float ,y) 0.0 1.0 0.0) list))
+      (when z (push `(gl_rotate (float ,z) 0.0 0.0 1.0) list))
+      `(progn ,@list)))
+;;}}}
 
-(defun gl-vertex (&optional (x 0.0) (y 0.0) (z 0.0))
-  (gl_vertex_3f (i->float x) (i->float y) (i->float z)))
+(defun gl-vertex (&key (x 0.0) (y 0.0) (z 0.0));;{{{
+  (gl_vertex_3f (i->float x) (i->float y) (i->float z)));;}}}
 
-(defmacro gl-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0))
-  `(gl_color_4f ,(i->float r) ,(i->float g) ,(i->float b) ,(i->float a)))
+(defmacro gl-color (&key (r 0.0) (g 0.0) (b 0.0) (a 1.0) (list nil list-passed));;{{{
+  (if list-passed
+    `(gl_color_4f (float (or (first ,list) 0.0)) (float (or (second ,list) 0.0)) (float (or (third ,list) 0.0)) (float (or (fourth ,list) 1.0)))
+    `(gl_color_4f (float ,r) (float ,g) (float ,b) (float ,a))))
+;;}}}
 
-(defmacro gl-clear-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0))
-  `(gl_clear_color ,(i->float r) ,(i->float g) ,(i->float b) ,(i->float a)));;}}}
+(defmacro gl-light (light pname param);;{{{
+  "Compile-time calculation of correct glLight function to call"
+  (if (consp param)
+    `(let-float-array (array ,param :length 4)
+	(gl_light_fv ,light ,pname array))
+    `(gl_light ,light ,pname ,(i->float param))))  ;;If param was a single number just call gl_light;;}}}
+
+(defmacro gl-material (material pname param);;{{{
+  "Compile-time calculation of correct glLight function to call"
+  (if (consp param)
+    `(let-float-array (array ,param :length 4) ;create a temp float array and copy param into it
+	(gl_material_fv ,material ,pname array))
+    `(gl_material ,material ,pname ,(i->float param))))  ;;If param was a single number just call gl_material;;}}}
+
+(defmacro gl-clear-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0));;{{{
+  `(gl_clear_color ,(float r) ,(float g) ,(float b) ,(float a)));;}}};;}}}

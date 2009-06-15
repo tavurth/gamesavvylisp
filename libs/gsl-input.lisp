@@ -25,8 +25,8 @@
 (defmacro gsl-get-key (key)
   `(if (= (gsl_get_key ,key) 0) nil t))
 
-(defun gsl-get-charkey ()
-  (setf key (gsl_get_charkey)))
+(defmacro gsl-get-charkey ()
+  `(%get-cstring (gsl_get_charkey)))
 
 (defmacro gsl-pump-events ()
   `(gsl_pump_events))

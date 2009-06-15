@@ -42,7 +42,11 @@ void gl_translate (float x, float y, float z) {
 	glTranslatef(x, y, z);
 }
 
-void gl_rotate (int amount, float x, float y, float z) {
+void gl_bind_renderbuffer(int id) {
+	glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, id);
+}
+
+void gl_rotate (float amount, float x, float y, float z) {
 	glRotatef(amount, x, y, z);
 }
 
@@ -52,6 +56,22 @@ void gl_begin (int flags) {
 
 void gl_end () {
 	glEnd();
+}
+
+void gl_light (int light, int pname, float param) {
+	glLightf(light, pname, param);
+}
+
+void gl_light_fv (int light, int pname, float * params) {
+	glLightfv(light, pname, params);
+}
+
+void gl_material(int face, int pname, float param) {
+	glMaterialf(face, pname, param);
+}
+
+void gl_material_fv(int face, int pname, float * params) {
+	glMaterialfv(face, pname, params);
 }
 
 void gl_vertex_3f(float x, float y, float z) {

@@ -1,9 +1,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;										;;;
-;;;		(( Copyright (c) William Whitty 2009 ))				;;;
+;;;		     ((	GAME SAVVY LISP (GSL) ))				;;;
 ;;;										;;;
-;;;	This file is part of GSL. 						;;;
+;;;		(( Copyright (c) William Whitty 2009 ))				;;;
+;;;			        V_0.55_Beta		     			;;;
+;;;										;;;
+;;;			This file is part of GSL. 				;;;
 ;;;										;;;
 ;;;	GSL is free software: you can redistribute it and/or modify		;;;
 ;;;     it under the terms of the GNU General Public License as published by	;;;
@@ -37,23 +40,48 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;	Git access	;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+	Git access for GSL is available: 
+		git://gamesavvylisp.git.sourceforge.net/gitroot/gamesavvylisp
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	Getting GSL up and running:	;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 	
 	To use GSL you will need to have the following:
 		
-		- CLisp v-2.4 +
+		- Clozure CL: http://trac.clozure.com/openmcl/wiki/WikiStart#GettingClozureCL
 
-	A basic gsl structure is given in the file BASIC_GSL.lisp in
+	A basic gsl structure is given in the folder 'Basic' in
 	the examples directory. Feel free to use this in whatever 
 	projects you like.
 
-	when using GSL all you need do is to include "gsl.lisp" into
+	--------------------------------------------------------------------------------------------------
+	1) Copy the gsl.lisp file into your project directory.
+
+	2) Open the gsl.lisp file and change the *gsl-dir* to point to the location of the GSL
+	   base directory. (relative paths are allowed)
+
+	3) Change the *clib-type* variable to account for your operating system (windows: .dll linux: .so)
+	---------------------------------------------------------------------------------------------------
+
+	Now when using GSL all you need do is to include "gsl.lisp" into
 	your program. GSL will then automatically initialise all of the
 	required libraries for you and import the gsl symbols into your
-	cl-user package.
+	ccl-user package.
 
+	If you are using multiple source files you can import all gsl functionality by using (gsl::use-all)
+	You can also import certain parts of gsl by using the macros 
+								(gsl::use-input)
+								(gsl::use-video)
+
+	Or individually import gsl's files:
+					(use-package :gsl-input)
+					(use-package :gsl-shared)
+					. . .
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;	FELLOW VIM USERS!      ;;
@@ -177,12 +205,29 @@
 		gsl-draw-rect
 		-------------
 			Draws a rectangular surface at the given coordinates.
-			(gsl-draw-rect (x y &key (z 0) (w 512) (h 512) (tex 0) (fill-screen nil) (with-tex nil))
+			(gsl-draw-rect (&key (x 0) (y 0) (z 0) (w 512) (h 512) (tex 0) (fill-screen nil) (with-tex nil))
 			:tex 		specify a texture to be put onto the rect.
 			:with-tex	same as :tex but enable textures at the same time. 
 			:fill-screen	fill the entire screen with the texture. (Useful for FBO multiple-pass rendering)
 			:with-fbo	Use the following fbo to draw with.
 			:fbo-color-pos  Use the color buffer n (defaults to zero)
+			:anim		Specify an anim from which the current frame will be used as a texture.
+			:with-anim	Same as :anim but enable textures at the same time.
+
+		gsl-draw-cube
+		-------------
+			Draws a cube at the given coordinates.
+			(gsl-draw-cube (&key (x 0) (y 0) (z 0) (size nil) (sizex 5) (sizey 5) (sizez 5) 
+						(anglex 0) (angley 0) (anglez 0) (centered 0)
+						(tex-left nil) (tex-right nil) (tex-front nil) (tex-back nil) (tex-top nil) (tex-bottom nil)
+						(tex-all nil)))
+
+			
+			:size		Sets the global size for all the size parameters (sizex sizey sizez)
+			:anglex-z	Sets the angle that the cube should be rotated to before drawing.
+			:centered	If t this cube will be drawn with its center at (x y z) instead of its corner.
+			:tex		Pass in texture objects and they will be applied to the sides of the cube.
+			:tex-all	Set the texture of all the sides exept those specified with :tex-<side>
 
 		gsl-draw
 		--------
@@ -196,6 +241,7 @@
 	;;;;;;;;;;;;;;;;;;;;;;
 	   gsl-updates.lisp  
 	;;;;;;;;;;;;;;;;;;;;;;
+
 		gsl-load-updates
 		----------------
 			If any updates are present load them (Should be called once per frame, GSL takes care of timing to avoid slowdown.)
@@ -209,7 +255,11 @@
 
 		gsl-load-tex
 		------------
+			(gsl-load-tex (loc &key (filter-min +GL-LINEAR-MIPMAP-NEAREST+) (filter-mag +GL-NEAREST+) (wrap-s +GL-REPEAT+)
+						(wrap-t +GL-REPEAT+)))
 			Use this function to load a texture. (Currently only TGA is supported.)
+				Ex:
+				       (gsl-load-tex "test.tga" :filter-min +GL-NEAREST+ :wrap-s +GL-CLAMP+)
 
 		gsl-delete-tex
 		--------------
@@ -306,17 +356,39 @@
 		-------------------------
 			Get an array of all the depth attachments in the fbo
 
-	;;;;;;;;;;;;;;;;;;;;;;
-	   gsl-shaders.lisp
-	;;;;;;;;;;;;;;;;;;;;;;
 
-		gsl-shader-new
+   	Shaders
+   	-------
+		gsl-shader-set
 		--------------
-			Create a new gsl shader (gsl-shader-new :frag "testfragment.frag" :vert "testvert.vert")
+			(gsl-shader-set <shader> <"var-name"> <value>)
 
-		gsl-shader-use
+			Gets the address of <"var-name"> in <shader> and sets its value to <value>. Also stores
+			the name for quicker access later.
+
+		gsl-shader-get
 		--------------
-			Use the specified gsl shader (gsl-shader-use <shader>)
+			(gsl-shader-get <shader> <"var-name">)
+
+			Gets the current value of <"var-name"> in <shader>
+
+		gsl-shader-vars
+		---------------
+			(gsl-shader-vars <shader>)
+			
+			Lists all the currently stored variables (that gsl knows about) in <shader>
+		
+		gsl-shader-id
+		-------------
+			(gsl-shader-id <shader>)
+		
+			Returns the OpenGL ID of <shader>
+
+		gsl-shader-source
+		-----------------
+			(gsl-shader-source <shader> :frag "test.frag" :vert "test.vert")
+
+			Changes the source of either :frag :vert or both in <shader>.
 
 	;;;;;;;;;;;;;;;;;;;;
 	   gsl-input.lisp:
@@ -373,25 +445,205 @@
 		-----------------
 			Clear the console and all console histories (gsl-clear-console)
 
+
+	;;;;;;;;;;;;;;;;;;;;;;;;
+	   gsl-animation.lisp
+	;;;;;;;;;;;;;;;;;;;;;;;;
+
+		To create a 2D animation you will need two things:
+			1: A animation parent. This stores things like the image list and timings of each image.
+			2: A anim child. This stores things like individual timing sequences and current frame.
+			
+			Every frame you should update the animation with (gsl-anim-update <anim-name-here>)
+			You can then call (gsl-draw-rect :anim <anim-name-here>) to draw the animation as you would draw a texture.
+			Call (gsl-draw-rect :with-anim <anim-name-here>) if you want textures to be automatically enabled and then
+			disabled again for you.
+
+		gsl-animation-new
+		-----------------
+			(gsl-animation-new :speed 0.2)
+
+			Creates a new parent animation for many anim childeren objects.
+
+		gsl-animation-add
+		-----------------
+			(gsl-animation-add-frame <animation> "test-image.tga" &key :speed 0.5) 
+		
+			Adds a new frame to <animation> with <speed>
+
+		gsl-animation-frame
+		-------------------
+			(gsl-animation-frame <animation> <n>)
+			
+			Will return frame <n> from <animation>
+
+		gsl-animation-frames
+		--------------------
+			(gsl-animation-frames <animation>)
+
+			Will return a list of all frames in <animation>
+
+		gsl-anim-new
+		------------
+			(gsl-anim-new <animation>)
+
+			Creates a new anim object. (used for timing etc) Uses <animation> for its parent animation.
+
+		gsl-anim-update
+		---------------
+			(gsl-anim-update <anim>)
+		
+			This should really be called every frame, updates the anims current frame
+			when the current frames run-time is up.
+
+		gsl-anim-current
+		----------------
+			(gsl-anim-current-tex <anim>)
+
+			Returns the current texture frame of <anim>
+
+		gsl-anim-next-frame
+		-------------------
+			(gsl-anim-next-frame <anim>)
+
+			Skip immediately to the next frame of <anim>
+
+	;;;;;;;;;;;;;;;;;;;
+	   gsl-with.lisp   
+	;;;;;;;;;;;;;;;;;;;
+		gsl-with-color
+		--------------
+			Use the color (r g b a) for the next commands.
+				Ex:  (gsl-with-color (0.5 0.5 0.5 1.0)
+					(gsl-draw-rect))
+				Would draw a grey rectangle.
+				Colors can be ommitted so the above could also be written as:
+				     (gsl-with-color (0.5 0.5 0.5)
+					(gsl-draw-rect))
+
+		gsl-with-colormask
+		------------------
+			Use the color mask (r g b) for the next commands
+				Ex:  (gsl-with-colormask (0 0 1)
+					(gsl-with-color (1 1 1)
+					   (gsl-draw-rect)))
+				Would draw a blue rectangle.
+
+		gsl-with-textures
+		-----------------
+			Calls (glEnable +GL-TEXTURES-2D+) at the start and (gl-disable +GL-TEXTURES-2D+) at the end.
+				Ex:   (gsl-with-textures
+					(gsl-draw-rect :tex <texture>))
+			Withought this call textures cannot normally be accessed unless you call (gl-enable +GL-TEXTURE-2D+) or use the
+			:with-texture option in gsl-draw-rects
+			
+		gsl-with-stencilfunc
+		--------------------
+			Draws the following commands with the stencil function (func ref mask)
+				Ex:   (gsl-with-stencilfunc (+GL-ALWAYS+ #x01 #x01)
+					(gsl-draw-rect))
+
+		gsl-with-stencilop
+		------------------
+			Draws the following commands with the stencil operation (depth-fail stencil-fail all-pass)
+				Ex:   (gsl-with-stencilop (+GL-KEEP+ +GL-KEEP+ +GL-REPLACE+)
+					(gsl-draw-rect))
+
+		gsl-with-blendfunc
+		------------------
+			Draws the following commands with the blend function (sfactor dfactor)
+				Ex:   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
+					(gsl-draw-rect))
+
+		gsl-with-pushmatrix
+		-------------------
+			Draws the following commands with a call to push and pop matrix.
+				Ex:   (gsl-with-pushmatrix
+					(gl-translate :x 50))
+
+		gsl-with-translate
+		------------------
+			Same as gsl-with-pushmatrix exept it also translates for you
+				Ex:   (gsl-with-translate (0 0 0)
+					<other function calls here>)
+
+		gsl-with-font
+		-------------
+			Select a non default font for use in drawing text.
+				Ex:   (gsl-with-font <other-font>
+					(gsl-draw-string <text> <x> <y> <w> <h>))
+
+		gsl-with-depthtest
+		------------------
+			Draw the following commands with the depth test enabled.
+				Ex:   (gsl-with-depthtest
+					(gsl-draw-rect))
+
+		gsl-with-lights
+		---------------
+			Calls (gl-enable +GL-LIGHTING+) at opening brace and (gl-disable +GL-LIGHTING+) at the closing brace
+				Ex:   (gsl-with-lights
+					(gl-light +GL-LIGHT0+ +GL-POSITION+ (0 0 0)))
+
+		gsl-with-shader
+		---------------
+			Use the shader <shader> for the following commands,
+				Ex:   (gsl-with-shader <shader>
+					(gsl-draw-rect))
+
+		gsl-with-fbo
+		------------
+			Draw the following commands to <fbo>,
+				Ex:   (gsl-with-fbo <fbo>
+					(gsl-draw-rect))
+
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;   OpenGL Functions Available:   ;;
 ;;   ---------------------------   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+		gl-translate
+		------------
+			(gl-translate (&key (x 0) (y 0) (z 0) (pos nil)))
+				Pos should be a list of 3 elements.
+				Ex:
+				      (gl-translate :pos '(0 5 15))
+				
 		glu-perspective
+		---------------
+			(glu-perspective (&key (fov 90) (aspect (width / height)) (near_clip 0.1) (far_clip 10000)))
+
 		gl-clear
+		--------
+			To do multiple clears use (logior)
+				Ex:
+				      (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
+		gl-light
+		--------
+			(gl-light <LIGHT> <PNAME> <PARAM>)
+				Ex:
+				      (gl-light +GL-LIGHT0+ +GL-AMBIENT+ (0 0 0))
+
+		gl-material
+		-----------
+			(gl-material <FACE> <PNAME> <PARAM>)
+				Ex:
+				      (gl-material +GL-FRONT+ +GL-DIFFUES+ (1 1 1))
+
 		gl-clear-color
 		gl-begin
 		gl-end
 		gl-vertex
 		gl-load-identity
-		gl-translate
 		gl-rotate
 		gl-enable
 		gl-disable
 		gl-push-matrix
 		gl-pop-attrib
 		gl-push-attrib
+		gl-delete-texture
 		gl-pop-matrix
 		gl-color-mask
 		gl-viewport
@@ -408,4 +660,5 @@
 ;;   ------------------------   ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 		sdl-delay
+		sdl-get-ticks
 		(most of these have been replaced by gsl functions)

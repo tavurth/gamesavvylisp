@@ -17,7 +17,7 @@
 
 ;;Some quick initialisation;;{{{
 (defpackage :gsl-shared
-  (:use :common-lisp)
+  (:use :ccl :common-lisp)
   (:export :const 
 	   :print-macro
 	   :gsl-load-all
@@ -26,14 +26,34 @@
 	   :gsl-clib-relative
 	   :gsl-lisp-relative
 	   :default-foreign-lib
+	   :export-all
+	   :defmacro-export
+	   :defun-export
+	   :gsl-get-angle
+	   :gsl-get-dist
+	   :gsl-draw-gui-line
+	   :gsl-to-degrees
+	   :gsl-to-radians
+	   :gsl-x-in-rect
+	   :use-packages
+	   :let-float-array
+	   :do-array
+	   :del-from-array
 	   :new-c-func 
+	   :setf-all
+	   :last-val
 	   :if-not 
 	   :i->float 
-	   :pop->float 
-	   :mirror))
+	   :mirror));;}}}
 
 (in-package :gsl-shared)
 
+(defparameter *gsl-dir* 	"../")			;;Directory where gsl is stored.
+(defparameter *clib-type*	".so")					;;If you are running windows this should be ".dll" Linux: ".so".
+(defparameter *clib-dir*	"clibs/")				;;This should be ok to leave. Directory of C libraries.
+(defparameter *lisplibs*	"libs/")				;;Leave this too. Directory of lisp libraries
+
+;; Making sure that cl-user can see all functions exported by GSL;;{{{
 (defun gsl-relative (loc)
   (concatenate 'string *gsl-dir* loc))
 
@@ -42,17 +62,9 @@
 
 (defun gsl-lisp-relative (loc)
   (gsl-relative (concatenate 'string *lisplibs* loc)))
-;;}}}
-
-(defparameter *gsl-dir* 	"./")		;;Directory where gsl is stored.
-(defparameter *clib-type*	".dll")					;;If you are running windows this should be ".dll" Linux: ".so".
-(defparameter *clib-dir*	"clibs/")				;;This should be ok to leave. Directory of C libraries.
-(defparameter *lisplibs*	"libs/")				;;Leave this too. Directory of lisp libraries
 
 ;; Initialisation of GSL.
 (load (gsl-lisp-relative "gsl-packages.lisp"))
 
-;; Making sure that cl-user can see all functions exported by GSL;;{{{
 (in-package :cl-user)
-(gsl:use-all)
-;;}}}
+(gsl:use-all);;}}}
