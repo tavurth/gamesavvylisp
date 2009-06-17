@@ -1,0 +1,1 @@
+wx86cl -l load-me-with-ccl.lisp

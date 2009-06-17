@@ -81,11 +81,17 @@
      ,@rest))
 ;;}}}
 
-(defmacro gsl-with-rotate (rotation &rest rest)
+(defmacro gsl-with-alpha (&rest body);;{{{
+  "Does <body> commands with alpha blending enabled"
+  `(gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
+		       ,@body));;}}}
+
+(defmacro gsl-with-rotate (rotation &rest rest);;{{{
+  "Rotates to <rotation> and then pops the matrix"
   `(gsl-with-pushmatrix
      (gl-rotate ,@rotation)
      ,@rest
-     (gl-pop-matrix)))
+     (gl-pop-matrix)));;}}}
 
 (defmacro gsl-with-shader (shader &rest rest);;{{{
   `(progn

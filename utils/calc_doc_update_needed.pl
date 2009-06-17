@@ -39,7 +39,7 @@ foreach (@lines) {
 	}	
 }
 
-open(DOC_FILE, "README_GSL") or die "Could not open README_GSL.txt for documentation";
+open(DOC_FILE, "README_GSL.txt") or die "Could not open README_GSL.txt for documentation";
 my @DOC_lines = <DOC_FILE>;
 close DOC_FILE;
 

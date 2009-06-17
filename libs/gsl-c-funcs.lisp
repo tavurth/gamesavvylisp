@@ -53,7 +53,7 @@
 (new-c-func gsl_skip_events		"gsl_skip_events"	((time :int)));;}}}
 
 (new-c-func	gsl_new_shader		"gsl_new_shader"	((vert address) (frag address)) :int)
-(new-c-func	_gsl_shader_source	"gsl_shader_source"   	((shader int) (type int) (loc address)))
+(new-c-func	_gsl_shader_source	"gsl_shader_source"   	((shader int) (vert address) (frag address)))
 (new-c-func	gsl_use_shader		"gsl_use_shader"	((shader int)))
 (new-c-func	gsl_new_framebuffer	"gsl_new_framebuffer"	((width int) (height int)) :int)
 (new-c-func	gsl_fbo_use		"gsl_use_framebuffer"	((id int)))
@@ -85,10 +85,10 @@
   `(with-cstrs ((var ,loc))
 	      (_gsl_new_font var)))
 
-(defmacro gsl_shader_source (shader type loc)
+(defmacro gsl_shader_source (shader vert frag)
   "Change shader source code"
-  `(with-cstrs ((var ,loc))
-	       (_gsl_shader_source ,shader ,type var)))
+  `(with-cstrs ((vert_cstring ,vert) (frag_cstring ,frag))
+	       (_gsl_shader_source ,shader vert_cstring frag_cstring)))
 
 (defmacro gsl_new_shader_var (program name)
   `(with-cstrs ((c-name ,name))

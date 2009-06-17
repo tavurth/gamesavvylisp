@@ -120,6 +120,7 @@
 	   :gsl-shader-vars
 	   :gsl-shader-use
 	   :gsl-shader-id
+	   :gsl-shader-delete-vars
 	   :gsl-shader-source))
 ;;}}}
 

@@ -80,4 +80,5 @@
 
 (loop
   (input)
-  (draw))
+  (draw)
+  (sdl-delay 25))

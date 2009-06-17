@@ -276,16 +276,14 @@
 	    (return (make-instance 'shader :id shader-id)))))
 ;;}}}
 
+(defmacro gsl-shader-delete-vars (shader);;{{{
+  "Resets all shader vars"
+  `(maphash #'(lambda (key val) (when key (setf (gsl-shader-var-value val) 0))) (gsl-shader-vars ,shader)));;}}}
+
 (defmacro gsl-shader-source (shader &key (vert "" vert_supplied) (frag "" frag_supplied));;{{{
   "Change <shader>'s source code"
-  (let ((list nil))
-    (when vert_supplied
-      (push `(gsl_shader_source (gsl-shader-id ,shader) ,+GSL-SHADER-VERT+ ,vert) list))
-    (when frag_supplied
-      (push `(gsl_shader_source (gsl-shader-id ,shader) ,+GSL-SHADER-FRAG+ ,frag) list))
-    (push 'progn list)
-
-    (return-from gsl-shader-source list)));;}}}
+  `(progn (gsl_shader_source (gsl-shader-id ,shader) ,vert ,frag)
+	  (gsl-shader-delete-vars ,shader)));;}}}
 
 (defmacro gsl-shader-use (shader);;{{{
   "Use <shader>"

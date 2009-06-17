@@ -21,11 +21,13 @@
 
 ;;Initialising shader
 (defparameter *shader* (gsl-shader-new :frag "b_w.frag"))
-(gsl-shader-source *shader* :frag "b_w.frag")
-(gsl-shader-set *shader* "name" 1)
+
+;;Changine the shaders source code, (just as an example, not at all required)
+(gsl-shader-source *shader* :frag "b_w.frag2")
 
 ;;Loading texture
 (defparameter *tex* (gsl-load-tex "skyline.tga"))
+(defparam *bw_level* 0.4)
 
 (defun input ()
   (gsl-pump-events)
@@ -35,6 +37,8 @@
   (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
   (gl-load-identity)
   (gl-translate :z -50)
+  (gsl-shader-set *shader* "bw_level" *bw_level*)
+  (when (> (incf *bw_level* 0.01) 1) (setf *bw_level* 0.4))
 
   ;;Draw the following with this shader
   (gsl-with-shader *shader*
@@ -44,4 +48,5 @@
 
 (loop
   (input)
-  (draw))
+  (draw)
+  (sdl-delay 50))

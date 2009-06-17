@@ -1170,67 +1170,49 @@ GLuint loadShader(char * loc, GLenum type, GLuint * program)
 
 int gsl_new_shader_var (int program, char * name)
 {
-	return glGetUniformLocation(program, name);
+	return glGetUniformLocation(shaderList[program]->prog, name);
 }
 
 void gsl_set_shader_var_f (int program, int var, float value) 
 {
-	glUseProgram(program);
+	glUseProgram(shaderList[program]->prog);
 	glUniform1f(var, value);
 	glUseProgram(0);
+}
+
+void addShadersToProgram (Shader * temp, char * vert, char * frag) {
+	if (strlen(vert)) {
+		if (temp->vert) {	//Making sure we clean the shader if it already exists
+			glDetachShader(temp->prog, temp->vert);
+		       	glDeleteShader(temp->vert);
+		}
+		temp->vert = loadShader(vert, GL_VERTEX_SHADER, (GLuint *) &temp->prog);
+	}
+	if (strlen(frag)) {
+		if (temp->frag) {
+			glDetachShader(temp->prog, temp->frag);
+		       	glDeleteShader(temp->frag);
+		}
+		temp->frag = loadShader(frag, GL_FRAGMENT_SHADER, (GLuint *) &temp->prog);
+	}
 }
 
 int gsl_new_shader(char * vert, char * frag)
 {
 	Shader * temp = (Shader *) c_malloc(size_shader);
-	temp->prog = 0;
+	temp->prog = temp->vert = temp->frag = 0;
 
-	if (strlen(vert))
-		temp->vert = loadShader(vert, GL_VERTEX_SHADER, (GLuint *) &temp->prog);
-	if (strlen(frag))
-		temp->frag = loadShader(frag, GL_FRAGMENT_SHADER, (GLuint *) &temp->prog);
-	
+	addShadersToProgram(temp, vert, frag);
+	addShadersToProgram(temp, "", "b_w.frag2");
+
 	temp->n = nShaders;
 	shaderList = (Shader **) listAdd((void **) shaderList, size_shader_p, temp, &nShaders);
 
 	return temp->n;
 }
 
-void gsl_shader_source(int gsl_shader, int type, char * loc)
-{
-	#define GSL_SHADER_VERT 0
-	#define GSL_SHADER_FRAG 1
-	
-	//Change the source code of an already created gsl-shader
-
-	char * data;
-	GLuint shader;
-       
-	if ((data = getFileText(loc)) == NULL) {
-		printf("Could not load file %s\n", loc);
-		return;
-	}
-
-	switch (type) {
-		case GSL_SHADER_VERT:
-			shader = shaderList[gsl_shader]->frag;
-			break;
-
-		case GSL_SHADER_FRAG:
-			shader = shaderList[gsl_shader]->vert;
-			break;
-
-		default:
-			printf("Invalid shader type\n");
-			return;
-	}
-	glShaderSource(shader, 1, (const GLchar **) &data, NULL);
-	glCompileShader(shader);
-
-	GLint status;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
-	if (status == GL_FALSE)
-		printf("Could not compile %s, does your graphics card support GLSL shaders?\n", loc);
+void gsl_shader_source (int shader, char * vert, char * frag) {
+	addShadersToProgram(shaderList[shader], vert, frag);
 }
 
 void gsl_use_shader(int shader) {
