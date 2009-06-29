@@ -17,22 +17,20 @@
 
 (in-package :gsl-input)
 
-(defmacro gsl-mouse-motion (&optional (type 0 type-supplied))
+(defcallback gsl-mouse-func (:int button :int type)
+  (when *GSL-MOUSE-FUNC* (funcall *GSL-MOUSE-FUNC* button type)))
+(gsl_set_mouse_func gsl-mouse-func)
+
+(defun gsl-mouse-motion (&optional (type 0 type-supplied))
   (if type-supplied
-    `(gsl_mouse_motion ,type)
-    `(cons (gsl_mouse_motion +y+) (gsl_mouse_motion +x+))))
+    (gsl_mouse_motion type)
+    (cons (gsl_mouse_motion +y+) (gsl_mouse_motion +x+))))
 
-(defmacro gsl-get-key (key)
-  `(if (= (gsl_get_key ,key) 0) nil t))
+(defun gsl-get-key (key)
+  (if (= (gsl_get_key key) 0) nil t))
 
-(defmacro gsl-get-charkey ()
-  `(%get-cstring (gsl_get_charkey)))
+(defun gsl-get-charkey ()
+  (%get-cstring (gsl_get_charkey)))
 
-(defmacro gsl-pump-events ()
-  `(gsl_pump_events))
-
-(defmacro gsl-skip-events (time)
-  `(gsl_skip_events ,time))
-
-(defmacro gsl-get-mods ()
-  `(gsl_get_mods))
+(defun gsl-skip-events (time)
+  (gsl_skip_events (truncate time)))

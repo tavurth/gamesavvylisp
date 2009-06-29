@@ -44,6 +44,9 @@
 (delete-file			*GSL-UPDATE-FILE*)			;;Making sure there is no code left from last time.
 ;;}}}
 
+;;	MOUSE FLAGS;;{{{
+(defparam *GSL-MOUSE-FUNC* nil);;}}}
+
 ;;	CONSOLE;;{{{
 
 (defparam *console-curr* "")

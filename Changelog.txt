@@ -8,6 +8,8 @@
 - Added: setting and changing GLSL shader variables.
 - Added: basic gui system.
 - Added: Deferred texture loading. (see next)
+- Added: gsl-shader-source :frag <location> :vert <location> to change a
+shaders source code
 - Changed: (gsl-with-color now takes keyword arguments instead of a simple
 list. To pass a list, use (:list '(1 2 3)))
 - Fixed: Crash when loading textures before OpenGL had been initialised.

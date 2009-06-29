@@ -14,16 +14,14 @@
 #	 You should have received a copy of the GNU General Public License
 #	 along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-#Use mingw-make on this file
-
-LIBS = -shared -lmingw32 -lsdlmain -lsdl -lopengl32 -lglu32 -03 -Wall
+LIBS = -shared -lSDL -lGL -lGLU -O3 -Wall
 LOCATION = clibs/
 
 compile:
-	gcc -c $(LOCATION)GLee.c -O3 -o $(LOCATION)GLee.o
-	gcc $(LOCATION)gsl-bindings.c $(LOCATION)GLee.o $(LIBS)	-o $(LOCATION)gsl-bindings.dll
-	gcc $(LOCATION)gsl-gl-bindings.c $(LOCATION)GLee.o $(LIBS) -o $(LOCATION)gsl-gl-bindings.dll
-	gcc $(LOCATION)gsl-sdl-bindings.c $(LIBS) -o $(LOCATION)gsl-sdl-bindings.dll
+	#gcc -c $(LOCATION)GLee.c -O3 -o $(LOCATION)GLee.o
+	gcc $(LOCATION)gsl-bindings.c $(LOCATION)GLee.o $(LIBS)	-o $(LOCATION)gsl-bindings.so
+	gcc $(LOCATION)gsl-gl-bindings.c $(LOCATION)GLee.o $(LIBS) -o $(LOCATION)gsl-gl-bindings.so
+	gcc $(LOCATION)gsl-sdl-bindings.c $(LIBS) -o $(LOCATION)gsl-sdl-bindings.so
 
 %.o: %.c
 	gcc -c $<

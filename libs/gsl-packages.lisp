@@ -22,11 +22,11 @@
 	   :gsl_new_font
 	   :gsl_draw_tex
 	   :gsl_draw_cube
-	   :gsl_pump_events
+	   :gsl-pump-events
 	   :gsl_load_texture
 	   :gsl_load_texture2
 	   :gsl_skip_events
-	   :gsl_get_mods
+	   :gsl-get-mods
 	   :gsl_quit
 	   :gsl_mouse_motion
 	   :gsl_get_key
@@ -35,6 +35,7 @@
 	   :gsl_draw_rect_shadow
 	   :gsl_new_shader
 	   :gsl_shader_source
+	   :gsl_set_mouse_func
 	   :gsl_use_shader
 	   :gsl_new_shader_var
 	   :gsl_set_shader_var
@@ -172,6 +173,7 @@
 	   :gsl-get-key
 	   :gsl-get-mods
 	   :gsl-pump-events
+	   :gsl-get-mods
 	   :gsl-skip-events
 	   :gsl-get-charkey))
 ;;}}}
@@ -204,7 +206,7 @@
 ;;}}}
 
 (defpackage :gsl-gui;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-classes :gsl-gl :gsl-gl-bits :gsl-with :gsl-draw)
+  (:use :ccl :common-lisp :gsl-globals :gsl-shared :gsl-classes :gsl-gl :gsl-gl-bits :gsl-with :gsl-draw :gsl-sdl :gsl-input :gsl-c-funcs)
   (:export :gsl-gui-draw
 	   :gsl-gui-new
 	   :gsl-gui-set-height
@@ -214,8 +216,10 @@
 	   :gsl-gui-draw-borders
 	   :gsl-gui-draw-corners
 	   :gsl-gui-draw-box
+	   :gsl-gui-draw-all
 	   :gsl-gui-set
-	   :gsl-mouse-is-on-gui));;}}}
+	   :gsl-mouse-is-on-gui
+	   :gsl-gui-mouse-input));;}}}
 
 (defpackage :gsl-console;;{{{
   (:use :ccl :common-lisp :gsl-shared :gsl-input :gsl-sdl :gsl-string :gsl-globals :gsl-draw :gsl-gl :gsl-gl-bits :gsl-with)

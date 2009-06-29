@@ -116,11 +116,18 @@ Uint32 GSL_NEXT_UPDATE  = 0;
 
 GLuint WRAP_S, WRAP_T, MAG_FILTER, MIN_FILTER;
 
+void (* GSL_MOUSE_FUNC)(int int);
+enum TYPE   { GSL_BUTTON_PRESS = 0, GSL_BUTTON_RELEASE, LAST_TYPE };
+
 int OPTIONS;
+
+void gsl_set_mouse_func (void * func) {
+	GSL_MOUSE_FUNC = func;
+}
 
 /*}}}*/
 
-//			UTIL_FUNCTIONS/*{{{*/
+//			UTIL_FUNCTIONS				/*{{{*/
 
 void gsl_quit ();
 
@@ -195,7 +202,7 @@ void cleanAllFbos();
 void cleanAllShaders();
 void cleanAllTextures();/*}}}*/
 
-//			LIST_FUNCTIONS/*{{{*/
+//			LIST_FUNCTIONS				/*{{{*/
 
 inline void ** newList(size_t t, int n)
 {
@@ -464,6 +471,11 @@ void gsl_pump_events () {
 	//take a look at gsl_get_charkey. 				        (deylen - 02/6/2009)
 
 	Uint8 appState;
+	SDL_Event e;
+
+	while (SDL_PollEvent(&e))
+		if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
+			GSL_MOUSE_FUNC(e.button.button, e.button.type);
 
 	while (1) {
 		SDL_PumpEvents();
@@ -515,7 +527,7 @@ char * gsl_get_charkey () {
 	int time = SDL_GetTicks();
 
 	if (time < GSL_SkipEvents)
-		return "";		//If we have chosen to skip some events return
+		return "";		//If we are supposed to be skipping this event cycle then return;
 
 	GSL_SkipEvents = 0;
 
@@ -1028,7 +1040,7 @@ void gsl_draw_char (int font, int character, int x, int y, int z, int w, int h)
 	gsl_draw_tex(fontList[font]->letters[character]->id, x, y, z, w, h, 0.0, 0.0);
 }/*}}}*/
 
-//		FBO_FUNCTIONS/*{{{*/
+//		FBO_FUNCTIONS				/*{{{*/
 #define GSL_FBO_COLOR_BUFFER 0
 #define GSL_FBO_DEPTH_BUFFER 1
 
@@ -1144,7 +1156,7 @@ void cleanAllFbos() {
 
 /*}}}*/
 
-//		SHADER_FUNCTIONS/*{{{*/
+//		SHADER_FUNCTIONS				/*{{{*/
 
 GLuint loadShader(char * loc, GLenum type, GLuint * program)
 {

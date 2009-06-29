@@ -30,4 +30,5 @@
   (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit)))
 
 (loop
-  (input))
+  (input)
+  (sdl-delay 50))

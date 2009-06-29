@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(in-package :gsl)
+(in-package :gsl-gl)
 (load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 
 (open-shared-library (gsl-clib-relative "gsl-gl-bindings"))

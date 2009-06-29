@@ -141,3 +141,5 @@
 
 (defparam *GSL-INIT-DONE*  nil)
 (defparam *GSL-VIDEO-DONE* nil)
+(defparam *width*	   0)
+(defparam *height*	   0)

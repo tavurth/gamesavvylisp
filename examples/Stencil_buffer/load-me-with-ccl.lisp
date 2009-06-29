@@ -77,7 +77,7 @@
   ;;(gsl-draw-rect -125 -125 :w 250 :h 250 :with-tex *grass01*)
   ;;
   ;;Using :with-tex instead of :tex automatically enables textures for you and then disables them once the single texture has been drawn.
-  ;;This is slower than using with-textures however so use sparingly.
+  ;;This is slower than using gsl-with-textures however (it enables and disables textures for each image) so use it sparingly.
 
   ;;Drawing the target point
   (gsl-draw-points
