@@ -73,7 +73,7 @@
   (defparam *aspect-x* (/ *width* *height*))
   (defparam *aspect-y* (/ 1 *aspect-x*))
   (progn
-     (gsl_init_video width height bpp flags options (integer fov) (float near_clip) (integer far_clip))
+     (gsl_init_video width height bpp flags options (truncate fov) (float near_clip) (truncate far_clip))
      (gsl-new-font "font")
      (setf *GSL-VIDEO-DONE* t)))
 ;;}}}

@@ -42,9 +42,6 @@
 		 (setf (%get-single-float ,array (* x 4)) (float val))))
 	     (progn ,@body)))));;}}}
 
-(defmacro integer (val);;{{{
-  `(truncate ,val));;}}}
-
 (defmacro defparam (symbol val);;{{{
   "Exports symbol and then defines it as a parameter"
   (export symbol)
@@ -75,15 +72,6 @@
     (return-from new-c-func 
 		 `(defun ,name (,@arglist1)
 		    (ff-call ,addr ,@arglist2 ,return-type)))));;}}}
-
-(defmacro i->float (num);;{{{
-  (if (not (typep num 'float)) `(setf ,num (float ,num))));;}}}
-
-(defmacro pop->float (target-list);;{{{
-  "Pop from a list and convert to a float. Note - Does not check with numberp"
-  `(progn 
-     (setf num (pop ,target-list))
-     (i->float num)));;}}}
 
 (defmacro mirror (a);;{{{
   `(- 0 ,a));;}}}

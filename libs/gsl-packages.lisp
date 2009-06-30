@@ -35,7 +35,9 @@
 	   :gsl_draw_rect_shadow
 	   :gsl_new_shader
 	   :gsl_shader_source
-	   :gsl_set_mouse_func
+	   :gsl_set_mouse_event_func
+	   :gsl_set_mouse_move_func
+	   :gsl_set_key_event_func
 	   :gsl_use_shader
 	   :gsl_new_shader_var
 	   :gsl_set_shader_var

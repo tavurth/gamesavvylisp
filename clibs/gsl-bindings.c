@@ -116,13 +116,23 @@ Uint32 GSL_NEXT_UPDATE  = 0;
 
 GLuint WRAP_S, WRAP_T, MAG_FILTER, MIN_FILTER;
 
-void (* GSL_MOUSE_FUNC)(int int);
+void (* GSL_MOUSE_EVENT_FUNC)(int, int) = NULL;
+void (* GSL_MOUSE_MOVE_FUNC) (int, int) = NULL;
+void (* GSL_KEY_EVENT_FUNC)  (int, int) = NULL;
 enum TYPE   { GSL_BUTTON_PRESS = 0, GSL_BUTTON_RELEASE, LAST_TYPE };
 
 int OPTIONS;
 
-void gsl_set_mouse_func (void * func) {
-	GSL_MOUSE_FUNC = func;
+void gsl_set_mouse_event_func (void * func) {
+	GSL_MOUSE_EVENT_FUNC = func;
+}
+
+void gsl_set_mouse_move_func (void * func) {
+	GSL_MOUSE_MOVE_FUNC = func;
+}
+
+void gsl_set_key_event_func (void * func) {
+	GSL_KEY_EVENT_FUNC = func;
 }
 
 /*}}}*/
@@ -473,9 +483,20 @@ void gsl_pump_events () {
 	Uint8 appState;
 	SDL_Event e;
 
-	while (SDL_PollEvent(&e))
-		if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP)
-			GSL_MOUSE_FUNC(e.button.button, e.button.type);
+	while (SDL_PollEvent(&e)) {
+		if (e.type == SDL_MOUSEBUTTONDOWN || e.type == SDL_MOUSEBUTTONUP) {
+			if (GSL_MOUSE_EVENT_FUNC)
+				GSL_MOUSE_EVENT_FUNC(e.button.button, e.button.type);
+		}
+
+		else if (e.type == SDL_KEYDOWN || e.type == SDL_KEYUP) {
+			if (GSL_KEY_EVENT_FUNC)
+				GSL_KEY_EVENT_FUNC(e.key.keysym.sym, e.key.type);
+		}
+
+		else if (e.type == SDL_QUIT) 
+			gsl_quit();
+	} //	Call the correct function when an event takes place
 
 	while (1) {
 		SDL_PumpEvents();
@@ -492,7 +513,7 @@ void gsl_pump_events () {
 			break;
 
 		SDL_Delay(50);
-	}
+	} //	Focus control
 
 	if (OPTIONS & GSL_CATCH_MOUSE) {
 		Mouse.state = SDL_GetMouseState(&Mouse.motionX, &Mouse.motionY);

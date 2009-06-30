@@ -45,31 +45,40 @@
 ;;}}}
 
 ;;	Events;;{{{
-(new-c-func gsl_get_key			"gsl_get_key"		((key int))  	:int)
-(new-c-func gsl-pump-events		"gsl_pump_events"	nil)
-(new-c-func gsl_mouse_motion		"gsl_mouse_motion"	((type short))  :int)
-(new-c-func gsl_get_charkey		"gsl_get_charkey"	nil  		:address)
-(new-c-func gsl-get-mods		"gsl_get_mods"		nil  		:int)
-(new-c-func gsl_skip_events		"gsl_skip_events"	((time :int)));;}}}
+(new-c-func gsl_get_key			"gsl_get_key"			((key int))  	:int)
+(new-c-func gsl-pump-events		"gsl_pump_events"		nil)
+(new-c-func gsl_mouse_motion		"gsl_mouse_motion"		((type short))  :int)
+(new-c-func gsl_get_charkey		"gsl_get_charkey"		nil  		:address)
+(new-c-func gsl-get-mods		"gsl_get_mods"			nil  		:int)
+(new-c-func gsl_skip_events		"gsl_skip_events"		((time :int)))
+(new-c-func gsl_set_mouse_event_func	"gsl_set_mouse_event_func"	((func address)))
+(new-c-func gsl_set_mouse_move_func	"gsl_set_mouse_move_func" 	((func address)))
+(new-c-func gsl_set_key_event_func	"gsl_set_key_event_func"	((func address)));;}}}
 
-(new-c-func	gsl_new_shader		"gsl_new_shader"	((vert address) (frag address)) :int)
-(new-c-func	_gsl_shader_source	"gsl_shader_source"   	((shader int) (vert address) (frag address)))
-(new-c-func	gsl_use_shader		"gsl_use_shader"	((shader int)))
+;;	Fbo;;{{{
 (new-c-func	gsl_new_framebuffer	"gsl_new_framebuffer"	((width int) (height int)) :int)
 (new-c-func	gsl_fbo_use		"gsl_use_framebuffer"	((id int)))
 (new-c-func	gsl_fbo_add_color	"gsl_fbo_add_color"	((id int) (pos int)) :int)
 (new-c-func	gsl_fbo_add_depth	"gsl_fbo_add_depth"	((id int)) :int)
-(new-c-func	gsl_fbo_del		"gsl_fbo_del"		((id int)))
-(new-c-func	gsl_should_load_updates "gsl_should_load_updates"nil :int)
-(new-c-func	gsl_set_update_file	"gsl_set_update_file"   ((loc address)))
+(new-c-func	gsl_fbo_del		"gsl_fbo_del"		((id int)));;}}}
+
+;;	Shader;;{{{
+(new-c-func	gsl_new_shader		"gsl_new_shader"	((vert address) (frag address)) :int)
+(new-c-func	_gsl_shader_source	"gsl_shader_source"   	((shader int) (vert address) (frag address)))
+(new-c-func	gsl_use_shader		"gsl_use_shader"	((shader int)))
 (new-c-func	_gsl_new_shader_var	"gsl_new_shader_var"    ((program int) (name address)) :int)
-(new-c-func     gsl_set_shader_var	"gsl_set_shader_var_f"	((program int) (var int) (value float)))
+(new-c-func     gsl_set_shader_var	"gsl_set_shader_var_f"	((program int) (var int) (value float)));;}}}
+
+;;	Utils;;{{{
 (new-c-func	gsl_get_angle		"gsl_get_angle"		((x int) (y int) (x2 int) (y2 int)) :float)
 (new-c-func	gsl_get_dist		"gsl_get_dist"		((x int) (y int) (x2 int) (y2 int)) :float)
 (new-c-func	gsl_to_degrees		"gsl_to_degrees"	((angle_rad float)) :float)
 (new-c-func	gsl_to_radians		"gsl_to_radians"	((angle_deg float)) :float)
 (new-c-func	gsl_x_in_rect		"gsl_x_in_rect"		((x int) (y int) (x2 int) (y2 int) (w int) (h int)) :int)
-(new-c-func	gsl_set_mouse_func	"gsl_set_mouse_func"	((func address)))
+;;}}}
+
+(new-c-func	gsl_should_load_updates "gsl_should_load_updates"nil :int)
+(new-c-func	gsl_set_update_file	"gsl_set_update_file"   ((loc address)))
 
 (defun gsl_load_texture (loc filter-min filter-mag wrap-s wrap-t)
   "The C binding for loading a texture"

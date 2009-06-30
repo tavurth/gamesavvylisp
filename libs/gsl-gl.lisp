@@ -92,7 +92,7 @@
 ;;}}}
 
 (defun gl-vertex (&key (x 0.0) (y 0.0) (z 0.0));;{{{
-  (gl_vertex_3f (i->float x) (i->float y) (i->float z)));;}}}
+  (gl_vertex_3f (float x) (float y) (float z)));;}}}
 
 (defmacro gl-color (&key (r 0.0) (g 0.0) (b 0.0) (a 1.0) (list nil list-passed));;{{{
   (if list-passed
@@ -105,14 +105,14 @@
   (if (consp param)
     `(let-float-array (array ,param :length 4)
 	(gl_light_fv ,light ,pname array))
-    `(gl_light ,light ,pname ,(i->float param))))  ;;If param was a single number just call gl_light;;}}}
+    `(gl_light ,light ,pname ,(float param))))  ;;If param was a single number just call gl_light;;}}}
 
 (defmacro gl-material (material pname param);;{{{
   "Compile-time calculation of correct glLight function to call"
   (if (consp param)
     `(let-float-array (array ,param :length 4) ;create a temp float array and copy param into it
 	(gl_material_fv ,material ,pname array))
-    `(gl_material ,material ,pname ,(i->float param))))  ;;If param was a single number just call gl_material;;}}}
+    `(gl_material ,material ,pname ,(float param))))  ;;If param was a single number just call gl_material;;}}}
 
 (defmacro gl-clear-color (&optional (r 0.0) (g 0.0) (b 0.0) (a 1.0));;{{{
   `(gl_clear_color ,(float r) ,(float g) ,(float b) ,(float a)));;}}};;}}}

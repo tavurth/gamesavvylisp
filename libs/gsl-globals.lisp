@@ -44,8 +44,11 @@
 (delete-file			*GSL-UPDATE-FILE*)			;;Making sure there is no code left from last time.
 ;;}}}
 
-;;	MOUSE FLAGS;;{{{
-(defparam *GSL-MOUSE-FUNC* nil);;}}}
+;;	GLOBAL EVENT FUNCTIONS;;{{{
+(defparam *GSL-MOUSE-EVENT-FUNC* nil)
+(defparam *GSL-MOUSE-MOVE-FUNC*  nil)
+(defparam *GSL-KEY-EVENT-FUNC*   nil)
+;;}}}
 
 ;;	CONSOLE;;{{{
 

@@ -45,11 +45,17 @@
 	   :if-not 
 	   :i->float 
 	   :mirror));;}}}
-
 (in-package :gsl-shared)
 
-(defparameter *gsl-dir* 	"../")			;;Directory where gsl is stored.
-(defparameter *clib-type*	".so")					;;If you are running windows this should be ".dll" Linux: ".so".
+;(progn (defconstant +WINDOWS+ t) (defconstant +LINUX+   nil))	;;Uncomment this line if you are on windows
+(progn (defconstant +LINUX+   t) (defconstant +WINDOWS+ nil))	;;Or this line if you are using linux.
+
+;;Setting up the C library type;;{{{
+(cond
+  (+WINDOWS+ (defparameter *clib-type*	".dll"))
+  (+LINUX+   (defparameter *clib-type*  ".so")));;}}}
+
+(defparameter *gsl-dir* 	"../")				;;Directory where gsl is stored.
 (defparameter *clib-dir*	"clibs/")				;;This should be ok to leave. Directory of C libraries.
 (defparameter *lisplibs*	"libs/")				;;Leave this too. Directory of lisp libraries
 
