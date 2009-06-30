@@ -75,7 +75,8 @@
   (progn
      (gsl_init_video width height bpp flags options (truncate fov) (float near_clip) (truncate far_clip))
      (gsl-new-font "font")
-     (setf *GSL-VIDEO-DONE* t)))
+     (setf *GSL-VIDEO-DONE* t)
+(gsl-gui-set :border-tex (gsl-relative "themes/border.tga") :corner-tex (gsl-relative "themes/corner.tga") :border-size 20 :corner-size 20)))
 ;;}}}
 
 (defun gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+) (width 1024) (height 512));;{{{

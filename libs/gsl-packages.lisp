@@ -233,7 +233,7 @@
 ;;}}}
 
 (defpackage :gsl;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gl-bits)
+  (:use :ccl :common-lisp :gsl-shared :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gui)
   (:export :gsl-init
 	   :gsl-quit
 	   :gsl-init-video

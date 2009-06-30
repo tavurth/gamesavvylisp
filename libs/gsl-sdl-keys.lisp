@@ -271,21 +271,21 @@
 (const +KMOD-SHIFT+	(eval (logior +KMOD-LSHIFT+ +KMOD-RSHIFT+)));;}}}
 
 ;;	Event bits
-(const +SDL_NOEVENT+ 		0)	;; Unused (do not remove) 
-(const +SDL_ACTIVEEVENT+	1)	;; Application loses/gains visibility 
-(const +SDL_KEYDOWN+		2)	;; Keys pressed 
-(const +SDL_KEYUP+		3)	;; Keys released 
-(const +SDL_MOUSEMOTION+	4)	;; Mouse moved 
-(const +SDL_MOUSEBUTTONDOWN+	5)	;; Mouse button pressed 
-(const +SDL_MOUSEBUTTONUP+	6)	;; Mouse button released 
-(const +SDL_JOYAXISMOTION+	7)	;; Joystick axis motion 
-(const +SDL_JOYBALLMOTION+	8)	;; Joystick trackball motion 
-(const +SDL_JOYHATMOTION+	9)	;; Joystick hat position change 
-(const +SDL_JOYBUTTONDOWN+	10)	;; Joystick button pressed 
-(const +SDL_JOYBUTTONUP+	11)	;; Joystick button released 
-(const +SDL_QUIT+		12)	;; User-requested quit 
-(const +SDL_SYSWMEVENT+		13)	;; System specific event 
-(const +SDL_EVENT_RESERVEDA+	14)	;; Reserved for future use.. 
-(const +SDL_EVENT_RESERVEDB+	15)	;; Reserved for future use.. 
-(const +SDL_VIDEORESIZE+	16)	;; User resized video mode 
-(const +SDL_VIDEOEXPOSE+	17)	;; Screen needs to be redrawn 
+(const +SDL-NOEVENT+ 		0)	;; Unused (do not remove) 
+(const +SDL-ACTIVEEVENT+	1)	;; Application loses/gains visibility 
+(const +SDL-KEYDOWN+		2)	;; Keys pressed 
+(const +SDL-KEYUP+		3)	;; Keys released 
+(const +SDL-MOUSEMOTION+	4)	;; Mouse moved 
+(const +SDL-MOUSEBUTTONDOWN+	5)	;; Mouse button pressed 
+(const +SDL-MOUSEBUTTONUP+	6)	;; Mouse button released 
+(const +SDL-JOYAXISMOTION+	7)	;; Joystick axis motion 
+(const +SDL-JOYBALLMOTION+	8)	;; Joystick trackball motion 
+(const +SDL-JOYHATMOTION+	9)	;; Joystick hat position change 
+(const +SDL-JOYBUTTONDOWN+	10)	;; Joystick button pressed 
+(const +SDL-JOYBUTTONUP+	11)	;; Joystick button released 
+(const +SDL-QUIT+		12)	;; User-requested quit 
+(const +SDL-SYSWMEVENT+		13)	;; System specific event 
+(const +SDL-EVENT-RESERVEDA+	14)	;; Reserved for future use.. 
+(const +SDL-EVENT-RESERVEDB+	15)	;; Reserved for future use.. 
+(const +SDL-VIDEORESIZE+	16)	;; User resized video mode 
+(const +SDL-VIDEOEXPOSE+	17)	;; Screen needs to be redrawn 

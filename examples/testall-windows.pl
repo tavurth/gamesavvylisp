@@ -33,4 +33,4 @@ sub test_examples {
 	}
 }
 
-test_examples("Basic", "Basic_input", "Event_callbacks", "Animation", "Motion_blur", "OpenGL_Lights", "Stencil_buffer", "Shaders");
+test_examples("Basic", "Basic_input", "Event_callbacks", "Gui_basic", "Animation", "Motion_blur", "OpenGL_Lights", "Stencil_buffer", "Shaders");

@@ -22,16 +22,16 @@
 ;;Your button-event functions need to take two args (the button and the event type)
 (defun button-event (button type)
   (cond
-    ((equalp type +SDL_MOUSEBUTTONDOWN+) (print "A button was pressed"))
-    ((equalp type +SDL_MOUSEBUTTONUP+)   (print "A button was released")))
+    ((equalp type +SDL-MOUSEBUTTONDOWN+) (print "A button was pressed"))
+    ((equalp type +SDL-MOUSEBUTTONUP+)   (print "A button was released")))
   (format t "~%Button number: ~a~%Event type: ~a~2%" button type))
 
 ;;Handling for all key events
 ;;Your key-event functions need to take two args (the key and the event type)
 (defun key-event (key type)
   (cond
-    ((equalp type +SDL_KEYDOWN+) (print "A key was pressed"))
-    ((equalp type +SDL_KEYUP+)   (print "A key was released")))
+    ((equalp type +SDL-KEYDOWN+) (print "A key was pressed"))
+    ((equalp type +SDL-KEYUP+)   (print "A key was released")))
   (format t "~%Key number: ~a~%Event type: ~a~2%" key type)
 
   ;;	Quit key
