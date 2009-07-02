@@ -1,4 +1,14 @@
 ;;;;;;;;;;;;;;;;;;;;
+;;    LATEST:	  ;;
+;;;;;;;;;;;;;;;;;;;;
+
+- Added new event callbacks
+- Added event callback example
+- Added basic gui example
+- Added small amount of gui stuff
+- Changed license to LGPL
+
+;;;;;;;;;;;;;;;;;;;;
 ;; (GSL) V_0.55:  ;;
 ;;;;;;;;;;;;;;;;;;;;
 
