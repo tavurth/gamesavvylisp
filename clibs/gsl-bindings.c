@@ -433,7 +433,7 @@ void gsl_init (int flags, int options) {
 	GSL_TYPING_KEY_DELAY    = 500;
 
 	//Ignore mouse motion events (use (gsl-pump-events) and then (gsl-mouse-motion) to get them instead)
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+	//SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 
 	if (OPTIONS & GSL_HIDE_MOUSE)
 		SDL_ShowCursor(0);
@@ -494,6 +494,11 @@ void gsl_pump_events () {
 				GSL_KEY_EVENT_FUNC(e.key.keysym.sym, e.key.type);
 		}
 
+		else if (e.type == SDL_MOUSEMOTION) {
+			if (GSL_MOUSE_MOVE_FUNC)
+				GSL_MOUSE_MOVE_FUNC(e.motion.xrel, -e.motion.yrel);
+		}
+
 		else if (e.type == SDL_QUIT) 
 			gsl_quit();
 	} //	Call the correct function when an event takes place
@@ -525,6 +530,8 @@ void gsl_pump_events () {
 		
 		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
 		//Center the mouse for next frame calculations;			(deylen - 14/5/2009)
+		SDL_PollEvent(&e);
+		//Ignore the mouse motion event caused by the call to SDL_WarpMouse
 	}
 }
 

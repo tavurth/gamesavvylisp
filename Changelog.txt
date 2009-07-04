@@ -1,5 +1,5 @@
 ;;;;;;;;;;;;;;;;;;;;
-;;    LATEST:	  ;;
+;; (GSL) V_0.60	  ;;
 ;;;;;;;;;;;;;;;;;;;;
 
 - Added new event callbacks

@@ -37,9 +37,13 @@
   ;;	Quit key
   (when (equalp key +SDLK-ESCAPE+) (gsl-quit)))
 
+(defun move-event (motion-x motion-y)
+  (format t "Motion-x: ~a~%Motion-y: ~a~2%" motion-x motion-y))
+
 ;;	Setting up the callback functions
 (setf *GSL-MOUSE-EVENT-FUNC*	#'button-event)
 (setf *GSL-KEY-EVENT-FUNC* 	#'key-event)
+(setf *GSL-MOUSE-MOVE-FUNC*	#'move-event)
 
 (loop
   (gsl-pump-events)
