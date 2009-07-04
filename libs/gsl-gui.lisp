@@ -28,8 +28,13 @@
 (defparam *GSL-GUI-LIST*	  nil)
 (defparam *GSL-GUI-TOP-FOCUS*     0)
 (defparam *GSL-GUI-NEXT-ID*	  0)
-(defparam *GSL-GUI-DRAGGING*	  nil)
+(defparam *GSL-GUI-LAST-ACTIVE*	  nil)
+(defparam *GSL-GUI-LAST-ACTION*	  nil)
+(defparam *GSL-GUI-OFFSET*	  nil)
 ;;}}}
+
+(const	+GSL-GUI-DRAGGING+	1)
+(const  +GSL-GUI-RESIZING+	2)
 
 ;;	Creation;;{{{
 
@@ -168,10 +173,10 @@
      (when ,border-tex (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
      (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}};;}}}
 
-(defmacro gsl-gui-focus (gui &optional focus);;{{{
+(defmacro gsl-gui-focus (gui &key (set nil));;{{{
   "Returns or sets <gui>'s focus level, sets only if <focus> was passed"
-  (if focus
-    `(setf (gsl-gui-focus-level ,gui) ,focus)
+  (if set 
+    `(setf (gsl-gui-focus-level ,gui) ,set)
     `(gsl-gui-focus-level ,gui)));;}}}
 
 (defun gsl-gui-move (gui x y)
@@ -209,24 +214,46 @@
   "Raises <gui> to be the top-level gui"
   (when gui
     (when (< (gsl-gui-focus gui) *GSL-GUI-TOP-FOCUS*)
-      (gsl-gui-focus gui (incf *GSL-GUI-TOP-FOCUS*))
+      (gsl-gui-focus gui :set (incf *GSL-GUI-TOP-FOCUS*))
       (delete-gui gui)
-      (push gui *GSL-GUI-LIST*))
+      (push gui *GSL-GUI-LIST*)
+      (setf *GSL-GUI-LAST-ACTIVE* gui))
     gui));;}}}
 
-(defmacro test (&optional (type 0 type-supplied))
-  (if type-supplied
-    `(gsl_mouse_motion ,type)
-    `(cons (gsl_mouse_motion +y+) (gsl_mouse_motion +x+))))
+(defun gsl-gui-drag (motionx motiony)
+  "Drag the active gui by <motionx, motiony>"
+  (move *GSL-GUI-LAST-ACTIVE* motionx motiony))
+
+(defun gsl-gui-begin-drag (gui)
+  "Start dragging <gui>"
+  (setf *GSL-GUI-LAST-ACTIVE* gui)
+  (setf *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+))
+
+(defun gsl-gui-action (gui x y)
+  "This function checks all the gui objects in <gui> to locate the one that is active"
+  (and x y)	;;Ignore X and Y for now
+  (gsl-gui-begin-drag gui))
+
+(defun gsl-gui-clear-last-action ()
+  "Clear the current action"
+  (setf *GSL-GUI-LAST-ACTION*	nil))
+
+(defun gsl-gui-mouse-motion (motionx motiony)
+  "Called when the mouse is moved"
+  (when *GSL-GUI-LAST-ACTIVE*
+    (cond
+      ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* motionx motiony)))))
+(setf *GSL-GUI-MOVE-FUNC*		 #'gsl-gui-mouse-motion)
+
+(defun gsl-gui-mouse-event (button type)
+  "Called when a mouse event occurs"
+  (when button
+    (when (equalp type +SDL-MOUSEBUTTONUP+)
+      (gsl-gui-clear-last-action))))
+(setf *GSL-GUI-MOUSE-EVENT-FUNC*	#'gsl-gui-mouse-event)
 
 (defun gsl-gui-mouse-input (x y)
-  (test +x+)
   (let ((current-gui (highest-focus-gui (gsl-mouse-is-on-gui x y))))
     (raise-gui current-gui)
-    (when *GSL-GUI-DRAGGING*
-      (gsl-gui-move *GSL-GUI-DRAGGING* (gsl-mouse-motion +x+) (gsl-mouse-motion +y+)))
-    (if (gsl-get-key +SDLK-SPACE+)
-      (setf *GSL-GUI-DRAGGING* current-gui)
-      (setf *GSL-GUI-DRAGGING* nil))))
-
+    (gsl-gui-action current-gui x y)))
 ;;}}}

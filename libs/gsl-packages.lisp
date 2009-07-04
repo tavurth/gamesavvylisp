@@ -219,6 +219,7 @@
 	   :gsl-gui-draw-corners
 	   :gsl-gui-draw-box
 	   :gsl-gui-draw-all
+	   :gsl-gui-mouse-motion
 	   :gsl-gui-set
 	   :gsl-mouse-is-on-gui
 	   :gsl-gui-mouse-input));;}}}

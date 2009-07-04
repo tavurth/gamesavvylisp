@@ -27,6 +27,10 @@
 (const +X+	#x0000001)
 (const +Y+	#x0000002)
 
+;;	GUI EVENT FUNCTIONS
+(defparam *GSL-GUI-MOVE-FUNC*		nil)
+(defparam *GSL-GUI-MOUSE-EVENT-FUNC*	nil)
+
 (defparam *GSL-CURRENT-SHADER* nil)
 
 ;;	INITIALISATION FLAGS;;{{{

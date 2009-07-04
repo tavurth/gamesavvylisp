@@ -19,11 +19,17 @@
 
 ;;	Setting up our callback events for C
 (defcallback gsl-mouse-event-func (:int button :int type)
-  (when *GSL-MOUSE-EVENT-FUNC* (funcall *GSL-MOUSE-EVENT-FUNC* button type)))
+  (when *GSL-MOUSE-EVENT-FUNC*
+    (funcall *GSL-MOUSE-EVENT-FUNC* button type))
+  (when *GSL-GUI-MOUSE-EVENT-FUNC*
+    (funcall *GSL-GUI-MOUSE-EVENT-FUNC* button type)))
 (gsl_set_mouse_event_func gsl-mouse-event-func)
 
 (defcallback gsl-mouse-move-func (:int motionx :int motiony)
-  (when *GSL-MOUSE-MOVE-FUNC* (funcall *GSL-MOUSE-MOVE-FUNC* motionx motiony)))
+  (when *GSL-MOUSE-MOVE-FUNC* 
+    (funcall *GSL-MOUSE-MOVE-FUNC* motionx motiony))
+  (when *GSL-GUI-MOVE-FUNC*
+    (funcall *GSL-GUI-MOVE-FUNC* motionx motiony)))
 (gsl_set_mouse_move_func gsl-mouse-move-func)
 
 (defcallback gsl-key-event-func (:int key :int type)
