@@ -432,9 +432,6 @@ void gsl_init (int flags, int options) {
 	GSL_TYPING_KEY_REPEAT   = 50;
 	GSL_TYPING_KEY_DELAY    = 500;
 
-	//Ignore mouse motion events (use (gsl-pump-events) and then (gsl-mouse-motion) to get them instead)
-	//SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-
 	if (OPTIONS & GSL_HIDE_MOUSE)
 		SDL_ShowCursor(0);
 }
@@ -542,46 +539,6 @@ int gsl_mouse_motion (short type) {
 int gsl_get_key (int key) {
 	//Get the status of <key>
 	return keys[key];
-}
-
-char * gsl_get_charkey () {
-	//Returns the first key from the SDL event que as a string 	(deylen - 02/06/2009)
-
-	SDL_Event event;
-	SDL_PollEvent(&event);
-
-	static int lastKey;
-	static int timeTillRepeat;
-	int time = SDL_GetTicks();
-
-	if (time < GSL_SkipEvents)
-		return "";		//If we are supposed to be skipping this event cycle then return;
-
-	GSL_SkipEvents = 0;
-
-	if (event.type == SDL_KEYDOWN) {
-		if (event.key.keysym.sym != lastKey) {
-			lastKey = event.key.keysym.sym;
-			timeTillRepeat = time + GSL_TYPING_KEY_DELAY;
-			return SDL_GetKeyName(event.key.keysym.sym);
-		}
-		//If the key is not the same as before, return the new key;	(deylen - 15/05/2009)
-	}
-
-	else if (event.type == SDL_KEYUP) {
-		if (!keys[lastKey])
-			lastKey = 0;
-		//If we lift a key and the last key is no longer pressed make sure we notice it (deylen - 15/05/2009)
-	}
-	
-	if (keys[lastKey]) {			//If a new key has not been pressed check if the lastKey is still held down
-		if (time < timeTillRepeat)
-			return "";
-		timeTillRepeat = time + GSL_TYPING_KEY_REPEAT;
-		return SDL_GetKeyName(lastKey);
-	}
-
-	return "";
 }
 
 void gsl_skip_events (int time) {

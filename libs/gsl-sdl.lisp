@@ -49,7 +49,11 @@
 (new-c-func sdl-get-ticks       "sdl_get_ticks"		nil :int)
 (new-c-func sdl_init		"sdl_init" 		((flags int)))
 (new-c-func sdl_init_video	"sdl_init_video" 	((width int) (height int) (bpp int) (flags int)));;}}}
+(new-c-func sdl_key_name	"sdl_key_name"	((key int)) :address)
 
 ;;Lisp wrappers;
 (defmacro sdl-init-video (&rest args)
   `(sdl_init_video ,@args))
+
+(defmacro sdl-get-key-name (key)
+  `(%get-cstring (sdl_key_name ,key)))

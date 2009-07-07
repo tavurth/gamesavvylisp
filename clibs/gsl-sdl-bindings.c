@@ -47,3 +47,7 @@ int sdl_get_ticks () {
 void sdl_pump_events () {
 	SDL_PumpEvents();
 }
+
+char * sdl_key_name (int key) {
+	return SDL_GetKeyName(key);
+}

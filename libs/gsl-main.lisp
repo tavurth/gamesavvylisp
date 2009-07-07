@@ -60,23 +60,30 @@
     :gsl-gui
     :gsl-with));;}}}
 
-(defmacro gsl-new-font (loc);;{{{
-  `(setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" ,loc) ".tga")))));;}}}
+(defun gsl-new-font (loc);;{{{
+  (setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" loc) ".tga")))));;}}}
 
 (defun gsl-init-video (&key (width 1024) (height 512) (bpp 32) (flags 0 flags_passed) (options 0) (fov 90) (near_clip 0.1) (far_clip 10000));;{{{
+  ;;If we pass no flags, initialise OpenGL with +GSL-DEFAULT-VIDEO-FLAGS+
   (when (not flags_passed) (setf flags +GSL-DEFAULT-VIDEO-FLAGS+))
   (setf flags (logior flags +SDL-OPENGL+))	;Make sure OpenGL is always enabled
 
+  ;;Saving the width and height for a later date
   (defparam *width* width)
   (defparam *height* height)
 
+  ;;Setting up & saving our aspect ratio
   (defparam *aspect-x* (/ *width* *height*))
   (defparam *aspect-y* (/ 1 *aspect-x*))
+
   (progn
+    ;;Initialise video on the C side
      (gsl_init_video width height bpp flags options (truncate fov) (float near_clip) (truncate far_clip))
+     ;;Create the default font
      (gsl-new-font "font")
      (setf *GSL-VIDEO-DONE* t)
-(gsl-gui-set :border-tex (gsl-relative "themes/border.tga") :corner-tex (gsl-relative "themes/corner.tga") :border-size 20 :corner-size 20)))
+     ;;Set the default GUI border & corner textures
+     (gsl-gui-set :border-tex (gsl-relative "themes/border.tga") :corner-tex (gsl-relative "themes/corner.tga") :border-size 20 :corner-size 20)))
 ;;}}}
 
 (defun gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+) (width 1024) (height 512));;{{{

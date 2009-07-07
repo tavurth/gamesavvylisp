@@ -44,8 +44,5 @@
 (defun gsl-get-key (key)
   (if (= (gsl_get_key key) 0) nil t))
 
-(defun gsl-get-charkey ()
-  (%get-cstring (gsl_get_charkey)))
-
 (defun gsl-skip-events (time)
   (gsl_skip_events (truncate time)))

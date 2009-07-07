@@ -48,7 +48,6 @@
 (new-c-func gsl_get_key			"gsl_get_key"			((key int))  	:int)
 (new-c-func gsl-pump-events		"gsl_pump_events"		nil)
 (new-c-func gsl_mouse_motion		"gsl_mouse_motion"		((type short))  :int)
-(new-c-func gsl_get_charkey		"gsl_get_charkey"		nil  		:address)
 (new-c-func gsl-get-mods		"gsl_get_mods"			nil  		:int)
 (new-c-func gsl_skip_events		"gsl_skip_events"		((time :int)))
 (new-c-func gsl_set_mouse_event_func	"gsl_set_mouse_event_func"	((func address)))

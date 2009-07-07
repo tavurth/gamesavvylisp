@@ -138,6 +138,7 @@
 (defpackage :gsl-sdl;;{{{
   (:use :ccl :common-lisp :gsl-shared)
   (:export :sdl-delay
+	   :sdl-get-key-name
 	   :sdl-get-ticks))
 ;;}}}
 
@@ -170,13 +171,14 @@
 ;;}}}
 
 (defpackage :gsl-input;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-globals :gsl-c-funcs)
+  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-globals :gsl-c-funcs :gsl-string)
   (:export :gsl-mouse-motion
 	   :gsl-get-key
 	   :gsl-get-mods
 	   :gsl-pump-events
 	   :gsl-get-mods
 	   :gsl-skip-events
+	   :gsl-read-input-to-string
 	   :gsl-get-charkey))
 ;;}}}
 

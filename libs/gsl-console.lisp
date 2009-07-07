@@ -17,7 +17,10 @@
 
 (in-package :gsl-console)
 
-;;	CONSOLE-UTILS;;{{{
+(defparameter *temp-str* nil)
+
+;;	GET INPUT > STRING;;{{{
+
 (defmacro when-mod (mod rest);;{{{
   "When GSL keymods & mod do <rest>"
   `(when (logand ,mod (gsl-get-mods))
@@ -70,6 +73,31 @@
   (when-mods
     (when-mod +KMOD-SHIFT+ (setf key (shift-case-key key))))
   (return-from test-key-mods key));;}}}
+
+(defun key-tests (key);;{{{
+  "Test for special keys"
+  (cond
+    ((when (string= key "backspace") 	(setf *temp-str* (backspace *temp-str*))))
+    ((when (string= key "space")	(push-char #\Space *temp-str*)))))
+;;}}}
+
+(defun key-event-callback (key type);;{{{
+  "Called when a key is pressed"
+  (when (equalp type +SDL-KEYDOWN+)
+    (let ((this-key (sdl-get-key-name key)))
+      (let ((len (length this-key)))		;Evaluate the length
+	(cond 
+	  ((> len 1)	(key-tests this-key))	;if the key is a string (backspace, space, return etc.);
+	  ((> len 0)	(push-string (test-key-mods this-key) *temp-str*)))))))	;else if the key is a single char;;;}}}
+
+(defun gsl-read-input-to-string (&optional string);;{{{
+  "Get input in the form of a string"
+  (setf *temp-str* string)
+  (let ((*GSL-KEY-EVENT-FUNC* #'key-event-callback))
+    (gsl-pump-events)
+    *temp-str*));;}}};;}}}
+
+;;	CONSOLE-UTILS;;{{{
 
 (defun eval-string (str);;{{{
   "Lisp evals string that is passed to it"
@@ -189,25 +217,18 @@
 	(cond ((<= *GSL-CURSOR-Y* 0) (progn (setf *GSL-CURSOR-Y* 0) (setf *console-curr* "")))	;If the cursor is at 0 or below clear curr and set cursor to 0;
 	      (t (set-console-curr (nth *GSL-CURSOR-Y* *console-prev*))))))))			;Else just set the cursor to the nth;;;}}}
 
-(defun key-tests (key);;{{{
-  "Test for special keys"
-  (cond
-    ((when (string= key "escape")	(exit-console)))
-    ((when (string= key "backspace") 	(setf *console-curr* (backspace *console-curr*))))
-    ((when (string= key "space")	(push-char #\Space *console-curr*)))
-    ((when (string= key "return")	(console-parse-input *console-curr*)))	
-    ((when (string= key "up")		(console-cursor-up)))
-    ((when (string= key "down")		(console-cursor-down)))
-    ((when (string= key "page down")    (setf *GSL-CURSOR-Y* 0)))
-    ((when (string= key "page up")	(setf *GSL-CURSOR-Y* (length *console-prev*))))))
-;;}}}
+(defun test-console-keys ();;{{{
+  "Test keys to see if a special console action is required"
+  (cond 
+    ((gsl-get-key +SDLK-ESCAPE+) 	(exit-console))
+    ((gsl-get-key +SDLK-RETURN+)	(console-parse-input *console-curr*))
+    ((gsl-get-key +SDLK-UP+)		(console-cursor-up))
+    ((gsl-get-key +SDLK-DOWN+)		(console-cursor-down))
+    ((gsl-get-key +SDLK-PAGEDOWN+)      (setf *GSL-CURSOR-Y* 0))
+    ((gsl-get-key +SDLK-PAGEUP+)	(setf *GSL-CURSOR-Y* (length *console-prev*)))));;}}}
 
 (defun gsl-console-input ();;{{{
   "Get input in text form for the console"
-  (loop					;Loop until there are no more keys being pressed
-    (let ((key (gsl-get-charkey)))	;Get our key value					(deylen - 15/05/09)
-      (let ((len (length key)))		;Evaluate the length
-	(cond 
-	  ((> len 1)	(key-tests key))	;if the key is a string (backspace, space, return etc.);
-	  ((> len 0)	(push-string (test-key-mods key) *console-curr*))	;else if the key is a single char;
-	  (t (return)))))));;}}};;}}}
+  (let ((new-str (gsl-read-input-to-string *console-curr*)))
+    (when new-str (setf *console-curr* new-str))
+    (test-console-keys)));;}}}

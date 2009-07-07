@@ -173,7 +173,7 @@
      (when ,border-tex (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
      (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}};;}}}
 
-(defmacro gsl-gui-focus (gui &key (set nil));;{{{
+(defmacro gsl-gui-focus (gui &key set);;{{{
   "Returns or sets <gui>'s focus level, sets only if <focus> was passed"
   (if set 
     `(setf (gsl-gui-focus-level ,gui) ,set)
