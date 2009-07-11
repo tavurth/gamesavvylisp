@@ -25,18 +25,18 @@
 (defparam *GSL-GUI-BACKGROUND-COLOR* '(0.2 0.2 0.2 0.9))
 (defparam *GSL-GUI-BORDER-TEX*	  nil) 
 (defparam *GSL-GUI-CORNER-TEX*	  nil)
-(defparam *GSL-GUI-LIST*	  nil)
 (defparam *GSL-GUI-TOP-FOCUS*     0)
 (defparam *GSL-GUI-NEXT-ID*	  0)
 (defparam *GSL-GUI-LAST-ACTIVE*	  nil)
 (defparam *GSL-GUI-LAST-ACTION*	  nil)
 (defparam *GSL-GUI-OFFSET*	  nil)
+(defparam *GSL-GUI-MASTER*	  nil)
 ;;}}}
 
 (const	+GSL-GUI-DRAGGING+	1)
 (const  +GSL-GUI-RESIZING+	2)
 
-;;	Creation;;{{{
+;;	GUI CREATION;;{{{
 
 (defclass gui ();;{{{
   ((x
@@ -55,16 +55,24 @@
      :initform 50
      :initarg :height
      :accessor gsl-gui-height)
+   (parent
+     :initform nil
+     :initarg :parent
+     :accessor gsl-gui-parent)
    (focus-level
      :initform (incf *GSL-GUI-TOP-FOCUS*)
      :initarg :focus-level
      :accessor gsl-gui-focus-level)
    (id
      :initform (incf *GSL-GUI-NEXT-ID*)
-     :accessor gsl-gui-id)))
+     :accessor gsl-gui-id)
+   (gui-list
+     :initform nil
+     :initarg :gui-list
+     :accessor gsl-gui-list)))
 ;;}}}
 
-(export-all gsl-gui-x;;{{{
+(export-all gsl-gui-listgsl-gui-x;;{{{
 	    gsl-gui-y
 	    gsl-gui-width
 	    gsl-gui-height);;}}}
@@ -73,19 +81,22 @@
   "Creates and returns a new gui object"
   `(make-instance 'gui :x ,x :y ,y :width ,w :height ,h));;}}}
 
-(defun gsl-gui-new (x y w h);;{{{
-  "Creates a new gui adds it to *GSL-GUI-LIST* and returns it"
+(defun gsl-gui-new (x y w h &key parent &allow-other-keys);;{{{
+  "Creates a new gui adds it to the gui list of parent and returns it"
   (let ((gui (make-gui x y w h)))
-    (push gui *GSL-GUI-LIST*)
+    (cond
+      (parent (push gui (gsl-gui-list parent)))	;;If a parent was passed push this gui onto the parents gui list
+      (*GSL-GUI-MASTER*	(push gui (gsl-gui-list *GSL-GUI-MASTER*))) ;;Else if there is a gui master, push to its list
+      (t (setf *GSL-GUI-MASTER* gui)))	;;Else assign this as the gui master
     (return-from gsl-gui-new gui)))
 ;;}}};;}}}
 
 ;;	Drawing;;{{{
 
-(defmacro gsl-gui-draw-corner (rotation x y);;{{{
-  "Draw a single gui corner at <x,y> rotated to <rotation>"
-  `(gsl-with-translate (:x ,x :y ,y)
-      (gsl-with-rotate (:z ,rotation)
+(defun gsl-gui-draw-corner (rotation x y);;{{{
+  "Draw a single gui corner at <xy> rotated to <rotation>"
+  (gsl-with-translate (:x x :y y)
+      (gsl-with-rotate (:z rotation)
 	 (gsl-draw-rect :tex *GSL-GUI-CORNER-TEX*
 			:x (/ (mirror *GSL-GUI-CORNER-SIZE*) 1.5)
 			:y (/ (mirror *GSL-GUI-CORNER-SIZE*) 1.5)
@@ -93,10 +104,10 @@
 			:h (* *GSL-GUI-CORNER-SIZE* 2)))))
 ;;}}}
 
-(defmacro gsl-gui-draw-border (x y x2 y2);;{{{
-  "Draws a single border with gui textures from <x,y> to <x2,y2>"
-  `(let ((angle (gsl-to-degrees (gsl-get-angle ,x ,y ,x2 ,y2))) (width (gsl-get-dist ,x ,y ,x2 ,y2)))
-     (gsl-with-translate (:x ,x :y ,y)
+(defun gsl-gui-draw-border (x y x2 y2);;{{{
+  "Draws a single border with gui textures from <xy> to <x2y2>"
+  (let ((angle (gsl-to-degrees (gsl-get-angle x y x2 y2))) (width (gsl-get-dist x y x2 y2)))
+     (gsl-with-translate (:x x :y y)
 	(gsl-with-rotate (:z (- 90 angle))
 	   (gsl-draw-rect :y (mirror (/ *GSL-GUI-BORDER-SIZE* 2.0)) 
 			  :h *GSL-GUI-BORDER-SIZE* 
@@ -105,49 +116,52 @@
 			  :repeat-sizex *GSL-GUI-BORDER-SIZE*)))))
 ;;}}}
 
-(defmacro gsl-gui-draw-borders (x y w h);;{{{
-  "Draw the border outlines of the rect <x,y,w,h>"
-  `(gsl-with-color (:list *GSL-GUI-BORDER-COLOR*)
-      (let ((x2 (+ ,x ,w)) (y2 (+ ,y ,h)))
-	(gsl-gui-draw-border ,x ,y x2 ,y)	;Bottom
-	(gsl-gui-draw-border ,x y2 x2 y2) 	;Top
-	(gsl-gui-draw-border ,x ,y ,x y2)	;Left
-	(gsl-gui-draw-border x2 ,y x2 y2))))	;Right
+(defun gsl-gui-draw-borders (x y w h);;{{{
+  "Draw the border outlines of the rect <xywh>"
+  (gsl-with-color (:list *GSL-GUI-BORDER-COLOR*)
+      (let ((x2 (+ x w)) (y2 (+ y h)))
+	(gsl-gui-draw-border x y x2 y)	;Bottom
+	(gsl-gui-draw-border x y2 x2 y2) 	;Top
+	(gsl-gui-draw-border x y x y2)	;Left
+	(gsl-gui-draw-border x2 y x2 y2))))	;Right
 ;;}}}
 
-(defmacro gsl-gui-draw-background (x y w h);;{{{
+(defun gsl-gui-draw-background (x y w h);;{{{
   "Draws the background for a gui"
-  `(gsl-with-color (:list *GSL-GUI-BACKGROUND-COLOR*)
-      (gsl-draw-rect :x ,x :y ,y :w ,w :h ,h)));;}}}
+  (gsl-with-color (:list *GSL-GUI-BACKGROUND-COLOR*)
+      (gsl-draw-rect :x x :y y :w w :h h)));;}}}
 
-(defmacro gsl-gui-draw-corners (x y w h);;{{{
+(defun gsl-gui-draw-corners (x y w h);;{{{
   "Draw the corners of gui rect <x,y,w,h>"
-  `(gsl-with-color (:list *GSL-GUI-CORNER-COLOR*)
-      (let ((x2 (+ ,x ,w)) (y2 (+ ,y ,h)))
-	(gsl-gui-draw-corner 0   ,x ,y)		;Bottom-left
-	(gsl-gui-draw-corner 90  x2 ,y)		;Bottom-right
+  (gsl-with-color (:list *GSL-GUI-CORNER-COLOR*)
+      (let ((x2 (+ x w)) (y2 (+ y h)))
+	(gsl-gui-draw-corner 0   x y)		;Bottom-left
+	(gsl-gui-draw-corner 90  x2 y)		;Bottom-right
 	(gsl-gui-draw-corner 180 x2 y2)		;Top-right
-	(gsl-gui-draw-corner 270 ,x y2))))	;Top-left
+	(gsl-gui-draw-corner 270 x y2))))	;Top-left
 ;;}}}
 
-(defmacro gsl-gui-draw-box (x y w h);;{{{
+(defun gsl-gui-draw-box (x y w h);;{{{
   "Draws a gui border and background"
-  `(gsl-with-textures
+  (gsl-with-textures
      (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
-	(gsl-gui-draw-background ,x ,y ,w ,h)
-	(gsl-gui-draw-borders ,x ,y ,w ,h)
-	(gsl-gui-draw-corners ,x ,y ,w ,h))));;}}}
+	(gsl-gui-draw-background x y w h)
+	(gsl-gui-draw-borders x y w h)
+	(gsl-gui-draw-corners x y w h))));;}}}
 
-(defmacro gsl-gui-draw (&optional gui);;{{{
+(defun gsl-gui-draw (this-gui);;{{{
   "Draws <gui>"
-  `(gsl-gui-draw-box (gsl-gui-x ,gui) (gsl-gui-y ,gui) (gsl-gui-width ,gui) (gsl-gui-height ,gui)))
+  (gsl-gui-draw-box (gsl-gui-x this-gui) (gsl-gui-y this-gui) (gsl-gui-width this-gui) (gsl-gui-height this-gui))
+  (dolist (gui (gsl-gui-list this-gui))
+    (gsl-gui-draw gui)))
 ;;}}}
 
-(defmacro gsl-gui-draw-all ();;{{{
-  "Draws all guis from *GSL-GUI-LIST*"
-  `(dolist (gui (reverse *GSL-GUI-LIST*))
-     (gsl-gui-draw gui)));;}}}
-;;}}}
+(defun gsl-gui-draw-all (&optional (parent *GSL-GUI-MASTER*));;{{{
+  "Draws all guis from parent"
+  (let ((list (gsl-gui-list parent)))
+    (dolist (gui (reverse list)) 
+      (gsl-gui-draw gui))))
+;;}}};;}}}
 
 ;;	Parameters;;{{{
 
@@ -189,10 +203,10 @@
   "Returns t if <x,y> is inside <gui>"
   `(gsl-x-in-rect ,x ,y (gsl-gui-x ,gui) (gsl-gui-y ,gui) (gsl-gui-width ,gui) (gsl-gui-height ,gui)));;}}}
 
-(defun gsl-mouse-is-on-gui (x y);;{{{
+(defun gsl-mouse-is-on-gui (x y &optional (parent *GSL-GUI-MASTER*));;{{{
   "Returns a list of all gui objects that collide with position <x,y>"
   (let ((list nil))
-    (dolist (gui *GSL-GUI-LIST*)
+    (dolist (gui (gsl-gui-list parent))
       (when (pos-in-gui gui x y) (push gui list)))
     list))
 ;;}}}
@@ -206,9 +220,11 @@
   (return-from highest-focus-gui (highest-focus-gui (cdr gui-list) highest)));;}}}
 
 (defun delete-gui (gui);;{{{
-  "Removes <gui> from *GSL-GUI-LIST*"
-  (let ((id (gsl-gui-id gui)))
-    (setf *GSL-GUI-LIST* (delete-if #'(lambda (temp-gui) (equal (gsl-gui-id temp-gui) id)) *GSL-GUI-LIST*))));;}}}
+  "Removes <gui> from "
+  (let ((parent (gsl-gui-parent gui)))
+    (let ((id (gsl-gui-id gui)))
+      (setf (gsl-gui-list parent) (delete-if #'(lambda (temp-gui) (equal (gsl-gui-id temp-gui) id)) (gsl-gui-list parent))))))
+;;}}}
 
 (defun raise-gui (gui);;{{{
   "Raises <gui> to be the top-level gui"
@@ -216,44 +232,44 @@
     (when (< (gsl-gui-focus gui) *GSL-GUI-TOP-FOCUS*)
       (gsl-gui-focus gui :set (incf *GSL-GUI-TOP-FOCUS*))
       (delete-gui gui)
-      (push gui *GSL-GUI-LIST*)
+      (push gui (gsl-gui-list *GSL-GUI-MASTER*))
       (setf *GSL-GUI-LAST-ACTIVE* gui))
     gui));;}}}
 
-(defun gsl-gui-drag (motionx motiony)
+(defun gsl-gui-drag (motionx motiony);;{{{
   "Drag the active gui by <motionx, motiony>"
-  (move *GSL-GUI-LAST-ACTIVE* motionx motiony))
+  (move *GSL-GUI-LAST-ACTIVE* motionx motiony));;}}}
 
-(defun gsl-gui-begin-drag (gui)
+(defun gsl-gui-begin-drag (gui);;{{{
   "Start dragging <gui>"
   (setf *GSL-GUI-LAST-ACTIVE* gui)
-  (setf *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+))
+  (setf *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+));;}}}
 
-(defun gsl-gui-action (gui x y)
+(defun gsl-gui-action (gui x y);;{{{
   "This function checks all the gui objects in <gui> to locate the one that is active"
   (and x y)	;;Ignore X and Y for now
-  (gsl-gui-begin-drag gui))
+  (gsl-gui-begin-drag gui));;}}}
 
-(defun gsl-gui-clear-last-action ()
+(defun gsl-gui-clear-last-action ();;{{{
   "Clear the current action"
-  (setf *GSL-GUI-LAST-ACTION*	nil))
+  (setf *GSL-GUI-LAST-ACTION*	nil));;}}}
 
-(defun gsl-gui-mouse-motion (motionx motiony)
+(defun gsl-gui-mouse-motion (motionx motiony);;{{{
   "Called when the mouse is moved"
   (when *GSL-GUI-LAST-ACTIVE*
     (cond
       ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* motionx motiony)))))
-(setf *GSL-GUI-MOVE-FUNC*		 #'gsl-gui-mouse-motion)
+(setf *GSL-GUI-MOVE-FUNC*		 #'gsl-gui-mouse-motion);;}}}
 
-(defun gsl-gui-mouse-event (button type)
+(defun gsl-gui-mouse-event (button type);;{{{
   "Called when a mouse event occurs"
   (when button
     (when (equalp type +SDL-MOUSEBUTTONUP+)
       (gsl-gui-clear-last-action))))
-(setf *GSL-GUI-MOUSE-EVENT-FUNC*	#'gsl-gui-mouse-event)
+(setf *GSL-GUI-MOUSE-EVENT-FUNC*	#'gsl-gui-mouse-event);;}}}
 
-(defun gsl-gui-mouse-input (x y)
+(defun gsl-gui-mouse-input (x y);;{{{
   (let ((current-gui (highest-focus-gui (gsl-mouse-is-on-gui x y))))
     (raise-gui current-gui)
     (gsl-gui-action current-gui x y)))
-;;}}}
+;;}}};;}}}

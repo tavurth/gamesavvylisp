@@ -87,11 +87,10 @@
 ;;}}}
 
 (defun gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+) (width 1024) (height 512));;{{{
-  (if (logand options +GSL-DEFAULT-VIDEO+)
-    (progn
-       (gsl_init flags options)
-       (gsl-init-video :flags flags :options options :width width :height height)
-       (setf *GSL-INIT-DONE* t))))
+  (gsl_init flags options)
+  (setf *GSL-INIT-DONE* t)
+  (when (logand options +GSL-DEFAULT-VIDEO+)
+    (gsl-init-video :flags flags :options options :width width :height height)))
 ;;}}}
 
 (defun gsl-quit ();;{{{

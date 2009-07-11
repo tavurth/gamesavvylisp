@@ -254,16 +254,16 @@
 
 ;;Loading libs;;{{{
 (load (gsl-lisp-relative "gsl-shared.lisp"))
+(load (gsl-lisp-relative "gsl-c-funcs.lisp"))
 (load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 (load (gsl-lisp-relative "gsl-classes.lisp"))
 (load (gsl-lisp-relative "gsl-sdl.lisp"))
-(load (gsl-lisp-relative "gsl-c-funcs.lisp"))
 (load (gsl-lisp-relative "gsl-globals.lisp"))
 (load (gsl-lisp-relative "gsl-gl.lisp"))
 (load (gsl-lisp-relative "gsl-updates.lisp"))
 (load (gsl-lisp-relative "gsl-with.lisp"))
-(load (gsl-lisp-relative "gsl-gui.lisp"))
 (load (gsl-lisp-relative "gsl-draw.lisp"))
+(load (gsl-lisp-relative "gsl-gui.lisp"))
 (load (gsl-lisp-relative "gsl-input.lisp"))
 (load (gsl-lisp-relative "gsl-string.lisp"))
 (load (gsl-lisp-relative "gsl-console.lisp"))

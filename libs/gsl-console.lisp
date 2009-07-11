@@ -231,4 +231,5 @@
   "Get input in text form for the console"
   (let ((new-str (gsl-read-input-to-string *console-curr*)))
     (when new-str (setf *console-curr* new-str))
-    (test-console-keys)));;}}}
+    (test-console-keys)))
+;;}}}

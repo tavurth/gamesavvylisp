@@ -21,6 +21,8 @@
 ;;	Setting up the gui textures and sizes (not required)
 ;(gsl-gui-set :border-tex (gsl-relative "themes/border.tga") :corner-tex (gsl-relative "themes/corner.tga") :border-size 20 :corner-size 20)
 
+;;	Master gui
+(defparam *master* (gsl-gui-new -1024 -512 2048 1024))
 ;;	First gui
 (defparam *test* (gsl-gui-new -800 -800 1600 1600))
 ;;	Second gui
