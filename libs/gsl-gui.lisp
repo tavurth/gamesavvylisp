@@ -31,10 +31,14 @@
 (defparam *GSL-GUI-LAST-ACTION*	  nil)
 (defparam *GSL-GUI-OFFSET*	  nil)
 (defparam *GSL-GUI-MASTER*	  nil)
+(defparam *GSL-GUI-CURSOR-X*	  0)
+(defparam *GSL-GUI-CURSOR-Y*	  0)
 ;;}}}
 
+;;	GSL-GUI-CONSTANTS;;{{{
 (const	+GSL-GUI-DRAGGING+	1)
 (const  +GSL-GUI-RESIZING+	2)
+;;}}}
 
 ;;	GUI CREATION;;{{{
 
@@ -159,8 +163,13 @@
 (defun gsl-gui-draw-all (&optional (parent *GSL-GUI-MASTER*));;{{{
   "Draws all guis from parent"
   (let ((list (gsl-gui-list parent)))
+    (gl-load-identity)
+    (gl-translate :z -1024)
     (dolist (gui (reverse list)) 
-      (gsl-gui-draw gui))))
+      (gsl-gui-draw gui))
+    ;;Drawing the cursor
+    (gsl-draw-rect :x *GSL-GUI-CURSOR-X* :y *GSL-GUI-CURSOR-Y* :w 5 :h 5)))
+
 ;;}}};;}}}
 
 ;;	Parameters;;{{{
@@ -185,91 +194,62 @@
      (when ,border-size (setf *GSL-GUI-BORDER-SIZE* ,border-size))
      (when ,corner-size (setf *GSL-GUI-CORNER-SIZE* ,corner-size))
      (when ,border-tex (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
-     (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}};;}}}
+     (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}}
 
-(defmacro gsl-gui-focus (gui &key set);;{{{
-  "Returns or sets <gui>'s focus level, sets only if <focus> was passed"
-  (if set 
-    `(setf (gsl-gui-focus-level ,gui) ,set)
-    `(gsl-gui-focus-level ,gui)));;}}}
-
-(defun gsl-gui-move (gui x y)
+(defun gsl-gui-move (gui x y);;{{{
+  "Move a gui by <x,y>"
   (incf (gsl-gui-x gui) x)
-  (incf (gsl-gui-y gui) y))
+  (incf (gsl-gui-y gui) y));;}}}
+
+(defun gsl-gui-move-cursor (&key (x 0) (y 0));;{{{
+  "Move the gui cursor by <x,y>"
+  (incf *GSL-GUI-CURSOR-X* x)
+  (incf *GSL-GUI-CURSOR-Y* y));;}}}
+
+(defun gsl-gui-set-cursor (&key x y);;{{{
+  "Set the gui cursor to a specific location"
+  (when x (setf *GSL-GUI-CURSOR-X* x))
+  (when y (setf *GSL-GUI-CURSOR-Y* y)));;}}}
+
+(defun gsl-gui-focus (gui &key set);;{{{
+  "Return or set <gui>'s focus level"
+  (if set
+    (setf (gsl-gui-focus-level gui) set)
+    (gsl-gui-focus-level gui)));;}}};;}}}
 
 ;;	Input;;{{{
 
-(defmacro pos-in-gui (gui x y);;{{{
-  "Returns t if <x,y> is inside <gui>"
-  `(gsl-x-in-rect ,x ,y (gsl-gui-x ,gui) (gsl-gui-y ,gui) (gsl-gui-width ,gui) (gsl-gui-height ,gui)));;}}}
+(defun gui-is-under-pos (gui x y);;{{{
+  "Find out if <gui> is under position <x,y>"
+  (gsl-x-in-rect x y (gsl-gui-x gui) (gsl-gui-y gui) (gsl-gui-width gui) (gsl-gui-height gui)));;}}}
 
-(defun gsl-mouse-is-on-gui (x y &optional (parent *GSL-GUI-MASTER*));;{{{
-  "Returns a list of all gui objects that collide with position <x,y>"
-  (let ((list nil))
+(defun get-guis-under-cursor (&optional (parent *GSL-GUI-MASTER*));;{{{
+  "Return a list of all guis under the *GSL-GUI-CURSOR-X/Y* position"
+  (let ((list-to-return nil))
     (dolist (gui (gsl-gui-list parent))
-      (when (pos-in-gui gui x y) (push gui list)))
-    list))
-;;}}}
+      (when (gui-is-under-pos gui *GSL-GUI-CURSOR-X* *GSL-GUI-CURSOR-Y*) (push gui list-to-return)))
+    list-to-return));;}}}
 
-(defun highest-focus-gui (gui-list &optional (highest (car gui-list)));;{{{
-  "Returns the gui with the highest focus from <gui-list>"
-  (when (not gui-list) (return-from highest-focus-gui highest))
+(defun get-highest-focus (gui-list &optional highest);;{{{
+  "Return the gui with the highest focus level from <gui-list>"
+  (when (not gui-list) (return-from get-highest-focus highest))
   (let ((first (car gui-list)))
-    (when (> (gsl-gui-focus first) (gsl-gui-focus highest))
-      (setf highest first)))
-  (return-from highest-focus-gui (highest-focus-gui (cdr gui-list) highest)));;}}}
+    (when (not highest) (setf highest first))
+    (when (>= (gsl-gui-focus first) (gsl-gui-focus highest)) (setf highest first))
+    (get-highest-focus (cdr gui-list) highest)));;}}};;}}}
 
-(defun delete-gui (gui);;{{{
-  "Removes <gui> from "
-  (let ((parent (gsl-gui-parent gui)))
-    (let ((id (gsl-gui-id gui)))
-      (setf (gsl-gui-list parent) (delete-if #'(lambda (temp-gui) (equal (gsl-gui-id temp-gui) id)) (gsl-gui-list parent))))))
-;;}}}
-
-(defun raise-gui (gui);;{{{
-  "Raises <gui> to be the top-level gui"
-  (when gui
-    (when (< (gsl-gui-focus gui) *GSL-GUI-TOP-FOCUS*)
-      (gsl-gui-focus gui :set (incf *GSL-GUI-TOP-FOCUS*))
-      (delete-gui gui)
-      (push gui (gsl-gui-list *GSL-GUI-MASTER*))
-      (setf *GSL-GUI-LAST-ACTIVE* gui))
-    gui));;}}}
-
-(defun gsl-gui-drag (motionx motiony);;{{{
-  "Drag the active gui by <motionx, motiony>"
-  (move *GSL-GUI-LAST-ACTIVE* motionx motiony));;}}}
-
-(defun gsl-gui-begin-drag (gui);;{{{
-  "Start dragging <gui>"
-  (setf *GSL-GUI-LAST-ACTIVE* gui)
-  (setf *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+));;}}}
-
-(defun gsl-gui-action (gui x y);;{{{
-  "This function checks all the gui objects in <gui> to locate the one that is active"
-  (and x y)	;;Ignore X and Y for now
-  (gsl-gui-begin-drag gui));;}}}
-
-(defun gsl-gui-clear-last-action ();;{{{
-  "Clear the current action"
-  (setf *GSL-GUI-LAST-ACTION*	nil));;}}}
-
-(defun gsl-gui-mouse-motion (motionx motiony);;{{{
-  "Called when the mouse is moved"
-  (when *GSL-GUI-LAST-ACTIVE*
-    (cond
-      ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* motionx motiony)))))
-(setf *GSL-GUI-MOVE-FUNC*		 #'gsl-gui-mouse-motion);;}}}
+;;	Events;;{{{
 
 (defun gsl-gui-mouse-event (button type);;{{{
   "Called when a mouse event occurs"
   (when button
-    (when (equalp type +SDL-MOUSEBUTTONUP+)
-      (gsl-gui-clear-last-action))))
-(setf *GSL-GUI-MOUSE-EVENT-FUNC*	#'gsl-gui-mouse-event);;}}}
+    (when (equalp type +SDL-MOUSEBUTTONDOWN+)
+      (print (get-highest-focus (get-guis-under-cursor))))))
+(setf *GSL-GUI-MOUSE-EVENT-FUNC* #'gsl-gui-mouse-event);;}}}
 
-(defun gsl-gui-mouse-input (x y);;{{{
-  (let ((current-gui (highest-focus-gui (gsl-mouse-is-on-gui x y))))
-    (raise-gui current-gui)
-    (gsl-gui-action current-gui x y)))
-;;}}};;}}}
+(defun gsl-gui-mouse-motion (motionx motiony);;{{{
+  "Called when a mouse motion event occurs"
+  (gsl-gui-move-cursor :x motionx :y motiony))
+(setf *GSL-GUI-MOVE-FUNC* #'gsl-gui-mouse-motion);;}}};;}}}
+
+(defparam *GSL-GUI-MASTER* (gsl-gui-new -1000 -1000 1024 512))
