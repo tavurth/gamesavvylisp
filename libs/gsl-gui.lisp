@@ -40,7 +40,7 @@
 (const  +GSL-GUI-RESIZING+	2)
 ;;}}}
 
-;;	GUI CREATION;;{{{
+;;	Creation ;;{{{
 
 (defclass gui ();;{{{
   ((x
@@ -63,10 +63,6 @@
      :initform nil
      :initarg :parent
      :accessor gsl-gui-parent)
-   (focus-level
-     :initform (incf *GSL-GUI-TOP-FOCUS*)
-     :initarg :focus-level
-     :accessor gsl-gui-focus-level)
    (id
      :initform (incf *GSL-GUI-NEXT-ID*)
      :accessor gsl-gui-id)
@@ -165,7 +161,7 @@
   (let ((list (gsl-gui-list parent)))
     (gl-load-identity)
     (gl-translate :z -1024)
-    (dolist (gui (reverse list)) 
+    (dolist (gui (reverse list))
       (gsl-gui-draw gui))
     ;;Drawing the cursor
     (gsl-draw-rect :x *GSL-GUI-CURSOR-X* :y *GSL-GUI-CURSOR-Y* :w 5 :h 5)))
@@ -196,26 +192,10 @@
      (when ,border-tex (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
      (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}}
 
-(defun gsl-gui-move (gui x y);;{{{
-  "Move a gui by <x,y>"
-  (incf (gsl-gui-x gui) x)
-  (incf (gsl-gui-y gui) y));;}}}
-
-(defun gsl-gui-move-cursor (&key (x 0) (y 0));;{{{
-  "Move the gui cursor by <x,y>"
-  (incf *GSL-GUI-CURSOR-X* x)
-  (incf *GSL-GUI-CURSOR-Y* y));;}}}
-
 (defun gsl-gui-set-cursor (&key x y);;{{{
   "Set the gui cursor to a specific location"
   (when x (setf *GSL-GUI-CURSOR-X* x))
-  (when y (setf *GSL-GUI-CURSOR-Y* y)));;}}}
-
-(defun gsl-gui-focus (gui &key set);;{{{
-  "Return or set <gui>'s focus level"
-  (if set
-    (setf (gsl-gui-focus-level gui) set)
-    (gsl-gui-focus-level gui)));;}}};;}}}
+  (when y (setf *GSL-GUI-CURSOR-Y* y)));;}}};;}}}
 
 ;;	Input;;{{{
 
@@ -238,18 +218,111 @@
     (when (>= (gsl-gui-focus first) (gsl-gui-focus highest)) (setf highest first))
     (get-highest-focus (cdr gui-list) highest)));;}}};;}}}
 
+;;	Actions;;{{{
+
+(defun gsl-gui-move (gui &key (x 0) (y 0));;{{{
+  "Move a gui by <x,y>"
+  (incf (gsl-gui-x gui) x)
+  (incf (gsl-gui-y gui) y));;}}}
+
+(defun gsl-gui-resize (gui &key (x 0) (y 0));;{{{
+  "Resize <gui> by <x,y>"
+  (let ((gsl-gui-min 50))
+    (when (< (incf (gsl-gui-width gui)  x) gsl-gui-min) (setf (gsl-gui-width gui)  gsl-gui-min))
+    (when (< (incf (gsl-gui-height gui) y) gsl-gui-min) (setf (gsl-gui-height gui) gsl-gui-min))))
+;;}}}
+
+(defun gsl-gui-move-cursor (&key (x 0) (y 0));;{{{
+  "Move the gui cursor by <x,y>"
+  (incf *GSL-GUI-CURSOR-X* x)
+  (incf *GSL-GUI-CURSOR-Y* y));;}}}
+
+(defun begin-action (gui action-type);;{{{
+  "Call this function to begin an action on <gui>"
+  (when (not gui) (return-from begin-action))
+  (setf *GSL-GUI-LAST-ACTIVE* gui)
+  (setf *GSL-GUI-LAST-ACTION* action-type));;}}}
+
+(defun begin-dragging (gui);;{{{
+  "Call this function to begin dragging <gui>"
+  (begin-action gui +GSL-GUI-DRAGGING+))
+;;}}}
+
+(defun begin-resizing (gui);;{{{
+  "Call this function to begin resizing <gui>"
+  (begin-action gui +GSL-GUI-RESIZING+));;}}}
+
+(defun end-actions ();;{{{
+  "Ends all gui actions"
+  (setf *GSL-GUI-LAST-ACTIVE* nil)
+  (setf *GSL-GUI-LAST-ACTION* nil));;}}}
+
+(defun move-action (motionx motiony);;{{{
+  "Called when a mouse motion event occurs and a gui action is also occuring"
+  (cond
+    ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* :x motionx :y motiony))
+    ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-RESIZING+) (gsl-gui-resize *GSL-GUI-LAST-ACTIVE* :x motionx :y motiony))));;}}}
+
+(defun delete-gui (gui);;{{{
+  "Delete <gui> from its parent's gui-list"
+  (let ((parent-gui (gsl-gui-parent gui)))
+    (when (not parent-gui) (setf parent-gui *GSL-GUI-MASTER*))
+    (setf (gsl-gui-list parent-gui)
+	  (delete-if #'(lambda (temp-gui) (equalp (gsl-gui-id temp-gui) (gsl-gui-id gui))) (gsl-gui-list parent-gui)))));;}}}
+
+(defun add-gui-to-parent (gui parent);;{{{
+  "Add <gui> to <parent>'s gui list"
+  (push gui (gsl-gui-list parent)));;}}}
+
+(defun raise-gui (gui);;{{{
+  "Raise <gui> to be the top level gui in its parent"
+  (let ((parent-gui (gsl-gui-parent gui)))
+    (when (not parent-gui) (setf parent-gui *GSL-GUI-MASTER*))
+    (delete-gui gui)
+    (add-gui-to-parent gui parent-gui)));;}}};;}}}
+
 ;;	Events;;{{{
+
+;;	Left Mouse Event ;;{{{
+(defun left-mouse-down ()
+  (let ((current-gui (first (reverse (get-guis-under-cursor)))))
+    (when (not current-gui) (return-from left-mouse-down))
+    (raise-gui current-gui)
+    ;(begin-resizing current-gui)))
+    (begin-dragging current-gui)))
+
+(defun left-mouse-up ()
+  (end-actions))
+;;}}}
+
+;;	Mouse Event;;{{{
+
+(defun mouse-down (button);;{{{
+  "Called when a mouse button is pressed"
+  (cond
+    ((equalp button 1) (left-mouse-down))));;}}}
+
+(defun mouse-up (button);;{{{
+  "Called when a mouse button is released"
+  (cond
+    ((equalp button 1) (left-mouse-up))))
+
+;;}}};;}}}
+
+;;	Event types;;{{{
 
 (defun gsl-gui-mouse-event (button type);;{{{
   "Called when a mouse event occurs"
-  (when button
-    (when (equalp type +SDL-MOUSEBUTTONDOWN+)
-      (print (get-highest-focus (get-guis-under-cursor))))))
-(setf *GSL-GUI-MOUSE-EVENT-FUNC* #'gsl-gui-mouse-event);;}}}
+  (cond
+    ((equalp type +SDL-MOUSEBUTTONDOWN+) (mouse-down button))
+    ((equalp type +SDL-MOUSEBUTTONUP+)   (mouse-up   button))))
+(setf *GSL-GUI-MOUSE-EVENT-FUNC* #'gsl-gui-mouse-event)
+;;}}}
 
 (defun gsl-gui-mouse-motion (motionx motiony);;{{{
   "Called when a mouse motion event occurs"
-  (gsl-gui-move-cursor :x motionx :y motiony))
-(setf *GSL-GUI-MOVE-FUNC* #'gsl-gui-mouse-motion);;}}};;}}}
+  (gsl-gui-move-cursor :x motionx :y motiony)
+  (when *GSL-GUi-LAST-ACTIVE* (move-action motionx motiony)))
+(setf *GSL-GUI-MOVE-FUNC* #'gsl-gui-mouse-motion);;}}};;}}};;}}}
 
 (defparam *GSL-GUI-MASTER* (gsl-gui-new -1000 -1000 1024 512))
