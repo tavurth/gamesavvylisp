@@ -41,9 +41,9 @@
   (format t "Motion-x: ~a~%Motion-y: ~a~2%" motion-x motion-y))
 
 ;;	Setting up the callback functions
-(setf *GSL-MOUSE-EVENT-FUNC*	#'button-event)
-(setf *GSL-KEY-EVENT-FUNC* 	#'key-event)
-(setf *GSL-MOUSE-MOVE-FUNC*	#'move-event)
+(gsl-add-mouse-motion-func #'move-event)
+(gsl-add-mouse-event-func  #'button-event)
+(gsl-add-key-event-func    #'key-event)
 
 (loop
   (gsl-pump-events)

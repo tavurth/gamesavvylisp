@@ -51,7 +51,7 @@
 (new-c-func gsl-get-mods		"gsl_get_mods"			nil  		:int)
 (new-c-func gsl_skip_events		"gsl_skip_events"		((time :int)))
 (new-c-func gsl_set_mouse_event_func	"gsl_set_mouse_event_func"	((func address)))
-(new-c-func gsl_set_mouse_move_func	"gsl_set_mouse_move_func" 	((func address)))
+(new-c-func gsl_set_mouse_motion_func	"gsl_set_mouse_move_func" 	((func address)))
 (new-c-func gsl_set_key_event_func	"gsl_set_key_event_func"	((func address)));;}}}
 
 ;;	Fbo;;{{{

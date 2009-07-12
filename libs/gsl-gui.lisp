@@ -316,13 +316,13 @@
   (cond
     ((equalp type +SDL-MOUSEBUTTONDOWN+) (mouse-down button))
     ((equalp type +SDL-MOUSEBUTTONUP+)   (mouse-up   button))))
-(setf *GSL-GUI-MOUSE-EVENT-FUNC* #'gsl-gui-mouse-event)
+(gsl-add-mouse-event-func #'gsl-gui-mouse-event)
 ;;}}}
 
 (defun gsl-gui-mouse-motion (motionx motiony);;{{{
   "Called when a mouse motion event occurs"
   (gsl-gui-move-cursor :x motionx :y motiony)
-  (when *GSL-GUi-LAST-ACTIVE* (move-action motionx motiony)))
-(setf *GSL-GUI-MOVE-FUNC* #'gsl-gui-mouse-motion);;}}};;}}};;}}}
+  (when *GSL-GUI-LAST-ACTIVE* (move-action motionx motiony)))
+(gsl-add-mouse-motion-func #'gsl-gui-mouse-motion);;}}};;}}};;}}}
 
 (defparam *GSL-GUI-MASTER* (gsl-gui-new -1000 -1000 1024 512))

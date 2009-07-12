@@ -35,7 +35,8 @@
      :gsl-with
      :gsl-gui
      :gsl-animation
-     :gsl-updates))
+     :gsl-updates
+     :gsl-event-funcs))
 ;;}}}
 
 (defmacro use-input ();;{{{
@@ -44,7 +45,8 @@
     :gsl-shared
     :gsl
     :gsl-input
-    :gsl-sdl));;}}}
+    :gsl-sdl
+    :gsl-event-funcs));;}}}
 
 (defmacro use-video ();;{{{
   "Use all packages required for video"
@@ -58,7 +60,7 @@
     :gsl-gl
     :gsl-gl-bits
     :gsl-gui
-    :gsl-with));;}}}
+    :gsl-with));;}}};;}}}
 
 (defun gsl-new-font (loc);;{{{
   (setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" loc) ".tga")))));;}}}
@@ -99,4 +101,4 @@
     (gsl-delete-all-fbos)
     (gsl_quit)));;}}}
 
-;;}}}
+

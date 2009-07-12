@@ -15,6 +15,17 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
+(defpackage :gsl-event-funcs;;{{{
+  (:use :ccl :common-lisp :gsl-shared)
+  (:export :gsl-add-event-func
+	   :gsl-add-mouse-motion-func
+	   :gsl-add-mouse-event-func
+	   :gsl-add-key-event-func
+	   :gsl-delete-event
+	   :gsl-delete-mouse-motion-func
+	   :gsl-delete-mouse-event-func
+	   :gsl-add-key-event-func ));;}}}
+
 (defpackage :gsl-c-funcs;;{{{
   (:use :ccl :common-lisp :gsl-shared)
   (:export :gsl_init
@@ -36,7 +47,7 @@
 	   :gsl_new_shader
 	   :gsl_shader_source
 	   :gsl_set_mouse_event_func
-	   :gsl_set_mouse_move_func
+	   :gsl_set_mouse_motion_func
 	   :gsl_set_key_event_func
 	   :gsl_use_shader
 	   :gsl_new_shader_var
@@ -171,7 +182,7 @@
 ;;}}}
 
 (defpackage :gsl-input;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-globals :gsl-c-funcs :gsl-string)
+  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-globals :gsl-c-funcs :gsl-string :gsl-event-funcs)
   (:export :gsl-mouse-motion
 	   :gsl-get-key
 	   :gsl-get-mods
@@ -210,7 +221,8 @@
 ;;}}}
 
 (defpackage :gsl-gui;;{{{
-  (:use :ccl :common-lisp :gsl-globals :gsl-shared :gsl-classes :gsl-gl :gsl-gl-bits :gsl-with :gsl-draw :gsl-sdl :gsl-input :gsl-c-funcs)
+  (:use :ccl :common-lisp :gsl-globals :gsl-shared :gsl-classes :gsl-gl :gsl-gl-bits
+	:gsl-with :gsl-draw :gsl-sdl :gsl-input :gsl-c-funcs :gsl-event-funcs)
   (:export :gsl-gui-draw
 	   :gsl-gui-new
 	   :gsl-gui-set-height
@@ -254,6 +266,7 @@
 
 ;;Loading libs;;{{{
 (load (gsl-lisp-relative "gsl-shared.lisp"))
+(load (gsl-lisp-relative "gsl-event-funcs.lisp"))
 (load (gsl-lisp-relative "gsl-c-funcs.lisp"))
 (load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 (load (gsl-lisp-relative "gsl-classes.lisp"))
