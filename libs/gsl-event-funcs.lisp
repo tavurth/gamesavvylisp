@@ -24,13 +24,13 @@
 (defparam *GSL-MOUSE-EVENT-FUNCS*	nil)
 (defparam *GSL-KEY-EVENT-FUNCS*		nil);;}}}
 
-(defun make-event-func (func);;{{{
+(defun gsl-make-event-func (func);;{{{
   "Creates a new event-func and returns it"
   (make-instance 'event-func :func func));;}}}
 
 (defmacro gsl-add-event-func (func func-list);;{{{
   "Adds a new event-func to <func-list>"
-  `(push (make-event-func ,func) ,func-list));;}}}
+  `(push (gsl-make-event-func ,func) ,func-list));;}}}
 
 (defun gsl-add-mouse-motion-func (func);;{{{
   "Add a mouse motion function"

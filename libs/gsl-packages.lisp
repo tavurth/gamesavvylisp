@@ -21,6 +21,7 @@
 	   :gsl-add-mouse-motion-func
 	   :gsl-add-mouse-event-func
 	   :gsl-add-key-event-func
+	   :gsl-make-event-func
 	   :gsl-delete-event
 	   :gsl-delete-mouse-motion-func
 	   :gsl-delete-mouse-event-func
@@ -239,7 +240,7 @@
 	   :gsl-gui-mouse-input));;}}}
 
 (defpackage :gsl-console;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-input :gsl-sdl :gsl-string :gsl-globals :gsl-draw :gsl-gl :gsl-gl-bits :gsl-with)
+  (:use :ccl :common-lisp :gsl-shared :gsl-input :gsl-sdl :gsl-string :gsl-globals :gsl-draw :gsl-gl :gsl-gl-bits :gsl-with :gsl-event-funcs)
   (:export :gsl-console-input
 	   :gsl-draw-console
 	   :gsl-enter-console

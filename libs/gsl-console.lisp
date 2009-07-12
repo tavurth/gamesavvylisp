@@ -93,7 +93,9 @@
 (defun gsl-read-input-to-string (&optional string);;{{{
   "Get input in the form of a string"
   (setf *temp-str* string)
-  (let ((*GSL-KEY-EVENT-FUNC* #'key-event-callback))
+  ;;Temporarily clear the key event funcs so only the console callback is called upon a new event
+  (let ((*GSL-KEY-EVENT-FUNCS* nil))
+    (gsl-add-key-event-func #'key-event-callback)
     (gsl-pump-events)
     *temp-str*));;}}};;}}}
 
