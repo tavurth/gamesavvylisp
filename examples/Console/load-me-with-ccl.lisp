@@ -2,10 +2,8 @@
 (gsl-init :options +GSL-DEFAULT-VIDEO+)
 
 (defun input ()
-  (setf *GSL-IS-IN-CONSOLE* t)
-  (if *GSL-IS-IN-CONSOLE*
-    (gsl-console-input)
-    (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit))))
+  (gsl-console-input)
+  (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit)))
 
 (defun draw ()
   (gl-clear +GL-COLOR-BUFFER-BIT+)

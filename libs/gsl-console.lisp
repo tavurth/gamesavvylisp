@@ -196,8 +196,7 @@
       (add-to-console-prev line)
       (handler-case
 	(eval-string line)
-	(simple-condition (err) (format-console (simple-condition-format-control err) (simple-condition-format-arguments err)))
-	(error () (gsl-print-console "An error has occurred")))))
+	(error (err) (gsl-print-console (princ-to-string err))))))
   (exit-console))
 ;;}}}
 

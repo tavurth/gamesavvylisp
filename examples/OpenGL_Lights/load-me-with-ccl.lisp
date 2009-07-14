@@ -37,8 +37,8 @@
 (defun draw ()
 
   ;;Enabling lighting and then drawing to the fbo (lighting is automatically disabled again at closing brace)
-    (gsl-with-fbo *fbo*
- 	(gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
+  (gsl-with-fbo *fbo*
+	(gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
 	(gl-load-identity)
 	
 	;;Setting up the camera
