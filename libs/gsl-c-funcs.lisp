@@ -23,6 +23,8 @@
 
 (new-c-func _gsl_draw_tex		"gsl_draw_tex"		((id int) (x float) (y float) (z float) (w float) (h float)
 									  (repeatX float) (repeatY float)))
+(new-c-func _gsl_draw_quad		"gsl_draw_quad"		((id int) (x1 float) (y float) (x2 float) (y2 float)
+									  (x3 float) (y3 float) (x4 float) (y4 float)))
 (new-c-func gsl_draw_rect_shadow	"gsl_draw_rect_shadow"	((x int) (y int) (x1 int) (y1 int) (x2 int) (y2 int)))
 (new-c-func gsl_draw_cube		"gsl_draw_cube"		((x int) (y int) (z int) (sizex int) (sizey int) (sizez int)
 									 (anglex single-float) (angley single-float) (anglez single-float)
@@ -106,6 +108,14 @@
 (defun gsl_draw_tex (id x y z w h &optional (repeatX 0.0) (repeatY 0.0))
   "Call _gsl_draw_tex in a safer manner"
   (_gsl_draw_tex id x y z w h (float repeatX) (float repeatY)))
+
+(defmacro gsl-draw-quad (id &key (sizex 1) (sizey 1) x1 y1 x2 y2 x3 y3 x4 y4)
+  `(_gsl_draw_quad ,id 
+		   (float ,sizex) (float ,sizey) 
+		   (float ,x1) (float ,y1) 
+		   (float ,x2) (float ,y2) 
+		   (float ,x3) (float ,y3) 
+		   (float ,x4) (float ,y4)))
 
 (defmacro gsl-get-angle (x1 y1 x2 y2)
   "Gets the angle from <x1,y1> to <x2,y2>"

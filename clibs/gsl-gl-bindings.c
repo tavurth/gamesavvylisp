@@ -78,6 +78,10 @@ void gl_vertex_3f(float x, float y, float z) {
 	glVertex3f(x, y, z);
 }
 
+void gl_tex_coord_2d(float x, float y) {
+	glTexCoord2d(x, y);
+}
+
 void swap_buffers () {
 	SDL_GL_SwapBuffers();
 }

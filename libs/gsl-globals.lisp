@@ -28,6 +28,9 @@
 (const +Y+	#x0000002)
 (defparam *GSL-CURRENT-SHADER* nil)
 
+(defparam *GSL-EXEC-AFTER-INIT*  nil)
+(defparam *GSL-EXEC-AFTER-VIDEO* nil)
+
 ;;	INITIALISATION FLAGS;;{{{
 
 (const +GSL-DEFAULT-VIDEO-FLAGS+ (logior +SDL-OPENGL+))
@@ -38,8 +41,7 @@
 (const +GSL-DEFAULT-VIDEO+	#x000000008)
 (const +GSL-GET-UPDATES+	#x000000010)	;Should we get updates from the source file GSL_UPDATE_FILE while running.
 
-(defparam *GSL-UPDATE-FILE*     (gsl-relative "gsl-updates.lisp"))	;;Setting the update-code file should we desire to use it
-(gsl-set-update-file		*GSL-UPDATE-FILE*)
+(defparam *GSL-UPDATE-FILE*     "gsl-updates.lisp")	;;Setting the update-code file should we desire to use it
 (delete-file			*GSL-UPDATE-FILE*)			;;Making sure there is no code left from last time.
 ;;}}}
 

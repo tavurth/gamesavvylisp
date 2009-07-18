@@ -17,6 +17,24 @@
 
 (in-package :gsl-shared)
 
+(defmacro defparam (symbol val);;{{{
+  "Exports symbol and then defines it as a parameter"
+  (export symbol)
+  `(defparameter ,symbol ,val));;}}}
+
+(defparam *GSL-INIT-DONE*  nil)
+(defparam *GSL-VIDEO-DONE* nil)
+(defparam *width*	   0)
+(defparam *height*	   0)
+(defparam *GSL-EXEC-AFTER-VIDEO* nil)
+(defparam *GSL-EXEC-AFTER-INIT*  nil)
+
+(defun reload-binary-libs ()
+  (load (gsl-lisp-relative "gsl-c-funcs.lisp"))
+  (load (gsl-lisp-relative "gsl-gl.lisp"))
+  (load (gsl-lisp-relative "gsl-sdl.lisp"))
+  (load (gsl-lisp-relative "gsl-input.lisp")))
+
 (defmacro use-packages (&rest package-list);;{{{
   "Use all packages in <package-list>" 
   (let ((list nil))
@@ -41,11 +59,6 @@
 		 (when (not val) (setf val 0.0))
 		 (setf (%get-single-float ,array (* x 4)) (float val))))
 	     (progn ,@body)))));;}}}
-
-(defmacro defparam (symbol val);;{{{
-  "Exports symbol and then defines it as a parameter"
-  (export symbol)
-  `(defparameter ,symbol ,val));;}}}
 
 (defmacro print-macro (statements);;{{{
   `(format t "~a~%" (macroexpand-1 ',statements)));;}}}
@@ -127,7 +140,16 @@
   `(dolist (ex ',exports)
      (export ex)));;}}}
 
-(defparam *GSL-INIT-DONE*  nil)
-(defparam *GSL-VIDEO-DONE* nil)
-(defparam *width*	   0)
-(defparam *height*	   0)
+(defmacro gsl-exec-after-init (&rest form);;{{{
+  "Exec <form> after gsl has finished initialising"
+  `(push ',form *GSL-EXEC-AFTER-INIT*));;}}}
+
+(defmacro gsl-exec-after-video (&rest form);;{{{
+  "Exec <form> after video has finished initialising"
+  `(push ',form *GSL-EXEC-AFTER-VIDEO*));;}}}
+
+(defmacro while (test &rest body)
+  `(block nil
+	  (loop
+	    (when (not ,test) (return))
+	    (progn ,@body))))

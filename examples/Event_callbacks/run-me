@@ -1,0 +1,4 @@
+#! /bin/sh
+
+#Run the main gsl exectuable and tell it to run the init file
+./../../gsl -l ../init.lisp

@@ -14,16 +14,12 @@
 ;;;
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
-
+	
 (load "../gsl.lisp")
-
-;;			GLOBAL-VARS;;{{{
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 (gl-enable +GL-STENCIL-TEST+)
 
-;;Using +GSL-DEFAULT-VIDEO+ means GSL will set up our perspective options for us;		(deylen - 14/5/2009)
-;;Using +GET-MOUSE+	means GSL will capture all mouse events for us;				(deylen - 14/5/2009)
-
+;;	GLOBAL-VARS;;{{{
 ;;Setting up our camera;					(deylen - 14/5/2009)
 (defvar *camera* (list 0 0 -150))
 
@@ -31,10 +27,26 @@
 (defconstant *grass01*  (gsl-load-tex "grass.tga"))
 (defconstant *house01*  (gsl-load-tex "house.tga"))
 
-;;Creating our rectangles.
+;;Creating our house rectangles.
 (defconstant *rect1* (gsl-make-rect 50 0 50 50))
 (defconstant *rect2* (gsl-make-rect -50 -50 50 100))
 ;;}}}
+
+;;Changed the below to show the new event callbacks
+(defun mouse-movement (motionx motiony)
+  (decf (first *camera*) motionx)
+  (decf (second *camera*) motiony))
+
+(defun key-event (key type)
+  (when (equalp type +SDL-KEYDOWN+)
+    (cond
+      ((equalp key +SDLK-BACKQUOTE+) (gsl-enter-console))
+      ((equalp key +SDLK-ESCAPE+) (gsl-quit)))))
+
+(gsl-add-key-event-func #'key-event)
+(gsl-add-mouse-motion-func #'mouse-movement)
+
+;;These functions are called each frame
 
 (defun draw ();;{{{
 
@@ -88,33 +100,12 @@
     (gsl-draw-console))
   (gl-swap-buffers));;}}}
 
-(defun input ();;{{{
-  "All keyboard input is captured here"
-
-  ;;Load any source code updates (loads every 1.5 seconds)
-  (gsl-load-updates)
-  ;;If the user is currently in console mode, go to a different event handling system	(deylen - 14/5/2009)
-  (when *GSL-IS-IN-CONSOLE*
+(defun input ()
+  (if *GSL-IS-IN-CONSOLE*
     (gsl-console-input)
-    (return-from input))
+    (gsl-pump-events)))
 
-  ;;Pumping all waiting events so we don't have to process them one at a time;		(deylen - 14/5/2009)
-  (gsl-pump-events)
-  
-  ;;Move the camera in the X and Y coords in relation to mouse movement;		(deylen - 14/5/2009)
-  (decf (first *camera*) (gsl-mouse-motion +x+))
-  (decf (second *camera*) (gsl-mouse-motion +y+))
-
-  ;;Console key;
-  (when (gsl-get-key +SDLK-BACKQUOTE+) 
-    (gsl-enter-console))
-  ;;Exit key;
-  (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit)));;}}}
-
-(defun main-loop ();;{{{
-  (loop
-    (input)
-    (draw)
-    (sdl-delay 50)));;}}}
-
-(main-loop)
+(loop
+  (input)
+  (draw)
+  (sdl-delay 50))

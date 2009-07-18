@@ -31,7 +31,8 @@
 (new-c-func gl-end 		"gl_end" 		nil)
 (new-c-func gl-begin 		"gl_begin" 		((flags int)))
 (new-c-func gl-clear 		"gl_clear" 		((flags int)))
-(new-c-func gl_vertex_3f 	"gl_vertex_3f" 		((x single-float) (y single-float) (z single-float)));;}}}
+(new-c-func gl_vertex_3f 	"gl_vertex_3f" 		((x single-float) (y single-float) (z single-float)))
+(new-c-func gl_tex_coord_2d	"gl_tex_coord_2d"	((x single-float) (y single-float)));;}}}
 
 ;;Position and perspective;;{{{
 (new-c-func gl-load-identity 	"gl_load_identity" 	nil)
@@ -93,6 +94,9 @@
 
 (defun gl-vertex (&key (x 0.0) (y 0.0) (z 0.0));;{{{
   (gl_vertex_3f (float x) (float y) (float z)));;}}}
+
+(defun gl-tex-coord (x y);;{{{
+  (gl_tex_coord_2d (float x) (float y)));;}}}
 
 (defmacro gl-color (&key (r 0.0) (g 0.0) (b 0.0) (a 1.0) (list nil list-passed));;{{{
   (if list-passed

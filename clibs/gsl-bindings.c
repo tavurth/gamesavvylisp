@@ -98,6 +98,7 @@ int nShaders;
 #define Y 2
 
 double getAngle (int x1, int y1, int x2, int y2);
+void discardEvents(int n);
 /*}}}*/
 
 //		GLOBALS/*{{{*/
@@ -261,26 +262,30 @@ void drawImage(GLuint tex, float x, float y, float z, float w, float h)
 {
 	glPushMatrix();
 	glTranslatef(x,y,z);
-	glScalef(w, h, 0);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glBegin(GL_QUADS);
 		glTexCoord2d(0.01,0.01);	glVertex3f(0, 0, 0);
-		glTexCoord2d(0.99,0.01);	glVertex3f(1, 0, 0);
-		glTexCoord2d(0.99,0.99);	glVertex3f(1, 1, 0);
-		glTexCoord2d(0.01,0.99);	glVertex3f(0, 1, 0);
+		glTexCoord2d(0.99,0.01);	glVertex3f(w, 0, 0);
+		glTexCoord2d(0.99,0.99);	glVertex3f(w, h, 0);
+		glTexCoord2d(0.01,0.99);	glVertex3f(0, h, 0);
 	glEnd();
 	glPopMatrix();
 	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void calcRepeatSizes(float * repeatX, float * repeatY, float w, float h, float sizex, float sizey)
+{
+	if (sizex)
+		*repeatX = w * 1.0f / sizex;
+	if (sizey)
+		*repeatY = h * 1.0f / sizey;
 }
 
 void drawImageRepeat(GLuint tex, float x, float y, float z, float w, float h, float sizex, float sizey)
 {
 	glPushMatrix();
 	float repeatX = 0.99, repeatY = 0.99;
-	if (sizex)
-		repeatX = w * 1.0f / sizex;
-	if (sizey)
-		repeatY = h * 1.0f / sizey;
+	calcRepeatSizes(&repeatX, &repeatY, w, h, sizex, sizey);
 
 	glTranslatef(x,y,z);
 	glScalef(w, h, 0);
@@ -292,6 +297,20 @@ void drawImageRepeat(GLuint tex, float x, float y, float z, float w, float h, fl
 		glTexCoord2d(0.01,repeatY);	glVertex3f(0, 1, 0);
 	glEnd();
 	glPopMatrix();
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void gsl_draw_quad (int id, float sizex, float sizey, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+	float repeatX = 0.99, repeatY = 0.99;
+	calcRepeatSizes(&repeatX, &repeatY, (x2 - x1), (y4 - y1), sizex, sizey);
+
+	glBindTexture(GL_TEXTURE_2D, id);
+	glBegin(GL_QUADS);
+	glTexCoord2d(0.01, 0.01); 	glVertex2f(x1, y1);
+	glTexCoord2d(repeatX, 0.01);	glVertex2f(x2, y2);
+	glTexCoord2d(repeatX, repeatY);	glVertex2f(x3, y3);
+	glTexCoord2d(0.01, repeatY);	glVertex2f(x4, y4);
+	glEnd();
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -391,8 +410,10 @@ void gsl_init_video (int width, int height, int bpp, int flags, int options, int
 		fatal("Could not initialise SDL video mode");
 	
 	WIDTH = width; HEIGHT = height;
-	if (OPTIONS & GSL_CATCH_MOUSE)
+	if (OPTIONS & GSL_CATCH_MOUSE) {
 		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
+		discardEvents(1);
+	}
 
 	if (OPTIONS & GSL_DEFAULT_VIDEO) {
 		glMatrixMode(GL_PROJECTION);
@@ -473,6 +494,11 @@ int gsl_should_load_updates ()
 
 //			EVENT_FUNCTIONS				/*{{{*/
 
+void discardEvents (int n) {
+	SDL_Event e;
+	while (n--) SDL_PollEvent(&e);
+}
+
 void gsl_pump_events () {
 	//This is your standard way of processing events. If you need key by key events, or key names
 	//take a look at gsl_get_charkey. 				        (deylen - 02/6/2009)
@@ -527,8 +553,7 @@ void gsl_pump_events () {
 		
 		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
 		//Center the mouse for next frame calculations;			(deylen - 14/5/2009)
-		SDL_PollEvent(&e);
-		//Ignore the mouse motion event caused by the call to SDL_WarpMouse
+		discardEvents(1);
 	}
 }
 

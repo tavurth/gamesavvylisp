@@ -20,7 +20,7 @@ sub test_example {
 	my $dir = shift;
 
 	chdir($dir);
-	return 1 if system("ccl -l load-me-with-ccl.lisp");
+	return 1 if system("ccl -l main.lisp");
 	chdir("..");
 }
 

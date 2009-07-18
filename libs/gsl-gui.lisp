@@ -178,11 +178,9 @@
   "Sets <gui>'s width to <newwidth>"
   `(setf (gsl-gui-width ,gui) ,newwidth));;}}}
 
-(defmacro gsl-gui-set-tex (type loc);;{{{
+(defmacro gsl-gui-set-tex (type loc)
   "Sets <type> to (gsl-load-tex <loc>)"
-  `(if (string ,loc)
-     (setf ,type (gsl-load-tex ,loc))
-     (setf ,type ,loc)));;}}}
+  `(setf ,type (gsl-load-tex ,loc)))
 
 (defmacro gsl-gui-set (&key (border-size nil) (corner-size nil) (border-tex nil) (corner-tex nil));;{{{
   "Sets gui parameters"
@@ -209,14 +207,6 @@
     (dolist (gui (gsl-gui-list parent))
       (when (gui-is-under-pos gui *GSL-GUI-CURSOR-X* *GSL-GUI-CURSOR-Y*) (push gui list-to-return)))
     list-to-return));;}}}
-
-(defun get-highest-focus (gui-list &optional highest);;{{{
-  "Return the gui with the highest focus level from <gui-list>"
-  (when (not gui-list) (return-from get-highest-focus highest))
-  (let ((first (car gui-list)))
-    (when (not highest) (setf highest first))
-    (when (>= (gsl-gui-focus first) (gsl-gui-focus highest)) (setf highest first))
-    (get-highest-focus (cdr gui-list) highest)));;}}};;}}}
 
 ;;	Actions;;{{{
 
@@ -279,33 +269,45 @@
   (let ((parent-gui (gsl-gui-parent gui)))
     (when (not parent-gui) (setf parent-gui *GSL-GUI-MASTER*))
     (delete-gui gui)
-    (add-gui-to-parent gui parent-gui)));;}}};;}}}
+    (add-gui-to-parent gui parent-gui)));;}}}
+
+(defun get-current-gui ();;{{{
+  (first (reverse (get-guis-under-cursor))));;}}};;}}}
 
 ;;	Events;;{{{
 
 ;;	Left Mouse Event ;;{{{
 (defun left-mouse-down ()
-  (let ((current-gui (first (reverse (get-guis-under-cursor)))))
+  (let ((current-gui (get-current-gui)))
     (when (not current-gui) (return-from left-mouse-down))
     (raise-gui current-gui)
-    ;(begin-resizing current-gui)))
     (begin-dragging current-gui)))
 
 (defun left-mouse-up ()
-  (end-actions))
-;;}}}
+  (end-actions));;}}}
+
+(defun right-mouse-down ();;{{{
+  (let ((current-gui (get-current-gui)))
+    (when (not current-gui) (return-from right-mouse-down))
+    (raise-gui current-gui)
+    (begin-resizing current-gui)))
+
+(defun right-mouse-up ()
+  (end-actions));;}}}
 
 ;;	Mouse Event;;{{{
 
 (defun mouse-down (button);;{{{
   "Called when a mouse button is pressed"
   (cond
-    ((equalp button 1) (left-mouse-down))));;}}}
+    ((equalp button 1) (left-mouse-down))
+    ((equalp button 3) (right-mouse-down))));;}}}
 
 (defun mouse-up (button);;{{{
   "Called when a mouse button is released"
   (cond
-    ((equalp button 1) (left-mouse-up))))
+    ((equalp button 1) (left-mouse-up))
+    ((equalp button 3) (right-mouse-up))))
 
 ;;}}};;}}}
 
@@ -322,7 +324,7 @@
 (defun gsl-gui-mouse-motion (motionx motiony);;{{{
   "Called when a mouse motion event occurs"
   (gsl-gui-move-cursor :x motionx :y motiony)
-  (when *GSL-GUI-LAST-ACTIVE* (move-action motionx motiony)))
+  (when *GSL-GUI-LAST-ACTIVE* (move-action motionx motiony)));;}}}
 (gsl-add-mouse-motion-func #'gsl-gui-mouse-motion);;}}};;}}};;}}}
 
 (defparam *GSL-GUI-MASTER* (gsl-gui-new -1000 -1000 1024 512))

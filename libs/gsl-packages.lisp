@@ -15,8 +15,36 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(defpackage :gsl-event-funcs;;{{{
-  (:use :ccl :common-lisp :gsl-shared)
+(defpackage :gsl-shared
+  (:use :ccl :common-lisp :gsl-init)
+  (:export :const 
+	   :print-macro
+	   :gsl-load-all
+	   :gsl-exec-after-init
+	   :gsl-exec-after-video
+	   :defparam
+	   :default-foreign-lib
+	   :export-all
+	   :defmacro-export
+	   :defun-export
+	   :gsl-get-angle
+	   :gsl-get-dist
+	   :gsl-draw-gui-line
+	   :gsl-to-degrees
+	   :gsl-to-radians
+	   :gsl-x-in-rect
+	   :use-packages
+	   :let-float-array
+	   :do-array
+	   :while
+	   :del-from-array
+	   :new-c-func 
+	   :setf-all
+	   :last-val
+	   :mirror))
+
+(defpackage :gsl-event-funcs
+  (:use :ccl :common-lisp :gsl-shared :gsl-init)
   (:export :gsl-add-event-func
 	   :gsl-add-mouse-motion-func
 	   :gsl-add-mouse-event-func
@@ -25,10 +53,10 @@
 	   :gsl-delete-event
 	   :gsl-delete-mouse-motion-func
 	   :gsl-delete-mouse-event-func
-	   :gsl-add-key-event-func ));;}}}
+	   :gsl-add-key-event-func ))
 
-(defpackage :gsl-c-funcs;;{{{
-  (:use :ccl :common-lisp :gsl-shared)
+(defpackage :gsl-c-funcs
+  (:use :ccl :common-lisp :gsl-shared :gsl-init)
   (:export :gsl_init
 	   :gsl_init_video
 	   :gsl_new_font
@@ -44,6 +72,7 @@
 	   :gsl_get_key
 	   :gsl_get_charkey
 	   :gsl_draw_char
+	   :gsl-draw-quad
 	   :gsl_draw_rect_shadow
 	   :gsl_new_shader
 	   :gsl_shader_source
@@ -61,19 +90,20 @@
 	   :gsl_fbo_del
 	   :gsl_should_load_updates
 	   :gsl-set-update-file))
-;;}}}
 
-(defpackage :gsl-gl-bits;;{{{
-  (:use :ccl :common-lisp :gsl-shared));;}}}
 
-(defpackage :gsl-gl;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-c-funcs :gsl-gl-bits)
+(defpackage :gsl-gl-bits
+  (:use :ccl :common-lisp :gsl-shared :gsl-init))
+
+(defpackage :gsl-gl
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-c-funcs :gsl-gl-bits)
   (:export :glu-perspective
 	   :gl-clear
 	   :gl-clear-color
 	   :gl-begin
 	   :gl-end
 	   :gl-vertex
+	   :gl-tex-coord
 	   :gl-load-identity
 	   :gl-translate
 	   :gl-rotate
@@ -95,10 +125,10 @@
 	   :gl-stencil-op
 	   :gl-stencil-func
 	   :gl-swap-buffers))
-;;}}}
 
-(defpackage :gsl-classes;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-c-funcs :gsl-gl :gsl-gl-bits)
+
+(defpackage :gsl-classes
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-c-funcs :gsl-gl :gsl-gl-bits)
   (:export ;;Rect class
            :gsl-make-rect
 	   :gsl-draw-shadow
@@ -137,33 +167,33 @@
 	   :gsl-shader-id
 	   :gsl-shader-delete-vars
 	   :gsl-shader-source))
-;;}}}
 
-(defpackage :gsl-string;;{{{
-  (:use :ccl :common-lisp :gsl-shared)
+
+(defpackage :gsl-string
+  (:use :ccl :common-lisp :gsl-shared :gsl-init)
   (:export :push-string
 	   :push-char
 	   :backspace
 	   :del-from-string))
-;;}}}
 
-(defpackage :gsl-sdl;;{{{
-  (:use :ccl :common-lisp :gsl-shared)
+
+(defpackage :gsl-sdl
+  (:use :ccl :common-lisp :gsl-shared :gsl-init)
   (:export :sdl-delay
 	   :sdl-get-key-name
 	   :sdl-get-ticks))
-;;}}}
 
-(defpackage :gsl-globals;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-classes :gsl-c-funcs))
-;;}}}
 
-(defpackage :gsl-updates;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-c-funcs :gsl-globals)
+(defpackage :gsl-globals
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-gl :gsl-sdl :gsl-classes :gsl-c-funcs))
+
+
+(defpackage :gsl-updates
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-c-funcs :gsl-globals)
   (:export :gsl-should-load-updates
-	   :gsl-load-updates));;}}}
+	   :gsl-load-updates))
 
-(defpackage :gsl-with;;{{{
+(defpackage :gsl-with
   (:use :ccl :common-lisp :gsl-gl :gsl-globals :gsl-classes :gsl-gl-bits)
   (:export :gsl-with-color
 	   :gsl-with-colormask
@@ -180,10 +210,10 @@
 	   :gsl-with-lights
 	   :gsl-with-shader
 	   :gsl-with-fbo))
-;;}}}
 
-(defpackage :gsl-input;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-sdl :gsl-globals :gsl-c-funcs :gsl-string :gsl-event-funcs)
+
+(defpackage :gsl-input
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-sdl :gsl-globals :gsl-c-funcs :gsl-string :gsl-event-funcs)
   (:export :gsl-mouse-motion
 	   :gsl-get-key
 	   :gsl-get-mods
@@ -192,10 +222,10 @@
 	   :gsl-skip-events
 	   :gsl-read-input-to-string
 	   :gsl-get-charkey))
-;;}}}
 
-(defpackage :gsl-animation;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-classes :gsl-sdl :gsl-c-funcs)
+
+(defpackage :gsl-animation
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-classes :gsl-sdl :gsl-c-funcs)
   (:export :gsl-animation-new
 	   :gsl-animation-add-frame
 	   :gsl-animation-frame
@@ -208,21 +238,22 @@
 	   :gsl-anim-next-frame
 
 	   :gsl-frame-set-speed
-	   :gsl-animation-frame-speed));;}}}
+	   :gsl-animation-frame-speed))
 
-(defpackage :gsl-draw;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-globals :gsl-classes :gsl-gl :gsl-c-funcs :gsl-with :gsl-gl-bits :gsl-animation)
+(defpackage :gsl-draw
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-globals :gsl-classes :gsl-gl :gsl-c-funcs :gsl-with :gsl-gl-bits :gsl-animation)
   (:export :gsl-draw
 	   :gsl-draw-points
 	   :gsl-draw-tex
 	   :gsl-draw-char
 	   :gsl-draw-string
 	   :gsl-draw-rect
-	   :gsl-draw-cube))
-;;}}}
+	   :gsl-draw-cube
+	   :gsl-draw-quad))
 
-(defpackage :gsl-gui;;{{{
-  (:use :ccl :common-lisp :gsl-globals :gsl-shared :gsl-classes :gsl-gl :gsl-gl-bits
+
+(defpackage :gsl-gui
+  (:use :ccl :common-lisp :gsl-globals :gsl-shared :gsl-init :gsl-classes :gsl-gl :gsl-gl-bits
 	:gsl-with :gsl-draw :gsl-sdl :gsl-input :gsl-c-funcs :gsl-event-funcs)
   (:export :gsl-gui-draw
 	   :gsl-gui-new
@@ -237,20 +268,21 @@
 	   :gsl-gui-mouse-motion
 	   :gsl-gui-set
 	   :gsl-mouse-is-on-gui
-	   :gsl-gui-mouse-input));;}}}
+	   :gsl-gui-mouse-input))
 
-(defpackage :gsl-console;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-input :gsl-sdl :gsl-string :gsl-globals :gsl-draw :gsl-gl :gsl-gl-bits :gsl-with :gsl-event-funcs)
+(defpackage :gsl-console
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-input :gsl-sdl :gsl-string :gsl-globals :gsl-draw :gsl-gl :gsl-gl-bits :gsl-with :gsl-event-funcs)
   (:export :gsl-console-input
 	   :gsl-draw-console
 	   :gsl-enter-console
 	   :gsl-print-console
 	   :gsl-clear-console))
-;;}}}
 
-(defpackage :gsl;;{{{
-  (:use :ccl :common-lisp :gsl-shared :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gui)
+
+(defpackage :gsl
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gui)
   (:export :gsl-init
+	   :gsl-init-from-image
 	   :gsl-quit
 	   :gsl-init-video
 	   :gsl-new-font
@@ -263,24 +295,4 @@
 	   :gsl-use-input
 	   :gsl-use-video
 	   :use-all))
-;;}}}
 
-;;Loading libs;;{{{
-(load (gsl-lisp-relative "gsl-shared.lisp"))
-(load (gsl-lisp-relative "gsl-event-funcs.lisp"))
-(load (gsl-lisp-relative "gsl-c-funcs.lisp"))
-(load (gsl-lisp-relative "gsl-gl-bits.lisp"))
-(load (gsl-lisp-relative "gsl-classes.lisp"))
-(load (gsl-lisp-relative "gsl-sdl.lisp"))
-(load (gsl-lisp-relative "gsl-globals.lisp"))
-(load (gsl-lisp-relative "gsl-gl.lisp"))
-(load (gsl-lisp-relative "gsl-updates.lisp"))
-(load (gsl-lisp-relative "gsl-with.lisp"))
-(load (gsl-lisp-relative "gsl-draw.lisp"))
-(load (gsl-lisp-relative "gsl-gui.lisp"))
-(load (gsl-lisp-relative "gsl-input.lisp"))
-(load (gsl-lisp-relative "gsl-string.lisp"))
-(load (gsl-lisp-relative "gsl-console.lisp"))
-(load (gsl-lisp-relative "gsl-animation.lisp"))
-(load (gsl-lisp-relative "gsl-main.lisp"))
-;;}}}

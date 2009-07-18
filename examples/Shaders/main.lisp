@@ -16,7 +16,6 @@
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
 (load "../gsl.lisp")
-
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 
 ;;Initialising shader

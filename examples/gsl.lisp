@@ -15,62 +15,43 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-;;Some quick initialisation;;{{{
-(defpackage :gsl-shared
-  (:use :ccl :common-lisp)
-  (:export :const 
-	   :print-macro
-	   :gsl-load-all
-	   :defparam
-	   :gsl-relative
+(defpackage :gsl-init
+  (:use :common-lisp)
+  (:export :gsl-relative
 	   :gsl-clib-relative
 	   :gsl-lisp-relative
-	   :default-foreign-lib
-	   :export-all
-	   :defmacro-export
-	   :defun-export
-	   :gsl-get-angle
-	   :gsl-get-dist
-	   :gsl-draw-gui-line
-	   :gsl-to-degrees
-	   :gsl-to-radians
-	   :gsl-x-in-rect
-	   :use-packages
-	   :let-float-array
-	   :do-array
-	   :del-from-array
-	   :new-c-func 
-	   :setf-all
-	   :last-val
-	   :if-not 
-	   :i->float 
-	   :mirror));;}}}
-(in-package :gsl-shared)
+	   :*gsl-dir*
+	   :*clib-dir*
+	   :*libs-dir*
+	   :+LINUX+
+	   :+WINDOWS+
+	   :*clib-type*))
+(in-package :gsl-init)
 
-;(progn (defconstant +WINDOWS+ t) (defconstant +LINUX+   nil))	;;Uncomment this line if you are on windows
-(progn (defconstant +LINUX+   t) (defconstant +WINDOWS+ nil))	;;Or this line if you are using linux.
+(defparameter *gsl-dir*   "../../")	        ;;Directory where gsl is stored.
+(defparameter *clib-dir*  "clibs/")     	;;This should be ok to leave. Directory of C libraries.
+(defparameter *libs-dir*  "libs/")	        ;;Leave this too. Directory of lisp libraries
+(defparameter *clib-type* ".so")
 
-;;Setting up the C library type;;{{{
-(cond
-  (+WINDOWS+ (defparameter *clib-type*	".dll"))
-  (+LINUX+   (defparameter *clib-type*  ".so")));;}}}
+;;	Automatic set up	;;{{{
 
-(defparameter *gsl-dir* 	"../../")				;;Directory where gsl is stored.
-(defparameter *clib-dir*	"clibs/")				;;This should be ok to leave. Directory of C libraries.
-(defparameter *lisplibs*	"libs/")				;;Leave this too. Directory of lisp libraries
+(defun gsl-relative (loc);;{{{
+  "Return a relative path to the GSL/ directory"
+  (concatenate 'string *gsl-dir* loc));;}}}
 
-;; Making sure that cl-user can see all functions exported by GSL;;{{{
-(defun gsl-relative (loc)
-  (concatenate 'string *gsl-dir* loc))
+(defun gsl-clib-relative (loc);;{{{
+  "Return a relative path to the clibs/ directory"
+  (gsl-relative (concatenate 'string *clib-dir* (concatenate 'string loc *clib-type*))));;}}}
 
-(defun gsl-clib-relative (loc)
-  (gsl-relative (concatenate 'string *clib-dir* (concatenate 'string loc *clib-type*))))
+(defun gsl-lisp-relative (loc);;{{{
+  "Return a relative path to the libs/ directory"
+  (gsl-relative (concatenate 'string *libs-dir* loc)));;}}}
 
-(defun gsl-lisp-relative (loc)
-  (gsl-relative (concatenate 'string *lisplibs* loc)))
-
-;; Initialisation of GSL.
-(load (gsl-lisp-relative "gsl-packages.lisp"))
+;;If gsl has not already been loaded (from a saved image) make sure we load all the required libraries.
+(when (not (find-package :gsl))
+  (load (gsl-lisp-relative "gsl-packages.lisp"))
+  (load (gsl-lisp-relative "gsl-libs.lisp")))
 
 (in-package :cl-user)
-(gsl:use-all);;}}}
+(gsl:use-all)
+;;}}}

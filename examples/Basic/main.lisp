@@ -15,8 +15,7 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-(load "../gsl.lisp")	;You have to keep gsl.lisp in the same directory as your program as it contains the location of the GSL source on your HD-Drive
-
+(load "../gsl.lisp")
 ;;Initialising GSL
 ;;+GSL_DEFAULT_VIDEO+ Sets up GSL with the optimal video settings
 ;;+GSL_GET_MOUSE+     Captures all mouse output as well as hiding the mouse
