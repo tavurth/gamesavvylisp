@@ -119,12 +119,23 @@
     
     (return-from gsl-draw-cube `(gsl_draw_cube ,x ,y ,z ,sizex ,sizey ,sizez ,anglex ,angley ,anglez ,centered ,@textures)))) ;;}}}
 
-(defun gsl-draw-quad2 (&key tex (x1 0.0) (y1 0.0) (x2 0.0) (y2 0.0) (x3 0.0) (y3 0.0) (x4 0.0) (y4 0.0))
+(defun gsl-draw-quad (&key tex (x1 0.0) (y1 0.0) (x2 0.0) (y2 0.0) (x3 0.0) (y3 0.0) (x4 0.0) (y4 0.0))
   (gsl-with-textures
-    (when tex (gl-bind-texture +GL-TEXTURE-2D+ (gsl-tex-id tex)))
-    (gl-begin +GL-QUADS+)
-    (gl-tex-coord x1 y1) (gl-vertex :x x1 :y y1)
-    (gl-tex-coord x2 y2) (gl-vertex :x x2 :y y2)
-    (gl-tex-coord x3 y3) (gl-vertex :x x3 :y y3)
-    (gl-tex-coord x4 y4) (gl-vertex :x x4 :y y4)
-    (gl-end)))
+    (gsl-with-draw +GL-QUADS+
+	(when tex (gl-bind-texture +GL-TEXTURE-2D+ (gsl-tex-id tex)))
+	(gl-tex-coord x1 y1) (gl-vertex :x x1 :y y1)
+	(gl-tex-coord x2 y2) (gl-vertex :x x2 :y y2)
+	(gl-tex-coord x3 y3) (gl-vertex :x x3 :y y3)
+	(gl-tex-coord x4 y4) (gl-vertex :x x4 :y y4))))
+
+(defun gsl-draw-tri (&key tex
+			  (x1 0.0) (y1 0.0) (z1 0.0)
+			  (x2 0.0) (y2 0.0) (z2 0.0)
+			  (x3 0.0) (y3 0.0) (z3 0.0))
+  (gsl-with-textures
+    (gsl-with-draw +GL-TRIANGLES+
+	(when tex (gl-bind-texture +GL-TEXTURE-2D+ (gsl-tex-id tex)))
+	(gl-tex-coord x1 y1) (gl-vertex :x x1 :y y1 :z z1)
+	(gl-tex-coord x2 y2) (gl-vertex :x x2 :y y2 :z z2)
+	(gl-tex-coord x3 y3) (gl-vertex :x x3 :y y3 :z z3))))
+

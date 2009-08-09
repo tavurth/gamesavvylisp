@@ -35,6 +35,7 @@
      :gsl-classes
      :gsl-with
      :gsl-gui
+     :gsl-point
      :gsl-animation
      :gsl-updates
      :gsl-event-funcs))
@@ -68,18 +69,19 @@
 (defun gsl-new-font (loc);;{{{
   (setf *GSL-DEFAULT-FONT* (gsl_new_font (gsl-relative (concatenate 'string (concatenate 'string "fonts/" loc) ".tga")))));;}}}
 
-(defun gsl-finish-video ()
+(defun gsl-finish-video ();;{{{
   (setf gsl-shared:*GSL-VIDEO-DONE* t)
   (gsl-new-font "font")
   (gsl-gui-set :border-tex (gsl-relative "themes/border.tga") 
 	       :corner-tex (gsl-relative "themes/corner.tga") 
 	       :border-size 20 :corner-size 20)
-  (progn *GSL-EXEC-AFTER-VIDEO*))
+  (progn *GSL-EXEC-AFTER-VIDEO*));;}}}
 
-(defun gsl-init-video (&key (width 1024) (height 512) (bpp 32) (flags 0 flags_passed) (options 0) (fov 90) (near_clip 0.1) (far_clip 10000));;{{{
+(defun gsl-init-video (&key (width 1024) (height 512) (bpp 32) ;;{{{
+			    (flags 0 flags-passed) (options 0)
+			    (fov 90) (near-clip 0.01) (far-clip 10000))
   ;;If we pass no flags, initialise OpenGL with +GSL-DEFAULT-VIDEO-FLAGS+
-  (when (not flags_passed) (setf flags +GSL-DEFAULT-VIDEO-FLAGS+))
-  (setf flags (logior flags +SDL-OPENGL+))	;Make sure OpenGL is always enabled
+  (when (not flags-passed) (setf flags +GSL-DEFAULT-VIDEO-FLAGS+))
 
   ;;Saving the width and height for a later date
   (defparam *width* width)
@@ -89,22 +91,20 @@
   (defparam *aspect-x* (/ *width* *height*))
   (defparam *aspect-y* (/ 1 *aspect-x*))
 
-  (gsl_init_video width height bpp flags options (truncate fov) (float near_clip) (truncate far_clip))
-  (gsl-finish-video))
+  (gsl_init_video width height bpp flags options (truncate fov) (float near-clip) (truncate far-clip))
+  (gsl-finish-video));;}}}
 
-;;}}}
-
-(defun gsl-finish-init (flags options width height)
+(defun gsl-finish-init (options width height);;{{{
   (setf *GSL-INIT-DONE* t)
   (when (logand options +GSL-DEFAULT-VIDEO+)
-    (gsl-init-video :flags flags :options options :width width :height height))
+    (gsl-init-video :options options :width width :height height))
   (progn 
-    *GSL-EXEC-AFTER-INIT*))
+    *GSL-EXEC-AFTER-INIT*));;}}}
 
 (defun gsl-init (&key (flags +SDL-INIT-VIDEO+) (options +GSL-GET-MOUSE+) (width 1024) (height 512));;{{{
   (gsl-shared::reload-binary-libs) ;Make sure our foreign function definitions are up to date
   (gsl_init flags options)
-  (gsl-finish-init flags options width height))
+  (gsl-finish-init options width height))
 ;;}}}
 
 (defun gsl-quit ();;{{{

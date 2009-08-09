@@ -78,9 +78,9 @@
 (defmacro glu-perspective (&key (fov 90) (aspect (/ (* *width* 1.0) *height*)) (near_clip 0.1) (far_clip 10000.0));;{{{
   `(glu_perspective ,fov ,aspect ,near_clip ,far_clip));;}}}
 
-(defmacro gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (pos nil p_supplied));;{{{
+(defmacro gl-translate (&key (x 0.0) (y 0.0) (z 0.0) (list nil p_supplied));;{{{
   (if p_supplied
-    `(gl_translate (float (or (first ,pos) 0.0)) (float (or (second ,pos) 0.0)) (float (or (third ,pos) 0.0)))
+    `(gl_translate (float (or (first ,list) 0.0)) (float (or (second ,list) 0.0)) (float (or (third ,list) 0.0)))
     `(gl_translate (float ,x) (float ,y) (float ,z))))	;Else just use x y z					(deylen - 14/5/2009);;}}}
 
 (defmacro gl-rotate (&key (x nil) (y nil) (z nil));;{{{
@@ -93,10 +93,10 @@
 ;;}}}
 
 (defun gl-vertex (&key (x 0.0) (y 0.0) (z 0.0));;{{{
-  (gl_vertex_3f (float x) (float y) (float z)));;}}}
+  (gl_vertex_3f (float x 0.0) (float y 0.0) (float z 0.0)));;}}}
 
 (defun gl-tex-coord (x y);;{{{
-  (gl_tex_coord_2d (float x) (float y)));;}}}
+  (gl_tex_coord_2d (float x 0.0) (float y 0.0)));;}}}
 
 (defmacro gl-color (&key (r 0.0) (g 0.0) (b 0.0) (a 1.0) (list nil list-passed));;{{{
   (if list-passed

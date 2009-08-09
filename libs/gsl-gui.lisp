@@ -22,7 +22,7 @@
 (defparam *GSL-GUI-BORDER-COLOR* '(1 1 1))
 (defparam *GSL-GUI-BORDER-SIZE* 1)
 (defparam *GSL-GUI-CORNER-SIZE* 1)
-(defparam *GSL-GUI-BACKGROUND-COLOR* '(0.2 0.2 0.2 0.9))
+(defparam *GSL-GUI-BG-COLOR* '(0.2 0.2 0.2 0.9))
 (defparam *GSL-GUI-BORDER-TEX*	  nil) 
 (defparam *GSL-GUI-CORNER-TEX*	  nil)
 (defparam *GSL-GUI-TOP-FOCUS*     0)
@@ -36,11 +36,15 @@
 ;;}}}
 
 ;;	GSL-GUI-CONSTANTS;;{{{
-(const	+GSL-GUI-DRAGGING+	1)
+(const	+GSL-GUI-MOVING+	1)
 (const  +GSL-GUI-RESIZING+	2)
 ;;}}}
 
 ;;	Creation ;;{{{
+
+(const +GSL-GUI-ALLOW-RESIZE+ 1)
+(const +GSL-GUI-ALLOW-MOVE+   2)
+(const +GSL-GUI-DRAW-BORDER+  4)
 
 (defclass gui ();;{{{
   ((x
@@ -59,10 +63,22 @@
      :initform 50
      :initarg :height
      :accessor gsl-gui-height)
+   (background
+     :initform nil
+     :initarg :background
+     :accessor gsl-gui-background)
+   (bg-color
+     :initform nil
+     :initarg :background-color
+     :accessor gsl-gui-bg-color)
    (parent
      :initform nil
      :initarg :parent
      :accessor gsl-gui-parent)
+   (flags
+     :initform 0
+     :initarg :flags
+     :accessor gsl-gui-flags)
    (id
      :initform (incf *GSL-GUI-NEXT-ID*)
      :accessor gsl-gui-id)
@@ -77,18 +93,40 @@
 	    gsl-gui-width
 	    gsl-gui-height);;}}}
 
-(defmacro make-gui (x y w h);;{{{
-  "Creates and returns a new gui object"
-  `(make-instance 'gui :x ,x :y ,y :width ,w :height ,h));;}}}
+(defmacro check-set-gui-flag (name val);;{{{
+  "Create a function to check and set the value of (gui-flags) with <val> as reference"
+  `(defun ,name (gui &optional (new-val 0 new-val-passed))
+    (let ((gui-flags (gsl-gui-flags gui)))
+      (if new-val-passed
+	(if new-val
+	  (setf (gsl-gui-flags gui) (logior gui-flags ,val))
+	  (setf (gsl-gui-flags gui) (logxor gui-flags ,val)))
+	(when (> (logand (gsl-gui-flags gui) ,val) 0) t)))));;}}}
 
-(defun gsl-gui-new (x y w h &key parent &allow-other-keys);;{{{
+(check-set-gui-flag allow-gui-resize    +GSL-GUI-ALLOW-RESIZE+)
+(check-set-gui-flag allow-gui-move      +GSL-GUI-ALLOW-MOVE+)
+(check-set-gui-flag should-draw-borders +GSL-GUI-DRAW-BORDER+)
+
+(defmacro add-gui (this gui)
+  `(push ,gui (gsl-gui-list ,this)))
+
+(defun gsl-gui-set-bg-color (gui &key r g b a)
+  (setf (gsl-gui-bg-color gui) `(:r ,r :g ,g :b ,b :a ,a)))
+
+(defmacro gsl-gui-new (x y w h &rest rest);;{{{
   "Creates a new gui adds it to the gui list of parent and returns it"
-  (let ((gui (make-gui x y w h)))
-    (cond
-      (parent (push gui (gsl-gui-list parent)))	;;If a parent was passed push this gui onto the parents gui list
-      (*GSL-GUI-MASTER*	(push gui (gsl-gui-list *GSL-GUI-MASTER*))) ;;Else if there is a gui master, push to its list
-      (t (setf *GSL-GUI-MASTER* gui)))	;;Else assign this as the gui master
-    (return-from gsl-gui-new gui)))
+  (let ((parent (getf rest :parent)) (background (getf rest :background)))
+    `(let ((gui (make-instance 'gui :x ,x :y ,y :width ,w :height ,h ,@rest)))
+	   (cond
+	     (,parent (add-gui ,parent gui)) ;;If a parent was passed push this gui onto the parents gui list
+	     (*GSL-GUI-MASTER* (progn
+				 (add-gui *GSL-GUI-MASTER* gui)
+				 (should-draw-borders gui t))) ;;Else if there is a gui master, push to its list
+	     (t (setf *GSL-GUI-MASTER* gui)))	;;Else assign this as the gui master
+	   (if ,background
+	     (gsl-gui-set-bg-color gui :r 1 :g 1 :b 1)
+	     (gsl-gui-set-bg-color gui))
+	   gui)))
 ;;}}};;}}}
 
 ;;	Drawing;;{{{
@@ -116,55 +154,79 @@
 			  :repeat-sizex *GSL-GUI-BORDER-SIZE*)))))
 ;;}}}
 
-(defun gsl-gui-draw-borders (x y w h);;{{{
+(defun gsl-gui-draw-borders (gui);;{{{
   "Draw the border outlines of the rect <xywh>"
   (gsl-with-color (:list *GSL-GUI-BORDER-COLOR*)
-      (let ((x2 (+ x w)) (y2 (+ y h)))
-	(gsl-gui-draw-border x y x2 y)	;Bottom
-	(gsl-gui-draw-border x y2 x2 y2) 	;Top
-	(gsl-gui-draw-border x y x y2)	;Left
-	(gsl-gui-draw-border x2 y x2 y2))))	;Right
+      (let ((x (gsl-gui-x gui)) (y (gsl-gui-y gui)) (w (gsl-gui-width gui)) (h (gsl-gui-height gui)))
+	(let ((x2 (+ x w)) (y2 (+ y h)))
+	  (gsl-gui-draw-border x y x2 y)	;Bottom
+	  (gsl-gui-draw-border x y2 x2 y2) 	;Top
+	  (gsl-gui-draw-border x y x y2)	;Left
+	  (gsl-gui-draw-border x2 y x2 y2)))))	;Right
 ;;}}}
 
-(defun gsl-gui-draw-background (x y w h);;{{{
-  "Draws the background for a gui"
-  (gsl-with-color (:list *GSL-GUI-BACKGROUND-COLOR*)
-      (gsl-draw-rect :x x :y y :w w :h h)));;}}}
+(defun make-gui-color (gui);;{{{
+  "Create the color of <gui> to be used by combining <(gsl-gui-bg-color gui)> and <*GSL-GUI-BG-COLOR*>"
+  (let ((list nil) (gui-color (gsl-gui-bg-color gui)) (temp-var nil))
+    (if (setf temp-var (getf gui-color :a)) (push temp-var list) (push (fourth *GSL-GUI-BG-COLOR*) list))
+    (if (setf temp-var (getf gui-color :b)) (push temp-var list) (push (third  *GSL-GUI-BG-COLOR*) list))
+    (if (setf temp-var (getf gui-color :g)) (push temp-var list) (push (second *GSL-GUI-BG-COLOR*) list))
+    (if (setf temp-var (getf gui-color :r)) (push temp-var list) (push (first  *GSL-GUI-BG-COLOR*) list))
+    list));;}}}
 
-(defun gsl-gui-draw-corners (x y w h);;{{{
+(defun gsl-gui-draw-background (gui);;{{{
+  "Draws the background for a gui"
+  (gsl-with-color (:list (make-gui-color gui))
+      (gsl-draw-rect :tex (gsl-gui-background gui) :x (gsl-gui-x gui) :y (gsl-gui-y gui) :w (gsl-gui-width gui) :h (gsl-gui-height gui))));;}}}
+
+(defun gsl-gui-draw-corners (gui);;{{{
   "Draw the corners of gui rect <x,y,w,h>"
   (gsl-with-color (:list *GSL-GUI-CORNER-COLOR*)
-      (let ((x2 (+ x w)) (y2 (+ y h)))
-	(gsl-gui-draw-corner 0   x y)		;Bottom-left
-	(gsl-gui-draw-corner 90  x2 y)		;Bottom-right
-	(gsl-gui-draw-corner 180 x2 y2)		;Top-right
-	(gsl-gui-draw-corner 270 x y2))))	;Top-left
+      (let ((x (gsl-gui-x gui)) (y (gsl-gui-y gui)) (w (gsl-gui-width gui)) (h (gsl-gui-height gui)))
+	(let ((x2 (+ x w)) (y2 (+ y h)))
+	  (gsl-gui-draw-corner 0   x y)		;Bottom-left
+	  (gsl-gui-draw-corner 90  x2 y)	;Bottom-right
+	  (gsl-gui-draw-corner 180 x2 y2)	;Top-right
+	  (gsl-gui-draw-corner 270 x y2)))))	;Top-left
 ;;}}}
 
-(defun gsl-gui-draw-box (x y w h);;{{{
+(defun gsl-gui-draw-box (gui depth);;{{{
   "Draws a gui border and background"
-  (gsl-with-textures
-     (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
-	(gsl-gui-draw-background x y w h)
-	(gsl-gui-draw-borders x y w h)
-	(gsl-gui-draw-corners x y w h))));;}}}
+  
+  (gsl-with-stencilop (+GL-KEEP+ +GL-KEEP+ +GL-INCR+)
+    (gsl-with-stencilfunc (+GL-EQUAL+ depth depth)
+      (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
+        (gsl-gui-draw-background gui))))
 
-(defun gsl-gui-draw (this-gui);;{{{
+  (when (should-draw-borders gui)
+    (gsl-gui-draw-borders    gui)
+    (gsl-gui-draw-corners    gui)));;}}}
+
+(defun gsl-gui-draw (this &optional (depth 0));;{{{
   "Draws <gui>"
-  (gsl-gui-draw-box (gsl-gui-x this-gui) (gsl-gui-y this-gui) (gsl-gui-width this-gui) (gsl-gui-height this-gui))
-  (dolist (gui (gsl-gui-list this-gui))
-    (gsl-gui-draw gui)))
+  (gsl-with-textures
+    (gsl-gui-draw-box this depth))
+
+  (gsl-with-translate (:x (gsl-gui-x this) :y (gsl-gui-y this))
+    (gsl-with-stencilfunc (+GL-NOTEQUAL+ (incf depth) depth)
+      (dolist (gui (gsl-gui-list this))
+	(gsl-gui-draw gui depth)))))
 ;;}}}
 
 (defun gsl-gui-draw-all (&optional (parent *GSL-GUI-MASTER*));;{{{
   "Draws all guis from parent"
-  (let ((list (gsl-gui-list parent)))
-    (gl-load-identity)
-    (gl-translate :z -1024)
-    (dolist (gui (reverse list))
-      (gsl-gui-draw gui))
-    ;;Drawing the cursor
-    (gsl-draw-rect :x *GSL-GUI-CURSOR-X* :y *GSL-GUI-CURSOR-Y* :w 5 :h 5)))
+  (gsl-with-stenciltest
+    (gl-clear +GL-STENCIL-BUFFER-BIT+)
+    (let ((list (gsl-gui-list parent)))
+      (when (not list) (return-from gsl-gui-draw-all))
+
+      (gl-load-identity)
+      (gl-translate :z -1024)
+      (dolist (gui (reverse list))
+	(gsl-gui-draw gui))))
+
+  ;;Drawing the cursor
+  (gsl-draw-rect :x *GSL-GUI-CURSOR-X* :y *GSL-GUI-CURSOR-Y* :w 5 :h 5))
 
 ;;}}};;}}}
 
@@ -182,13 +244,14 @@
   "Sets <type> to (gsl-load-tex <loc>)"
   `(setf ,type (gsl-load-tex ,loc)))
 
-(defmacro gsl-gui-set (&key (border-size nil) (corner-size nil) (border-tex nil) (corner-tex nil));;{{{
+(defmacro gsl-gui-set (&key (border-size nil) (corner-size nil) (border-tex nil) (corner-tex nil) (bg-color nil col-pass));;{{{
   "Sets gui parameters"
   `(progn
      (when ,border-size (setf *GSL-GUI-BORDER-SIZE* ,border-size))
      (when ,corner-size (setf *GSL-GUI-CORNER-SIZE* ,corner-size))
-     (when ,border-tex (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
-     (when ,corner-tex (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))));;}}}
+     (when ,border-tex  (gsl-gui-set-tex *GSL-GUI-BORDER-TEX* ,border-tex))
+     (when ,corner-tex  (gsl-gui-set-tex *GSL-GUI-CORNER-TEX* ,corner-tex))
+     (when ,col-pass    (setf *GSL-GUI-BG-COLOR* (list ,@bg-color)))));;}}}
 
 (defun gsl-gui-set-cursor (&key x y);;{{{
   "Set the gui cursor to a specific location"
@@ -233,14 +296,16 @@
   (setf *GSL-GUI-LAST-ACTIVE* gui)
   (setf *GSL-GUI-LAST-ACTION* action-type));;}}}
 
-(defun begin-dragging (gui);;{{{
-  "Call this function to begin dragging <gui>"
-  (begin-action gui +GSL-GUI-DRAGGING+))
+(defun begin-moving (gui);;{{{
+  "Call this function to begin moving <gui>"
+  (when (allow-gui-move gui)
+    (begin-action gui +GSL-GUI-MOVING+)))
 ;;}}}
 
 (defun begin-resizing (gui);;{{{
   "Call this function to begin resizing <gui>"
-  (begin-action gui +GSL-GUI-RESIZING+));;}}}
+  (when (allow-gui-resize gui)
+    (begin-action gui +GSL-GUI-RESIZING+)));;}}}
 
 (defun end-actions ();;{{{
   "Ends all gui actions"
@@ -250,7 +315,7 @@
 (defun move-action (motionx motiony);;{{{
   "Called when a mouse motion event occurs and a gui action is also occuring"
   (cond
-    ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-DRAGGING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* :x motionx :y motiony))
+    ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-MOVING+) (gsl-gui-move *GSL-GUI-LAST-ACTIVE* :x motionx :y motiony))
     ((equalp *GSL-GUI-LAST-ACTION* +GSL-GUI-RESIZING+) (gsl-gui-resize *GSL-GUI-LAST-ACTIVE* :x motionx :y motiony))));;}}}
 
 (defun delete-gui (gui);;{{{
@@ -281,7 +346,7 @@
   (let ((current-gui (get-current-gui)))
     (when (not current-gui) (return-from left-mouse-down))
     (raise-gui current-gui)
-    (begin-dragging current-gui)))
+    (begin-moving current-gui)))
 
 (defun left-mouse-up ()
   (end-actions));;}}}

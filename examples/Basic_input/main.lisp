@@ -16,8 +16,7 @@
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
 (load "../gsl.lisp")
-(gsl-init :options +GSL-GET-MOUSE+)
-(gsl-init-video :width 1024 :height 512 :options +GSL-DEFAULT-VIDEO+)
+(gsl-init :options +GSL-DEFAULT-VIDEO+)
 
 (defun input ()
   (gsl-pump-events)
@@ -29,6 +28,10 @@
   ;;Quit key
   (when (gsl-get-key +SDLK-ESCAPE+) (gsl-quit)))
 
+(defun draw ()
+  (gl-swap-buffers))
+
 (loop
   (input)
+  (draw)
   (sdl-delay 50))

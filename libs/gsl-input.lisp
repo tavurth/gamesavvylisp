@@ -46,3 +46,15 @@
 
 (defun gsl-skip-events (time)
   (gsl_skip_events (truncate time)))
+
+(defmacro gsl-keys (&rest keys)
+  "Use instead of writing multiple calls to (gsl-get-key)
+   Example:
+     (gsl-keys
+       (+LEFT-KEY+  (incf (gsl-point-x *camera*)))
+       (+RIGHT-KEY+ (decf (gsl-point-x *camera*))))"
+  (let ((list nil))
+    (dolist (key keys)
+      (push `((gsl-get-key ,(pop key)) ,@key) list))
+    (setf list (reverse list))
+    `(cond ,@list)))

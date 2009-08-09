@@ -17,7 +17,6 @@
 	
 (load "../gsl.lisp")
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
-(gl-enable +GL-STENCIL-TEST+)
 
 ;;	GLOBAL-VARS;;{{{
 ;;Setting up our camera;					(deylen - 14/5/2009)
@@ -53,14 +52,15 @@
   ;;General Drawing
   (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+ +GL-STENCIL-BUFFER-BIT+))
   (gl-load-identity)
-  (gl-translate :pos *camera*)
+  (gl-translate :list *camera*)
   
   ;;We want to draw nearly all of the scene using textures
   ;;Withought this line (gsl-with-textures) textures will show as white.
   ;;You can also call (gl-enable +GL-TEXTURE-2D+) and then (gl-disable +GL-TEXTURE-2D+)
   ;;to enable and disable them manually if you wish, or call :with-tex when drawing a rect instead of :tex
 
-  (gsl-with-textures
+  (gsl-with-stenciltest
+    (gsl-with-textures
        ;;Drawing the terrain for the first time
        (gsl-with-color (:list '(0.5 0.5 0.5))	;;drawing the terrain with low brightness
 		       (gsl-draw-rect :x -125 :y -125 :w 250 :h 250 :tex *grass01*))
@@ -79,7 +79,7 @@
        ;;Drawing the rectangles themselves
        (gsl-with-color (:list '(0.5 0.5 0.5))
 		      (gsl-draw *rect1* :tex *house01*)
-		      (gsl-draw *rect2* :tex *house01*)))
+		      (gsl-draw *rect2* :tex *house01*))))
 
   ;;After this point textures are disabled
   ;;

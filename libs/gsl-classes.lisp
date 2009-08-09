@@ -41,6 +41,8 @@
 (defparam *GSL-TEXTURE-HASH* (make-hash-table))
 (defparam *GSL-TEXTURE-DEFERRED-LOAD-LIST* nil)
 
+(defmethod gsl-tex-id (tex) (when (not tex) 0))
+
 (defun add-tex-to-hash (tex loc);;{{{
   "Adds the passed texture to the *GSL-TEXTURE-HASH*"
   (setf (gethash (read-from-string loc) *GSL-TEXTURE-HASH*) tex))

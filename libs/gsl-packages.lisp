@@ -72,7 +72,6 @@
 	   :gsl_get_key
 	   :gsl_get_charkey
 	   :gsl_draw_char
-	   :gsl-draw-quad
 	   :gsl_draw_rect_shadow
 	   :gsl_new_shader
 	   :gsl_shader_source
@@ -206,6 +205,7 @@
 	   :gsl-with-rotate
 	   :gsl-with-font
 	   :gsl-with-depthtest
+	   :gsl-with-stenciltest
 	   :gsl-with-stencilop
 	   :gsl-with-lights
 	   :gsl-with-shader
@@ -221,7 +221,8 @@
 	   :gsl-get-mods
 	   :gsl-skip-events
 	   :gsl-read-input-to-string
-	   :gsl-get-charkey))
+	   :gsl-get-charkey
+	   :gsl-keys))
 
 
 (defpackage :gsl-animation
@@ -249,6 +250,7 @@
 	   :gsl-draw-string
 	   :gsl-draw-rect
 	   :gsl-draw-cube
+	   :gsl-draw-tri
 	   :gsl-draw-quad))
 
 
@@ -267,6 +269,7 @@
 	   :gsl-gui-draw-all
 	   :gsl-gui-mouse-motion
 	   :gsl-gui-set
+	   :gsl-gui-set-bg-color
 	   :gsl-mouse-is-on-gui
 	   :gsl-gui-mouse-input))
 
@@ -280,7 +283,8 @@
 
 
 (defpackage :gsl
-  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw :gsl-classes :gsl-c-funcs :gsl-string :gsl-gui)
+  (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw
+	:gsl-classes :gsl-c-funcs :gsl-string :gsl-gui)
   (:export :gsl-init
 	   :gsl-init-from-image
 	   :gsl-quit
@@ -296,3 +300,7 @@
 	   :gsl-use-video
 	   :use-all))
 
+(defpackage :gsl-point
+  (:use :ccl :common-lisp :gsl-shared)
+  (:export :gsl-point-new
+	   :gsl-point-list))

@@ -499,11 +499,22 @@ void discardEvents (int n) {
 	while (n--) SDL_PollEvent(&e);
 }
 
-void gsl_pump_events () {
-	//This is your standard way of processing events. If you need key by key events, or key names
-	//take a look at gsl_get_charkey. 				        (deylen - 02/6/2009)
+void calcMouseMotion () {
+	Mouse.state = SDL_GetMouseState(&Mouse.motionX, &Mouse.motionY);
 
-	Uint8 appState;
+	Mouse.motionX -= (WIDTH / 2);
+	Mouse.motionY -= (HEIGHT / 2);
+	//Calculate the motion from how much we have moved since last frame
+	//(mouse was centered (WIDTH / 2, HEIGHT / 2) last frame);	(deylen - 14/5/2009)
+
+	if (OPTIONS & GSL_CATCH_MOUSE) {
+		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
+		//Center the mouse for next frame calculations;			(deylen - 14/5/2009)
+		discardEvents(1);
+	}
+}
+
+void pollAllEvents() {
 	SDL_Event e;
 
 	while (SDL_PollEvent(&e)) {
@@ -526,6 +537,10 @@ void gsl_pump_events () {
 			gsl_quit();
 	} //	Call the correct function when an event takes place
 
+}
+
+void checkHasFocus () {
+	Uint8 appState;
 	while (1) {
 		SDL_PumpEvents();
 		//Get the state of the keyboard modifiers;				(deylen - 14/5/2009)
@@ -543,18 +558,15 @@ void gsl_pump_events () {
 		SDL_Delay(50);
 	} //	Focus control
 
-	if (OPTIONS & GSL_CATCH_MOUSE) {
-		Mouse.state = SDL_GetMouseState(&Mouse.motionX, &Mouse.motionY);
+}
 
-		Mouse.motionX -= (WIDTH / 2);
-		Mouse.motionY -= (HEIGHT / 2);
-		//Calculate the motion from how much we have moved since last frame
-		//(mouse was centered (WIDTH / 2, HEIGHT / 2) last frame);	(deylen - 14/5/2009)
-		
-		SDL_WarpMouse(WIDTH / 2, HEIGHT / 2);
-		//Center the mouse for next frame calculations;			(deylen - 14/5/2009)
-		discardEvents(1);
-	}
+void gsl_pump_events () {
+	//This is your standard way of processing events. If you need key by key events, or key names
+	//take a look at gsl_get_charkey. 				        (deylen - 02/6/2009)
+
+	pollAllEvents();
+	checkHasFocus();
+	calcMouseMotion();
 }
 
 int gsl_mouse_motion (short type) {

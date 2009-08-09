@@ -37,6 +37,13 @@
      ,@rest
      (gl-disable +GL-DEPTH-TEST+)));;}}}
 
+(defmacro gsl-with-stenciltest (&rest rest);;{{{
+  "Draw the following commands with the stencil buffer enabled"
+  `(progn
+     (gl-enable +GL-STENCIL-TEST+)
+     ,@rest
+     (gl-disable +GL-STENCIL-TEST+)));;}}}
+
 (defmacro gsl-with-blendfunc (func &rest rest);;{{{
   `(progn
      (gl-push-attrib +GL-COLOR-BUFFER-BIT+)

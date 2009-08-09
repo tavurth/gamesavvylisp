@@ -31,5 +31,6 @@
 (load (gsl-lisp-relative "gsl-string.lisp"))
 (load (gsl-lisp-relative "gsl-console.lisp"))
 (load (gsl-lisp-relative "gsl-animation.lisp"))
+(load (gsl-lisp-relative "gsl-point.lisp"))
 (load (gsl-lisp-relative "gsl-main.lisp"))
 ;;}}}
