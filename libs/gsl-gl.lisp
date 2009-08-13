@@ -92,15 +92,17 @@
       `(progn ,@list)))
 ;;}}}
 
-(defun gl-vertex (&key (x 0.0) (y 0.0) (z 0.0));;{{{
-  (gl_vertex_3f (float x 0.0) (float y 0.0) (float z 0.0)));;}}}
+(defmacro gl-vertex (&key (x 0.0) (y 0.0) (z 0.0) (list nil list-passed));;{{{
+  (if list-passed
+    `(gl_vertex_3f (float (or (first ,list) ,x) 0.0) (float (or (second ,list) ,y) 0.0) (float (or (third ,list) ,z) 0.0))
+    `(gl_vertex_3f (float ,x 0.0) (float ,y 0.0) (float ,z 0.0))));;}}}
 
 (defun gl-tex-coord (x y);;{{{
   (gl_tex_coord_2d (float x 0.0) (float y 0.0)));;}}}
 
 (defmacro gl-color (&key (r 0.0) (g 0.0) (b 0.0) (a 1.0) (list nil list-passed));;{{{
   (if list-passed
-    `(gl_color_4f (float (or (first ,list) 0.0)) (float (or (second ,list) 0.0)) (float (or (third ,list) 0.0)) (float (or (fourth ,list) 1.0)))
+    `(gl_color_4f (float (or (first ,list) ,r)) (float (or (second ,list) ,g)) (float (or (third ,list) ,b)) (float (or (fourth ,list) ,a)))
     `(gl_color_4f (float ,r) (float ,g) (float ,b) (float ,a))))
 ;;}}}
 

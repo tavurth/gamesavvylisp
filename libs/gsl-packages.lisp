@@ -198,10 +198,12 @@
 	   :gsl-with-colormask
 	   :gsl-with-draw
 	   :gsl-with-textures
+	   :gsl-with-alpha
 	   :gsl-with-stencilfunc
 	   :gsl-with-blendfunc
 	   :gsl-with-pushmatrix
 	   :gsl-with-translate
+	   :gsl-with-load-identity
 	   :gsl-with-rotate
 	   :gsl-with-font
 	   :gsl-with-depthtest
@@ -280,7 +282,6 @@
 	   :gsl-enter-console
 	   :gsl-print-console
 	   :gsl-clear-console))
-
 
 (defpackage :gsl
   (:use :ccl :common-lisp :gsl-shared :gsl-init :gsl-gl :gsl-input :gsl-sdl :gsl-globals :gsl-draw

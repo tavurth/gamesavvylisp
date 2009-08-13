@@ -88,6 +88,11 @@
      ,@rest))
 ;;}}}
 
+(defmacro gsl-with-load-identity (&rest rest);;{{{
+  `(gsl-with-pushmatrix
+     (gl-load-identity)
+     ,@rest));;}}}
+
 (defmacro gsl-with-alpha (&rest body);;{{{
   "Does <body> commands with alpha blending enabled"
   `(gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)

@@ -220,10 +220,14 @@
 
 (defmethod gsl-fbo-del ((fbo framebuffer));;{{{
   "Deletes an entire gsl-fbo object"
+  ;;Delete <fbo>'s color and depth attachment points
   (do-array pos (gsl-fbo-color-attachments fbo)
 	    (gsl-fbo-del-color fbo pos))
   (gsl-fbo-del-depth fbo)
-  (setf fbo nil))
+  (let ((fbo-id (gsl-fbo-id fbo)))	;;Delete <fbo> from <*GSL-FBO-LIST*>
+    (setf *GSL-FBO-LIST* (delete-if #'(lambda (temp_fbo) (equalp (gsl-fbo-id temp_fbo) fbo-id)) *GSL-FBO-LIST*)))
+  ;;Delete <fbo> from C side
+  (gsl_fbo_del (gsl-fbo-id fbo)))
 ;;}}}
 
 (defmethod gsl-delete-all-fbos ();;{{{
