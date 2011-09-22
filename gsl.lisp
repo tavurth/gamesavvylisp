@@ -55,3 +55,5 @@
 (in-package :cl-user)
 (gsl:use-all)
 ;;}}}
+
+(format t "~2%Welcome to GSL (GameSavvyLisp game development library) ~2%")

@@ -153,3 +153,6 @@
 	  (loop
 	    (when (not ,test) (return))
 	    (progn ,@body))))
+
+(defun open-library (loc)
+	(ccl::open-shared-library loc))

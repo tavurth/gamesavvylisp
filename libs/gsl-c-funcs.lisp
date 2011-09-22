@@ -17,7 +17,7 @@
 
 (in-package :gsl-c-funcs)
 
-(open-shared-library (gsl-clib-relative "gsl-bindings"))
+(open-library (gsl-clib-relative "gsl-bindings"))
 
 ;;Drawing;;{{{
 

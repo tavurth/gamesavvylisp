@@ -66,3 +66,4 @@
 (defparam *GSL-MAX-CONSOLE-PREV* 10) 
 (defparam *GSL-CURSOR-Y*	 0)
 (defparam *GSL-CURSOR-X*	 0);;}}}
+

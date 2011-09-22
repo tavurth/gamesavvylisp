@@ -15,6 +15,24 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
+(defun quit (&optional code)
+	#+clisp (#+lisp=cl ext:quit #-lisp=cl lisp:quit code)
+	#+allegro (excl:exit code)
+	#+ccl (ccl:quit code)
+	#+cmu (ext:quit code)
+	#+abcl (cl-user::quit)
+	#+ecl (si:quit)
+	#+cormanlisp (win32:exitprocess code)
+	#+lispworks (lw:quit :status code)
+	#+lucid (lcl:quit code)
+	#-(or allegro clisp cmu cormanlisp gcl lispworks lucid sbcl)
+		(error 'not-implemented :proc (list 'quit code)))
+
+
+
+(when (not (ccl::string-equal (cl:lisp-implementation-type) "Clozure Common Lisp"))
+	(cl:format t "Currently GSL only supports Clozure Common Lisp, sorry for any inconvinence~2%") (quit))
+
 (defpackage :gsl-shared
   (:use :ccl :common-lisp :gsl-init)
   (:export :const 
@@ -41,7 +59,8 @@
 	   :new-c-func 
 	   :setf-all
 	   :last-val
-	   :mirror))
+	   :mirror
+	   :open-library))
 
 (defpackage :gsl-event-funcs
   (:use :ccl :common-lisp :gsl-shared :gsl-init)

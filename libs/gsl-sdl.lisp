@@ -18,7 +18,7 @@
 (in-package :gsl-sdl)
 (load (gsl-lisp-relative "gsl-sdl-keys.lisp"))
 
-(open-shared-library (gsl-clib-relative "gsl-sdl-bindings"))
+(open-library (gsl-clib-relative "gsl-sdl-bindings"))
 
 ;;Globals for intialising SDL;;;{{{
 (const +SDL-INIT-TIMER+ 	#x00000001)

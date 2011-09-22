@@ -18,7 +18,7 @@
 (in-package :gsl-gl)
 (load (gsl-lisp-relative "gsl-gl-bits.lisp"))
 
-(open-shared-library (gsl-clib-relative "gsl-gl-bindings"))
+(open-library (gsl-clib-relative "gsl-gl-bindings"))
 
 ;;	C OpenGL functions;;{{{
 
