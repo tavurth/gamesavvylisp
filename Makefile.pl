@@ -1,3 +1,5 @@
+#! /usr/bin/perl
+
 #		Copyright (c) William Whitty 2009
 #
 #        This file is part of GSL. 
