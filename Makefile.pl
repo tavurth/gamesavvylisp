@@ -34,6 +34,7 @@ sub compileFile  {
 	else { print "$loc is up to date\n"; }
 }
 
+#Running through our list of binary files to be compiled
 compileFile("GLee.c", "GLee.o", "-c -O3");
 compileFile("gsl-bindings.c", "gsl-bindings.so", "$LOCATION/GLee.o " . "$LIBS");
 compileFile("gsl-gl-bindings.c", "gsl-gl-bindings.so", "$LOCATION/GLee.o " . "$LIBS");
