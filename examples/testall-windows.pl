@@ -28,7 +28,7 @@ sub test_examples {
 	my @list = @_;
 
 	foreach (@list) {
-		print "Testing --==>> $_\n";
+		 print "Testing --==>> $_\n";
 		return 1 if not test_example($_);
 	}
 }

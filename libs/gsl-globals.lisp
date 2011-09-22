@@ -42,7 +42,8 @@
 (const +GSL-GET-UPDATES+	#x000000010)	;Should we get updates from the source file GSL_UPDATE_FILE while running.
 
 (defparam *GSL-UPDATE-FILE*     "gsl-updates.lisp")	;;Setting the update-code file should we desire to use it
-(delete-file			*GSL-UPDATE-FILE*)			;;Making sure there is no code left from last time.
+(when (probe-file *GSL-UPDATE-FILE*) 
+	(delete-file *GSL-UPDATE-FILE*))			;;Making sure there is no code left from last time.
 ;;}}}
 
 ;;	GLOBAL EVENT FUNCTIONS;;{{{

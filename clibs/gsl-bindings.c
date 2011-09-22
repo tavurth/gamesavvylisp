@@ -900,6 +900,11 @@ GLuint loadGLTex(char * loc, int *x, int *y, short * bpp)
 	return makeGLTex(data, *x, *y, *bpp);
 }
 
+void loadTGAFail(char * loc) {
+	printf("Could not open file %s", loc);
+	pfatal("");
+}
+
 char * loadTGA(char * loc, int * x, int *y, short * bpp)
 {
 	//Loads the TGA data from file 		(deylen - 02/06/2009)
@@ -909,15 +914,13 @@ char * loadTGA(char * loc, int * x, int *y, short * bpp)
 	unsigned short w, h;
 	FILE * f;
 	
-	if ((f = fopen(loc, "rb")) == NULL){
-		printf("Could not open file %s", loc);
-		pfatal("");
-	}
+	if (!(f = fopen(loc, "rb")))
+		loadTGAFail(loc);
 	
 	fseek(f,   12, SEEK_SET);
-	fread(&w,  2, 1, f);
-	fread(&h,  2, 1, f);
-	fread(bpp, 1, 1, f);
+	if (fread(&w,  2, 1, f) != 1) loadTGAFail(loc);
+	if (fread(&h,  2, 1, f) != 1) loadTGAFail(loc);
+	if (fread(bpp, 1, 1, f) != 1) loadTGAFail(loc);
 	fseek(f,   18, SEEK_SET);
 	*x = w; *y = h; *bpp /= 8;
 
