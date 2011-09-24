@@ -38,9 +38,9 @@
 		##											##
 		##	You can find the readme and licenses for both these files			##
 		##				\							##
-		##				_\___							##
-		##				\\'//							##
-		##				 \'/							##
+		##				 \_							##
+		##				 \/							##
+		##				 							##
 		##	- Clozure CL: http://trac.clozure.com/openmcl/wiki/WikiStart#GettingClozureCL	##
 		##											##
 		##											##
