@@ -628,65 +628,65 @@
 							(gsl-draw-rect))
 
 
+	##--					--##
+		OpenGL Functions Available: 
+	##--					--##
+
+			gl-translate
+			------------
+				(gl-translate (&key (x 0) (y 0) (z 0) (pos nil)))
+					Pos should be a list of 3 elements.
+					Ex:
+					      (gl-translate :pos '(0 5 15))
+					
+			glu-perspective:
+			---------------
+				(glu-perspective (&key (fov 90) (aspect (width / height)) (near_clip 0.1) (far_clip 10000)))
+
+			gl-clear:
+			---------
+				To do multiple clears use (logior)
+					Ex:
+					      (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
+			gl-light:
+			---------
+				(gl-light <LIGHT> <PNAME> <PARAM>)
+					Ex:
+					      (gl-light +GL-LIGHT0+ +GL-AMBIENT+ (0 0 0))
+
+			gl-material:
+			------------
+				(gl-material <FACE> <PNAME> <PARAM>)
+					Ex:
+					      (gl-material +GL-FRONT+ +GL-DIFFUES+ (1 1 1))
+
+			gl-clear-color
+			gl-begin
+			gl-end
+			gl-vertex
+			gl-load-identity
+			gl-rotate
+			gl-enable
+			gl-disable
+			gl-push-matrix
+			gl-pop-attrib
+			gl-push-attrib
+			gl-delete-texture
+			gl-pop-matrix
+			gl-color-mask
+			gl-viewport
+			gl-color
+			gl-bind-texture
+			gl-blend-func
+			gl-bind-framebuffer
+			gl-stencil-op
+			gl-stencil-func
+			gl-swap-buffers
+
 ##--					--##
-	OpenGL Functions Available: 
+		SDL Functions Available:
 ##--					--##
 
-		gl-translate
-		------------
-			(gl-translate (&key (x 0) (y 0) (z 0) (pos nil)))
-				Pos should be a list of 3 elements.
-				Ex:
-				      (gl-translate :pos '(0 5 15))
-				
-		glu-perspective:
-		---------------
-			(glu-perspective (&key (fov 90) (aspect (width / height)) (near_clip 0.1) (far_clip 10000)))
-
-		gl-clear:
-		---------
-			To do multiple clears use (logior)
-				Ex:
-				      (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+))
-		gl-light:
-		---------
-			(gl-light <LIGHT> <PNAME> <PARAM>)
-				Ex:
-				      (gl-light +GL-LIGHT0+ +GL-AMBIENT+ (0 0 0))
-
-		gl-material:
-		------------
-			(gl-material <FACE> <PNAME> <PARAM>)
-				Ex:
-				      (gl-material +GL-FRONT+ +GL-DIFFUES+ (1 1 1))
-
-		gl-clear-color
-		gl-begin
-		gl-end
-		gl-vertex
-		gl-load-identity
-		gl-rotate
-		gl-enable
-		gl-disable
-		gl-push-matrix
-		gl-pop-attrib
-		gl-push-attrib
-		gl-delete-texture
-		gl-pop-matrix
-		gl-color-mask
-		gl-viewport
-		gl-color
-		gl-bind-texture
-		gl-blend-func
-		gl-bind-framebuffer
-		gl-stencil-op
-		gl-stencil-func
-		gl-swap-buffers
-
-##--					--##
-	SDL Functions Available:
-##--					--##
-
-		sdl-delay
-		sdl-get-ticks
-		(most of these have been replaced by gsl functions)
+			sdl-delay
+			sdl-get-ticks
+			(most of these have been replaced by gsl functions)
