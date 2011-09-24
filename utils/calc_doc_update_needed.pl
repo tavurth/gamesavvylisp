@@ -16,8 +16,10 @@
 ###     You should have received a copy of the GNU Lesser General Public License
 ###     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
+#-------------------------------#
 #				#
-# GSC Document helper		#
+# 	GSC Document helper	#
+#				#
 #-------------------------------#
 
 #	This script is for calculating the functions that still need to be documented.
