@@ -1,3 +1,4 @@
+#! /usr/bin/perl
 ###		Copyright (c) William Whitty 2009
 ###
 ###	This file is part of GSL. 
@@ -15,7 +16,9 @@
 ###     You should have received a copy of the GNU Lesser General Public License
 ###     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-#! /usr/bin/perl
+#				#
+# GSC Document helper		#
+#-------------------------------#
 
 #	This script is for calculating the functions that still need to be documented.
 #	It reads from gsl-packages.lisp and identifies any functions that need to be

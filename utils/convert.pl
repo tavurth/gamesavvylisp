@@ -1,3 +1,4 @@
+#! /usr/bin/perl
 ###		Copyright (c) William Whitty 2009
 ###
 ###	This file is part of GSL. 
@@ -15,7 +16,10 @@
 ###     You should have received a copy of the GNU Lesser General Public License
 ###     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-#! /usr/bin/perl
+#					#
+#	GSL C/C++ BINDING HELPER	#
+#					#
+#---------------------------------------#
 
 # 	This script is used to parse through #define variables turning them into (const ++ variables;
 # 	Usage:
