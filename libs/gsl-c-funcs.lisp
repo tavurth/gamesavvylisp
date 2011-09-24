@@ -41,7 +41,10 @@
 
 ;;Fonts;;{{{
 (new-c-func _gsl_new_font		"gsl_new_font"		((loc address)) :int)
-(new-c-func gsl_draw_char		"gsl_draw_char"		((font int) (character char) (x int) (y int) (z int) (w int) (h int)))
+(new-c-func _gsl_draw_char		"gsl_draw_char"		((font int) (character char) (x float) (y float) (z float) (w float) (h float)))
+
+(defmacro gsl_draw_char (font character x y z w h)
+	`(_gsl_draw_char (truncate ,font) (truncate ,character) (float ,x) (float ,y) (float ,z) (float ,w) ,(float h)))
 ;;}}}
 
 ;;	Events;;{{{

@@ -38,7 +38,7 @@
   (let ((len (length text)))
     (dotimes (a len)
       (eval `(gsl-draw-char ,(aref text a) ,x ,y ,z ,w ,h))
-      (incf x w))))
+      (incf x))))
 ;;}}}
 
 (defmacro gsl-draw-tex (tex x y z w h &optional (repeatX 0.0) (repeatY 0.0));;{{{

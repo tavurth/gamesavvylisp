@@ -1059,7 +1059,7 @@ void cleanAllFonts() {
 	#endif
 }
 
-void gsl_draw_char (int font, int character, int x, int y, int z, int w, int h)
+void gsl_draw_char (int font, int character, float x, float y, float z, float w, float h)
 {
 	//Draws a single character to the screen lisp callable
 	gsl_draw_tex(fontList[font]->letters[character]->id, x, y, z, w, h, 0.0, 0.0);

@@ -15,6 +15,16 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;				;;
+;;	GSL MAIN FILE		;;
+;;				;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;
+;;	This file is to be loaded at the start of your program and initialises all of the GSL variables and background stuff
+;;
+
 (defpackage :gsl-init
   (:use :common-lisp)
   (:export :gsl-relative
