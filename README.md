@@ -6,11 +6,16 @@ Game Development Library for Clozure Common Lisp
 
 A lisp interface to GLEE and OpenGL was automatically generated and then tweaked by hand.
 This project showcased several demos, including
-  # Animation
-  # GUI Console
-  # Motion blur
-  # Stencil buffer
-  # Fragment shaders
+
+  * Animation
+
+  * GUI Console
+
+  * Motion blur
+
+  * Stencil buffer
+
+  * Fragment shaders
 
 I moved away from Lisp as a game development tool, due to it's high memory and CPU requirements.
 However, due to advances in technology, this may now be a feasible choice. It all depends on
