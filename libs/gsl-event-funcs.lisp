@@ -23,7 +23,7 @@
 
 (defparam *GSL-LAST-EVENT-FUNC-ID* 0)
 
-(defclass event-func ();;{{{
+(defclass event-func ()
   ((function
      :initform nil
      :initarg :func
@@ -33,46 +33,46 @@
      :accessor gsl-event-func-id)))
 
 (export-all gsl-event-func
-	    gsl-event-func-id);;}}}
+	    gsl-event-func-id)
 
-;;	Function lists;;{{{
+;;	Function lists
 
 (defparam *GSL-MOUSE-MOTION-FUNCS*	nil)
 (defparam *GSL-MOUSE-EVENT-FUNCS*	nil)
-(defparam *GSL-KEY-EVENT-FUNCS*		nil);;}}}
+(defparam *GSL-KEY-EVENT-FUNCS*		nil)
 
-(defun gsl-make-event-func (func);;{{{
+(defun gsl-make-event-func (func)
   "Creates a new event-func and returns it"
-  (make-instance 'event-func :func func));;}}}
+  (make-instance 'event-func :func func))
 
-(defmacro gsl-add-event-func (func func-list);;{{{
+(defmacro gsl-add-event-func (func func-list)
   "Adds a new event-func to <func-list>"
-  `(push (gsl-make-event-func ,func) ,func-list));;}}}
+  `(push (gsl-make-event-func ,func) ,func-list))
 
-(defun gsl-add-mouse-motion-func (func);;{{{
+(defun gsl-add-mouse-motion-func (func)
   "Add a mouse motion function"
-  (gsl-add-event-func func *GSL-MOUSE-MOTION-FUNCS*));;}}}
+  (gsl-add-event-func func *GSL-MOUSE-MOTION-FUNCS*))
 
-(defun gsl-add-mouse-event-func (func);;{{{
+(defun gsl-add-mouse-event-func (func)
   "Add a mouse event function"
-  (gsl-add-event-func func *GSL-MOUSE-EVENT-FUNCS*));;}}}
+  (gsl-add-event-func func *GSL-MOUSE-EVENT-FUNCS*))
 
-(defun gsl-add-key-event-func (func);;{{{
+(defun gsl-add-key-event-func (func)
   "Add a key event func"
-  (gsl-add-event-func func *GSL-KEY-EVENT-FUNCS*));;}}}
+  (gsl-add-event-func func *GSL-KEY-EVENT-FUNCS*))
 
-(defmacro gsl-delete-event (func func-list);;{{{
+(defmacro gsl-delete-event (func func-list)
   "Delete <func> from <func-list>"
-  `(setf ,func-list (delete-if #'(lambda (event-func) (equalp (gsl-event-func event-func) ,func)) ,func-list)));;}}}
+  `(setf ,func-list (delete-if #'(lambda (event-func) (equalp (gsl-event-func event-func) ,func)) ,func-list)))
 
-(defun gsl-delete-mouse-motion-func (func);;{{{
+(defun gsl-delete-mouse-motion-func (func)
   "Deletes event-func <func> which is a compiled function from *GSL-MOUSE-MOTION-FUNCS*"
-  (gsl-delete-event func *GSL-MOUSE-MOTION-FUNCS*));;}}}
+  (gsl-delete-event func *GSL-MOUSE-MOTION-FUNCS*))
 
-(defun gsl-delete-mouse-event-func (func);;{{{
+(defun gsl-delete-mouse-event-func (func)
   "Deletes event-func <func> which is a compiled function from *GSL-MOUSE-EVENT-FUNCS*"
-  (gsl-delete-event func *GSL-MOUSE-EVENT-FUNCS*));;}}}
+  (gsl-delete-event func *GSL-MOUSE-EVENT-FUNCS*))
 
-(defun gsl-delete-key-event-func (func);;{{{
+(defun gsl-delete-key-event-func (func)
   "Deletes event-func <func> which is a compiled function from *GSL-KEY-EVENT-FUNCS*"
-  (gsl-delete-event func *GSL-KEY-EVENT-FUNCS*));;}}}
+  (gsl-delete-event func *GSL-KEY-EVENT-FUNCS*))

@@ -17,37 +17,37 @@
 
 (in-package :gsl-draw)
 
-(defun gsl-draw-points (&rest rest);;{{{
+(defun gsl-draw-points (&rest rest)
   "Draws a list of coordinates as points on the screen"
   (gl-begin +GL-POINTS+)
   (loop
     (if (not rest) (return))
     (eval `(gl-vertex :x ,(pop rest) :y ,(pop rest))))
   (gl-end))
-;;}}}
 
-(defun gsl-draw-char (char x y z w h);;{{{
+
+(defun gsl-draw-char (char x y z w h)
   "Draws a character at the specified coordinates"
   (gsl-with-blendfunc (+GL-SRC-ALPHA+ +GL-ONE-MINUS-SRC-ALPHA+)
       (gsl-with-textures
 	(eval `(gsl_draw_char *GSL-DEFAULT-FONT* ,(char-int char) ,x ,y ,z ,w ,h)))))
-;;}}}
 
-(defun gsl-draw-string (text x y z w h);;{{{
+
+(defun gsl-draw-string (text x y z w h)
   "Draws the string at the specified coordinates"
   (let ((len (length text)))
     (dotimes (a len)
       (eval `(gsl-draw-char ,(aref text a) ,x ,y ,z ,w ,h))
       (incf x))))
-;;}}}
 
-(defmacro gsl-draw-tex (tex x y z w h &optional (repeatX 0.0) (repeatY 0.0));;{{{
+
+(defmacro gsl-draw-tex (tex x y z w h &optional (repeatX 0.0) (repeatY 0.0))
   "Draw tex to the OpenGL screen"
   (if (equalp tex 0)
     `(gsl_draw_tex 0 (float ,x) (float ,y) (float ,z) (float ,w) (float ,h) (float ,repeatX) (float ,repeatY))
-    `(gsl_draw_tex (gsl-tex-id ,tex) (float ,x) (float ,y) (float ,z) (float ,w) (float ,h) (float ,repeatX) (float ,repeatY))));;}}}
+    `(gsl_draw_tex (gsl-tex-id ,tex) (float ,x) (float ,y) (float ,z) (float ,w) (float ,h) (float ,repeatX) (float ,repeatY))))
 
-(defmacro gsl-draw-rect (&key (x 0) (y 0) (z 0) (pos nil) (w 1) (h 1) (fill-screen nil);;{{{
+(defmacro gsl-draw-rect (&key (x 0) (y 0) (z 0) (pos nil) (w 1) (h 1) (fill-screen nil)
 			     (tex 0) (with-tex nil) (repeat-sizex 0.0) (repeat-sizey 0.0)
 			     (with-fbo nil) (fbo-color-pos 0)
 			     (anim nil) (with-anim nil))
@@ -81,9 +81,9 @@
       (return-from gsl-draw-rect `(gsl-with-textures ,form))	;Enable textures only for this texture
       (return-from gsl-draw-rect form))))			;Just return the drawing commands
 
-;;}}}
 
-(defmacro gsl-draw-cube (&key (x 0) (y 0) (z 0) (size nil size_passed) (sizex 5) (sizey 5) (sizez 5);;{{{
+
+(defmacro gsl-draw-cube (&key (x 0) (y 0) (z 0) (size nil size_passed) (sizex 5) (sizey 5) (sizez 5)
 			      (anglex 0.0 anglex_passed) (angley 0.0 angley_passed) (anglez 0.0 anglez_passed)
 			      (centered 0) (tex-left 0) (tex-right 0) (tex-front 0) (tex-back 0) (tex-top 0) (tex-bottom 0) (tex-all nil))
   "Draw a cuboid on the screen"
@@ -117,7 +117,7 @@
     
     ;;RUN TIME:
     
-    (return-from gsl-draw-cube `(gsl_draw_cube ,x ,y ,z ,sizex ,sizey ,sizez ,anglex ,angley ,anglez ,centered ,@textures)))) ;;}}}
+    (return-from gsl-draw-cube `(gsl_draw_cube ,x ,y ,z ,sizex ,sizey ,sizez ,anglex ,angley ,anglez ,centered ,@textures)))) 
 
 (defun gsl-draw-quad (&key tex (x1 0.0) (y1 0.0) (x2 0.0) (y2 0.0) (x3 0.0) (y3 0.0) (x4 0.0) (y4 0.0))
   (gsl-with-textures

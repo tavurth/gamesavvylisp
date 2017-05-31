@@ -33,19 +33,19 @@
 (defparameter *libs-dir*  "libs/")	        ;;Leave this too. Directory of lisp libraries
 (defparameter *clib-type* ".so")
 
-;;	Automatic set up	;;{{{
+;;	Automatic set up	
 
-(defun gsl-relative (loc);;{{{
+(defun gsl-relative (loc)
   "Return a relative path to the GSL/ directory"
-  (concatenate 'string *gsl-dir* loc));;}}}
+  (concatenate 'string *gsl-dir* loc))
 
-(defun gsl-clib-relative (loc);;{{{
+(defun gsl-clib-relative (loc)
   "Return a relative path to the clibs/ directory"
-  (gsl-relative (concatenate 'string *clib-dir* (concatenate 'string loc *clib-type*))));;}}}
+  (gsl-relative (concatenate 'string *clib-dir* (concatenate 'string loc *clib-type*))))
 
-(defun gsl-lisp-relative (loc);;{{{
+(defun gsl-lisp-relative (loc)
   "Return a relative path to the libs/ directory"
-  (gsl-relative (concatenate 'string *libs-dir* loc)));;}}}
+  (gsl-relative (concatenate 'string *libs-dir* loc)))
 
 ;;If gsl has not already been loaded (from a saved image) make sure we load all the required libraries.
 (when (not (find-package :gsl))
@@ -54,4 +54,4 @@
 
 (in-package :cl-user)
 (gsl:use-all)
-;;}}}
+

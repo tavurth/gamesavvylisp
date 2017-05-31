@@ -17,27 +17,27 @@
 
 (in-package :gsl-string)
 
-(defun new-adjustable-string (&optional size);;{{{
+(defun new-adjustable-string (&optional size)
   (make-array size
 	      :element-type 'character
 	      :adjustable t
-	      :fill-pointer 0));;}}}
+	      :fill-pointer 0))
 
-(defmacro push-string (str1 str2);;{{{
+(defmacro push-string (str1 str2)
   "Push str1 onto the end of str2"
-  `(setf ,str2 (concatenate 'string ,str2 ,str1)));;}}}
+  `(setf ,str2 (concatenate 'string ,str2 ,str1)))
 
-(defmacro push-char (char string);;{{{
+(defmacro push-char (char string)
   "Push char onto the end of string"
-  `(push-string (string ',char) ,string));;}}}
+  `(push-string (string ',char) ,string))
 
-(defmacro del-from-string (str index);;{{{
+(defmacro del-from-string (str index)
   "Deletes char index from string"
-  `(del-from-array ,str ,index));;}}}
+  `(del-from-array ,str ,index))
 
-(defmacro backspace (str);;{{{
+(defmacro backspace (str)
   "Removes the last character from the string"
   `(let ((len (length ,str)))
      (if (> len 0)		;So we don't end up with a -1 length array
        (setf ,str (subseq ,str 0 (- len 1)))
-       (setf ,str (subseq ,str 0)))))		;use the whole string if (length < 1);;}}}
+       (setf ,str (subseq ,str 0)))))		;use the whole string if (length < 1)

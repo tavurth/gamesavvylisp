@@ -17,10 +17,10 @@
 
 (in-package :gsl-shared)
 
-(defmacro defparam (symbol val);;{{{
+(defmacro defparam (symbol val)
   "Exports symbol and then defines it as a parameter"
   (export symbol)
-  `(defparameter ,symbol ,val));;}}}
+  `(defparameter ,symbol ,val))
 
 (defparam *GSL-INIT-DONE*  nil)
 (defparam *GSL-VIDEO-DONE* nil)
@@ -35,19 +35,19 @@
   (load (gsl-lisp-relative "gsl-sdl.lisp"))
   (load (gsl-lisp-relative "gsl-input.lisp")))
 
-(defmacro use-packages (&rest package-list);;{{{
+(defmacro use-packages (&rest package-list)
   "Use all packages in <package-list>" 
   (let ((list nil))
     (dolist (package package-list)
       (push `(use-package ,package) list))
-    (return-from use-packages `(progn ,@list))));;}}}
+    (return-from use-packages `(progn ,@list))))
 
-(defmacro const (symbol val);;{{{
+(defmacro const (symbol val)
   "Exports symbol and then defines it as a constant"
   (export symbol)
-  `(defconstant ,symbol ,val));;}}}
+  `(defconstant ,symbol ,val))
 
-(defmacro let-float-array (vars &rest body);;{{{
+(defmacro let-float-array (vars &rest body)
   "Allocates a foreign array on the stack and copies values from list into it"
 
   (let ((array (first vars)) (list (second vars)))
@@ -58,18 +58,18 @@
 	       (let ((val (nth x ',list)))
 		 (when (not val) (setf val 0.0))
 		 (setf (%get-single-float ,array (* x 4)) (float val))))
-	     (progn ,@body)))));;}}}
+	     (progn ,@body)))))
 
-(defmacro print-macro (statements);;{{{
-  `(format t "~a~%" (macroexpand-1 ',statements)));;}}}
+(defmacro print-macro (statements)
+  `(format t "~a~%" (macroexpand-1 ',statements)))
 
-(defmacro conc-names (name1 name2);;{{{
-  `(read-from-string (concatenate 'string (string ,name1) (string ,name2))));;}}}
+(defmacro conc-names (name1 name2)
+  `(read-from-string (concatenate 'string (string ,name1) (string ,name2))))
 
-(defmacro get-addr (name);;{{{
-  (%reference-external-entry-point (external name)));;}}}
+(defmacro get-addr (name)
+  (%reference-external-entry-point (external name)))
 
-(defmacro new-c-func (name cname args &optional return-type);;{{{
+(defmacro new-c-func (name cname args &optional return-type)
   "Defines an external c function"
   ;;Get the addr of the function
   (let ((addr (eval `(get-addr ,cname))) (arglist1 nil) (arglist2 nil))
@@ -84,19 +84,19 @@
     ;;Return new defmacro
     (return-from new-c-func 
 		 `(defun ,name (,@arglist1)
-		    (ff-call ,addr ,@arglist2 ,return-type)))));;}}}
+		    (ff-call ,addr ,@arglist2 ,return-type)))))
 
-(defmacro mirror (a);;{{{
-  `(- 0 ,a));;}}}
+(defmacro mirror (a)
+  `(- 0 ,a))
 
-(defmacro do-array (element array &rest rest);;{{{
+(defmacro do-array (element array &rest rest)
   `(let ((len (- (array-total-size ,array) 1)))
     (do ((,element 0 (incf ,element)))
       ((>= ,element len))
       (progn
-	,@rest))));;}}}
+	,@rest))))
 
-(defmacro setf-all (&rest rest);;{{{
+(defmacro setf-all (&rest rest)
   "Setf all arguments in the list to the last arg"
   (let ((val (last-val rest)) (len (length rest)) (list nil))
     ;;Run through the list and add each value and 'val' to the new list
@@ -104,12 +104,12 @@
       (push val list)
       (push (pop rest) list))
     ;;Use the new list to setf all vars at once
-    `(setf ,@list)));;}}}
+    `(setf ,@list)))
 
-(defun last-val (list);;{{{
-  (car (eval `(last ',list))));;}}}
+(defun last-val (list)
+  (car (eval `(last ',list))))
 
-(defun del-from-array (array index);;{{{
+(defun del-from-array (array index)
   "Deletes element index from array"
   (when (not (array-has-fill-pointer-p array))
     (progn 
@@ -120,33 +120,33 @@
     (do ((i index (incf i))) ((>= i len))
       (setf (aref array i) (aref array (1+ i))))
     (vector-pop array)))
-;;}}}
 
-(defmacro defmacro-export (name &rest body);;{{{
+
+(defmacro defmacro-export (name &rest body)
   "Defines and exports macro <name>"
   `(progn
      (defmacro ,name ,@body)
-     (export ',name)));;}}}
+     (export ',name)))
 
-(defmacro defun-export (name &rest body);;{{{
+(defmacro defun-export (name &rest body)
   "Defines and exports function <name>"
   `(progn
      (defun ,name ,@body)
      (export ',name)))
-;;}}}
 
-(defmacro export-all (&rest exports);;{{{
+
+(defmacro export-all (&rest exports)
   "Exports <exports> from the current package"
   `(dolist (ex ',exports)
-     (export ex)));;}}}
+     (export ex)))
 
-(defmacro gsl-exec-after-init (&rest form);;{{{
+(defmacro gsl-exec-after-init (&rest form)
   "Exec <form> after gsl has finished initialising"
-  `(push ',form *GSL-EXEC-AFTER-INIT*));;}}}
+  `(push ',form *GSL-EXEC-AFTER-INIT*))
 
-(defmacro gsl-exec-after-video (&rest form);;{{{
+(defmacro gsl-exec-after-video (&rest form)
   "Exec <form> after video has finished initialising"
-  `(push ',form *GSL-EXEC-AFTER-VIDEO*));;}}}
+  `(push ',form *GSL-EXEC-AFTER-VIDEO*))
 
 (defmacro while (test &rest body)
   `(block nil

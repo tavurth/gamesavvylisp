@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-;;Loading libs;;{{{
+;;Loading libs
 (load (gsl-lisp-relative "gsl-shared.lisp"))
 (load (gsl-lisp-relative "gsl-gl.lisp"))
 (load (gsl-lisp-relative "gsl-sdl.lisp"))
@@ -33,4 +33,4 @@
 (load (gsl-lisp-relative "gsl-animation.lisp"))
 (load (gsl-lisp-relative "gsl-point.lisp"))
 (load (gsl-lisp-relative "gsl-main.lisp"))
-;;}}}
+

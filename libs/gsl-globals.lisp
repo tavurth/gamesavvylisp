@@ -31,7 +31,7 @@
 (defparam *GSL-EXEC-AFTER-INIT*  nil)
 (defparam *GSL-EXEC-AFTER-VIDEO* nil)
 
-;;	INITIALISATION FLAGS;;{{{
+;;	INITIALISATION FLAGS
 
 (const +GSL-DEFAULT-VIDEO-FLAGS+ (logior +SDL-OPENGL+))
 
@@ -44,15 +44,15 @@
 (defparam *GSL-UPDATE-FILE*     "gsl-updates.lisp")	;;Setting the update-code file should we desire to use it
 (when (probe-file *GSL-UPDATE-FILE*) 
 	(delete-file *GSL-UPDATE-FILE*))			;;Making sure there is no code left from last time.
-;;}}}
 
-;;	GLOBAL EVENT FUNCTIONS;;{{{
+
+;;	GLOBAL EVENT FUNCTIONS
 (defparam *GSL-MOUSE-EVENT-FUNC* nil)
 (defparam *GSL-MOUSE-MOTION-FUNC*  nil)
 (defparam *GSL-KEY-EVENT-FUNC*   nil)
-;;}}}
 
-;;	CONSOLE;;{{{
+
+;;	CONSOLE
 
 (defparam *console-curr* "")
 (defparam *console-prev* nil)
@@ -65,5 +65,5 @@
 (defparam *GSL-MAX-CONSOLE* 	 10)
 (defparam *GSL-MAX-CONSOLE-PREV* 10) 
 (defparam *GSL-CURSOR-Y*	 0)
-(defparam *GSL-CURSOR-X*	 0);;}}}
+(defparam *GSL-CURSOR-X*	 0)
 

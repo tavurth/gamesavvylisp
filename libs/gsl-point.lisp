@@ -18,10 +18,10 @@
 	    gsl-point-y
 	    gsl-point-z)
 
-(defmacro gsl-point-new (&rest rest);;{{{
+(defmacro gsl-point-new (&rest rest)
   "Create a new point instance"
-  `(make-instance 'gsl-point ,@rest));;}}}
+  `(make-instance 'gsl-point ,@rest))
 
-(defun gsl-point-list (point);;{{{
+(defun gsl-point-list (point)
   "Return the <x,y,z> coordinates of a point in a list"
-  (list (gsl-point-x point) (gsl-point-y point) (gsl-point-z point)));;}}}
+  (list (gsl-point-x point) (gsl-point-y point) (gsl-point-z point)))

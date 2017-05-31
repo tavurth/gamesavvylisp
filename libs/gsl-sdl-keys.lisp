@@ -15,7 +15,7 @@
 ;;;     You should have received a copy of the GNU Lesser General Public License
 ;;;     along with GSL.  If not, see <http://www.gnu.org/licenses/>.
 
-;;Special keys;;{{{
+;;Special keys
 (const  +SDLK-UNKNOWN+		 0)
 (const  +SDLK-FIRST+		 0)
 (const  +SDLK-BACKSPACE+	 8)
@@ -55,9 +55,9 @@
 (const  +SDLK-EQUALS+		 61)
 (const  +SDLK-GREATER+		 62)
 (const  +SDLK-QUESTION+		 63)
-(const 	+SDLK-AT+		 64);;}}}
+(const 	+SDLK-AT+		 64)
 
-;;Normal Keys;;{{{
+;;Normal Keys
 (const 	+SDLK-LEFTBRACKET+	 91)
 (const 	+SDLK-BACKSLASH+	 92)
 (const 	+SDLK-RIGHTBRACKET+	 93)
@@ -249,9 +249,9 @@
 (const 	+SDLK-MENU+		 319)
 (const 	+SDLK-POWER+		 320)
 (const 	+SDLK-EURO+		 321)
-(const 	+SDLK-UNDO+		 322);;}}}
+(const 	+SDLK-UNDO+		 322)
 
-;;	KMOD Definitions ;;{{{
+;;	KMOD Definitions 
 (const +KMOD-NONE+	 #x0000)
 (const +KMOD-LSHIFT+	 #x0001)
 (const +KMOD-RSHIFT+	 #x0002)
@@ -264,11 +264,11 @@
 (const +KMOD-NUM+	 #x1000)
 (const +KMOD-CAPS+	 #x2000)
 (const +KMOD-MODE+  	 #x4000)
-(const +KMOD-RESERVED+ 	 #x8000);;}}}
+(const +KMOD-RESERVED+ 	 #x8000)
 
-;;	Other bindings;;{{{
+;;	Other bindings
 (const +KMOD-CTRL+	(eval (logior +KMOD-LCTRL+ +KMOD-RCTRL+)))
-(const +KMOD-SHIFT+	(eval (logior +KMOD-LSHIFT+ +KMOD-RSHIFT+)));;}}}
+(const +KMOD-SHIFT+	(eval (logior +KMOD-LSHIFT+ +KMOD-RSHIFT+)))
 
 ;;	Event bits
 (const +SDL-NOEVENT+ 		0)	;; Unused (do not remove) 

@@ -17,7 +17,7 @@
 
 (in-package :gsl-classes)
 
-(defclass tex ();;{{{
+(defclass tex ()
    ((loc
      :initform ""
      :initarg :loc
@@ -43,42 +43,42 @@
 
 (defmethod gsl-tex-id (tex) (when (not tex) 0))
 
-(defun add-tex-to-hash (tex loc);;{{{
+(defun add-tex-to-hash (tex loc)
   "Adds the passed texture to the *GSL-TEXTURE-HASH*"
   (setf (gethash (read-from-string loc) *GSL-TEXTURE-HASH*) tex))
-;;}}}
 
-(defun make-tex (loc &optional (id 0) (width 0) (height 0));;{{{
+
+(defun make-tex (loc &optional (id 0) (width 0) (height 0))
   "Creates a new texture object"
   (let ((tex (make-instance 'tex :loc loc :id id :width width :height height)))
     (add-tex-to-hash tex (string loc))))
-;;}}}
 
-(defmacro gsl-get-tex-from-hash (loc);;{{{
+
+(defmacro gsl-get-tex-from-hash (loc)
   "Returns the texture at hash loaction <loc>"
-  `(gethash (read-from-string ,loc) *GSL-TEXTURE-HASH*));;}}}
+  `(gethash (read-from-string ,loc) *GSL-TEXTURE-HASH*))
 
-(defun copy-extern-to-tex (tex loc filter-min filter-mag wrap-t wrap-s);;{{{
+(defun copy-extern-to-tex (tex loc filter-min filter-mag wrap-t wrap-s)
   "Copys an external texture <loc>'s properties into <tex>"
   (let ((extern (gsl_load_texture loc filter-min filter-mag wrap-t wrap-s)))	;;Using lisp C bindings to load the texture
     (setf (gsl-tex-loc tex)	loc)
     (setf (gsl-tex-id tex)	(%get-signed-word extern 0))
     (setf (gsl-tex-width tex) 	(%get-signed-word extern 1))
     (setf (gsl-tex-height tex) 	(%get-signed-word extern 2))
-    (free extern)));;}}}
+    (free extern)))
 
-(defun gsl-load-tex-deferred (loc filter-min filter-mag wrap-t wrap-s);;{{{
+(defun gsl-load-tex-deferred (loc filter-min filter-mag wrap-t wrap-s)
   "Loads a texture at run-time instead of compile time. Only called when a texture is loaded before *GSL-VIDEO-DONE*"
   (let ((tex (gsl-get-tex-from-hash 'loc)))
-    (copy-extern-to-tex tex loc filter-min filter-mag wrap-t wrap-s)));;}}}
+    (copy-extern-to-tex tex loc filter-min filter-mag wrap-t wrap-s)))
 
-(defun gsl-texture-add-new-deferred (loc filter-min filter-mag wrap-t wrap-s);;{{{
+(defun gsl-texture-add-new-deferred (loc filter-min filter-mag wrap-t wrap-s)
   "Adds a new texture that will be loaded when GSL has finished initialising"
   (push `(gsl-load-tex-deferred ,loc ,filter-min ,filter-mag ,wrap-t ,wrap-s) *GSL-TEXTURE-DEFERRED-LOAD-LIST*)
   (make-tex loc))
-;;}}}
 
-(defun gsl-load-tex (loc &key (filter-min +GL-LINEAR-MIPMAP-NEAREST+) (filter-mag +GL-NEAREST+) (wrap-t +GL-REPEAT+) (wrap-s +GL-REPEAT+));;{{{
+
+(defun gsl-load-tex (loc &key (filter-min +GL-LINEAR-MIPMAP-NEAREST+) (filter-mag +GL-NEAREST+) (wrap-t +GL-REPEAT+) (wrap-s +GL-REPEAT+))
   "Loads and returns a texture, returns the texture and does not load it again if it already exists in *GSL-TEXTURE-HASH*"
   ;;If the texture location is already in the hash table, return the tex.
   (let ((tex (gsl-get-tex-from-hash loc)))
@@ -92,21 +92,21 @@
     (let ((tex (make-tex loc)))
       (copy-extern-to-tex tex loc filter-min filter-mag wrap-t wrap-s)
       tex))
-;;}}}
 
-(defun gsl-delete-tex (tex);;{{{
+
+(defun gsl-delete-tex (tex)
   "Deletes a single texture from *GSL-TEXTURE-HASH* and cleans all memory associated with it"
   (when (<= (decf (gsl-tex-nused tex)) 0)	;;If the refcount is > 0 do nothing
     (progn
       (gl-delete-texture (gsl-tex-id tex))
       (remhash (gsl-tex-loc tex) *GSL-TEXTURE-HASH*)
-      (setf tex nil))));;}}}
+      (setf tex nil))))
 
-(defun gsl-delete-all-textures ();;{{{
+(defun gsl-delete-all-textures ()
   "Deletes all textures in *GSL-TEXTURE-HASH*"
-  (maphash #'(lambda (key val) (when key (gsl-delete-tex val))) *GSL-TEXTURE-HASH*));;}}};;}}}
+  (maphash #'(lambda (key val) (when key (gsl-delete-tex val))) *GSL-TEXTURE-HASH*))
 
-(defclass rect ();;{{{
+(defclass rect ()
   ((x
     :accessor rect-x
     :initarg :x
@@ -154,9 +154,9 @@
     (gsl_draw_tex 0 (rect-x rect) 
 		  (float (rect-y rect)) (float (rect-z rect)) 
 		  (float (rect-w rect)) (float (rect-h rect)))))
-;;}}}
 
-(defclass framebuffer ();;{{{
+
+(defclass framebuffer ()
   ((id
      :initarg  :id
      :reader gsl-fbo-id
@@ -180,45 +180,45 @@
 (const +GSL-DEPTH-BUFFER+ #x01)
 (defparam *GSL-FBO-LIST* nil)
 
-(defmethod gsl-fbo-new (w h);;{{{
+(defmethod gsl-fbo-new (w h)
   "Create a new framebuffer object and initialise it"
   (let ((id (gsl_new_framebuffer w h)))
     (let ((fbo (make-instance 'framebuffer :id id :w w :h h)))
       (push fbo *GSL-FBO-LIST*)
       (return-from gsl-fbo-new fbo))))
-;;}}}
 
-(defmethod gsl-fbo-add-color ((fbo framebuffer) pos);;{{{
+
+(defmethod gsl-fbo-add-color ((fbo framebuffer) pos)
   "Adds a color buffer to a gsl-fbo object"
   (let ((tex-id (gsl_fbo_add_color (gsl-fbo-id fbo) pos)))
     (let ((tex (make-tex (gensym) tex-id (gsl-fbo-width fbo) (gsl-fbo-height fbo))))
-      (setf (aref (gsl-fbo-color-attachments fbo) pos) tex))));;}}}
+      (setf (aref (gsl-fbo-color-attachments fbo) pos) tex))))
 
-(defmethod gsl-fbo-add-depth ((fbo framebuffer));;{{{
+(defmethod gsl-fbo-add-depth ((fbo framebuffer))
   "Adds a depth buffer to <fbo>"
   (let ((depth (gsl-fbo-depth fbo)))
     (when (> depth 0) (gl-delete-texture depth))
     (gsl_fbo_add_depth (gsl-fbo-id fbo))))
-;;}}}
 
-(defmethod gsl-fbo-color-pos ((fbo framebuffer) pos);;{{{
+
+(defmethod gsl-fbo-color-pos ((fbo framebuffer) pos)
   "Gets the color buffer at position pos"
-  (aref (gsl-fbo-color-attachments fbo) pos));;}}}
+  (aref (gsl-fbo-color-attachments fbo) pos))
 
-(defmethod gsl-fbo-del-color ((fbo framebuffer) pos);;{{{
+(defmethod gsl-fbo-del-color ((fbo framebuffer) pos)
   "Deletes a color buffer from a gsl-fbo object"
   (let ((array (gsl-fbo-color-attachments fbo)))
     (when (aref array pos)
       (gl-delete-texture (gsl-tex-id (aref array pos)))
       (setf (aref array pos) nil))))
-;;}}}
 
-(defmethod gsl-fbo-del-depth ((fbo framebuffer));;{{{
+
+(defmethod gsl-fbo-del-depth ((fbo framebuffer))
   "Deletes a depth buffer from a gsl-fbo object"
   (let ((depth (gsl-fbo-depth fbo)))
-    (when (> depth 0) (gl-delete-texture depth)))) ;;}}}
+    (when (> depth 0) (gl-delete-texture depth)))) 
 
-(defmethod gsl-fbo-del ((fbo framebuffer));;{{{
+(defmethod gsl-fbo-del ((fbo framebuffer))
   "Deletes an entire gsl-fbo object"
   ;;Delete <fbo>'s color and depth attachment points
   (do-array pos (gsl-fbo-color-attachments fbo)
@@ -228,24 +228,24 @@
     (setf *GSL-FBO-LIST* (delete-if #'(lambda (temp_fbo) (equalp (gsl-fbo-id temp_fbo) fbo-id)) *GSL-FBO-LIST*)))
   ;;Delete <fbo> from C side
   (gsl_fbo_del (gsl-fbo-id fbo)))
-;;}}}
 
-(defmethod gsl-delete-all-fbos ();;{{{
+
+(defmethod gsl-delete-all-fbos ()
   (dolist (x *GSL-FBO-LIST*)
     (progn
       (pop *GSL-FBO-LIST*)
-      (gsl-fbo-del x))));;}}}
+      (gsl-fbo-del x))))
 
-(defmethod gsl-fbo-use ((fbo framebuffer));;{{{
+(defmethod gsl-fbo-use ((fbo framebuffer))
   "glBindFramebuffer"
-  (gsl_fbo_use (gsl-fbo-id fbo)));;}}}
+  (gsl_fbo_use (gsl-fbo-id fbo)))
 
-(defmethod gsl-fbo-use ((fbo number));;{{{
+(defmethod gsl-fbo-use ((fbo number))
   "For use with (gsl-fbo-use 0) (basically glBindFramebuffer(GL_FRAMEBUFFER_EXT, 0);)"
-  (gsl_fbo_use -1));;}}}
-;;}}}
+  (gsl_fbo_use -1))
 
-(defclass shader ();;{{{
+
+(defclass shader ()
   ((id
      :initform 0
      :initarg :id
@@ -270,60 +270,60 @@
 (const +GSL-SHADER-VERT+ 0)
 (const +GSL-SHADER-FRAG+ 1)
 
-(defmacro create-shader (&key (vert "") (frag "") &allow-other-keys);;{{{
+(defmacro create-shader (&key (vert "") (frag "") &allow-other-keys)
   "Create a new OpenGL shader and return its ID"
   `(with-cstrs ((vert_var ,vert) (frag_var ,frag))
-	       (gsl_new_shader vert_var frag_var)));;}}}
+	       (gsl_new_shader vert_var frag_var)))
 
-(defmacro gsl-shader-new (&rest rest);;{{{
+(defmacro gsl-shader-new (&rest rest)
   "Creates and returns a new gsl-shader object"
   `(block nil 
 	  (let ((shader-id (create-shader ,@rest)))
 	    (return (make-instance 'shader :id shader-id)))))
-;;}}}
 
-(defmacro gsl-shader-delete-vars (shader);;{{{
+
+(defmacro gsl-shader-delete-vars (shader)
   "Resets all shader vars"
-  `(maphash #'(lambda (key val) (when key (setf (gsl-shader-var-value val) 0))) (gsl-shader-vars ,shader)));;}}}
+  `(maphash #'(lambda (key val) (when key (setf (gsl-shader-var-value val) 0))) (gsl-shader-vars ,shader)))
 
-(defmacro gsl-shader-source (shader &key (vert "" vert_supplied) (frag "" frag_supplied));;{{{
+(defmacro gsl-shader-source (shader &key (vert "" vert_supplied) (frag "" frag_supplied))
   "Change <shader>'s source code"
   `(progn (gsl_shader_source (gsl-shader-id ,shader) ,vert ,frag)
-	  (gsl-shader-delete-vars ,shader)));;}}}
+	  (gsl-shader-delete-vars ,shader)))
 
-(defmacro gsl-shader-use (shader);;{{{
+(defmacro gsl-shader-use (shader)
   "Use <shader>"
   `(if ,shader 
      (gsl_use_shader (gsl-shader-id ,shader))
-     (gsl_use_shader 0)));;}}}
+     (gsl_use_shader 0)))
 
-(defmacro make-shader-var (&rest rest);;{{{
+(defmacro make-shader-var (&rest rest)
   "Initialises a shader-var Object"
-  `(make-instance 'shader-var ,@rest));;}}}
+  `(make-instance 'shader-var ,@rest))
 
-(defmacro gsl-shader-var-get (shader name);;{{{
+(defmacro gsl-shader-var-get (shader name)
   "Gets a shader-var from <shader>'s var table"
-  `(gethash (intern ,name) (gsl-shader-vars ,shader)));;}}}
+  `(gethash (intern ,name) (gsl-shader-vars ,shader)))
 
-(defmacro gsl-shader-var-set (var val);;{{{
+(defmacro gsl-shader-var-set (var val)
   "Sets <var> to <val>"
   `(let ((address (gsl-shader-var-address ,var)) (program (gsl-shader-var-program ,var)))
-     (gsl_set_shader_var program address (float ,val))));;}}}
+     (gsl_set_shader_var program address (float ,val))))
 
-(defmacro gsl-shader-var-new (shader name);;{{{
+(defmacro gsl-shader-var-new (shader name)
   "Creates a new shader-var and adds it to <shader>'s var hash"
   `(let ((program (gsl-shader-id ,shader)))
      (let ((address (gsl_new_shader_var program ,name)))
        (let ((shader (make-shader-var :address address :program program)))
-	 (setf (gsl-shader-var-get ,shader ,name) shader)))));;}}}
+	 (setf (gsl-shader-var-get ,shader ,name) shader)))))
 
-(defmacro gsl-shader-set (shader name val);;{{{
+(defmacro gsl-shader-set (shader name val)
   "Sets var <name> in <shader> to <val>"
   `(let ((var (gsl-shader-var-get ,shader ,name)))
      (when (not var) (setf var (gsl-shader-var-new ,shader ,name)))
-     (gsl-shader-var-set var ,val)));;}}}
+     (gsl-shader-var-set var ,val)))
 
-(defmacro gsl-shader-get (shader name);;{{{
+(defmacro gsl-shader-get (shader name)
   "Gets var <name> from <shader>"
   `(let ((var (gsl-shader-var-get ,shader ,name)))
-     (when var (gsl-shader-var-value var))));;}}};;}}}
+     (when var (gsl-shader-var-value var))))

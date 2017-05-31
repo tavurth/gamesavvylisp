@@ -18,7 +18,7 @@
 (load "../gsl.lisp")
 (gsl-init :options (logior +GSL-DEFAULT-VIDEO+ +GSL-GET-MOUSE+))
 
-;;	GLOBAL-VARS;;{{{
+;;	GLOBAL-VARS
 ;;Setting up our camera;					(deylen - 14/5/2009)
 (defvar *camera* (list 0 0 -150))
 
@@ -29,7 +29,7 @@
 ;;Creating our house rectangles.
 (defconstant *rect1* (gsl-make-rect 50 0 50 50))
 (defconstant *rect2* (gsl-make-rect -50 -50 50 100))
-;;}}}
+
 
 ;;Changed the below to show the new event callbacks
 (defun mouse-movement (motionx motiony)
@@ -47,7 +47,7 @@
 
 ;;These functions are called each frame
 
-(defun draw ();;{{{
+(defun draw ()
 
   ;;General Drawing
   (gl-clear (logior +GL-COLOR-BUFFER-BIT+ +GL-DEPTH-BUFFER-BIT+ +GL-STENCIL-BUFFER-BIT+))
@@ -98,7 +98,7 @@
 
   (when *GSL-IS-IN-CONSOLE*
     (gsl-draw-console))
-  (gl-swap-buffers));;}}}
+  (gl-swap-buffers))
 
 (defun input ()
   (if *GSL-IS-IN-CONSOLE*

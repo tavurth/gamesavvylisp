@@ -21,14 +21,14 @@
 (const +GL-ZERO+				#x0000)
 (const +GL-ONE+					#x0001)
 
-;;	MATRIX BIT FLAGS	;;;;{{{
+;;	MATRIX BIT FLAGS	;;
 (const +GL-MATRIX-MODE+				#x00BA0)
 (const +GL-MODELVIEW+				#x01700)
 (const +GL-PROJECTION+				#x01701)
 (const +GL-TEXTURE+				#x01702)
-;;}}}
 
-;;	DEPTH AND BLENDING	;;;;{{{
+
+;;	DEPTH AND BLENDING	;;
 (const +GL-NEVER+				#x0200)
 (const +GL-LESS+				#x0201)
 (const +GL-EQUAL+				#x0202)
@@ -56,9 +56,9 @@
 (const +GL-DST-COLOR+				#x0306)
 (const +GL-ONE-MINUS-DST-COLOR+			#x0307)
 (const +GL-SRC-ALPHA-SATURATE+			#x0308)
-;;}}}
 
-;;	ATTRIBUTE BIT FLAGS	;;;;{{{
+
+;;	ATTRIBUTE BIT FLAGS	;;
 (const +GL-CURRENT-BIT+				#x00001)
 (const +GL-POINT-BIT+				#x00002)
 (const +GL-LINE-BIT+				#x00004)
@@ -80,9 +80,9 @@
 (const +GL-TEXTURE-BIT+				#x40000)
 (const +GL-SCISSOR-BIT+				#x80000)
 (const +GL-ALL-ATTRIB-BITS+			#xFFFFF)
-;;}}}
 
-;;	PRIMITIVE BIT FLAGS	;;;;{{{
+
+;;	PRIMITIVE BIT FLAGS	;;
 (const +GL-POINTS+				#x00000)
 (const +GL-LINES+				#x00001)
 (const +GL-LINE-LOOP+				#x00002)
@@ -93,9 +93,9 @@
 (const +GL-QUADS+				#x00007)
 (const +GL-QUAD-STRIP+				#x00008)
 (const +GL-POLYGON+				#x00009)
-;;}}}
 
-;;	POLYGONS;;{{{
+
+;;	POLYGONS
 (const +GL-POINT+				#x1B00)
 (const +GL-LINE+				#x1B01)
 (const +GL-FILL+				#x1B02)
@@ -114,9 +114,9 @@
 (const +GL-POLYGON_OFFSET_UNITS+		#x2A00)
 (const +GL-POLYGON_OFFSET_POINT+		#x2A01)
 (const +GL-POLYGON_OFFSET_LINE+			#x2A02)
-(const +GL-POLYGON_OFFSET_FILL+			#x8037);;}}}
+(const +GL-POLYGON_OFFSET_FILL+			#x8037)
 
-;;	STENCIL TEST BIT FLAGS	;;;;{{{
+;;	STENCIL TEST BIT FLAGS	;;
 (const +GL-STENCIL-BITS+			#x0D57)
 (const +GL-STENCIL-TEST+			#x0B90)
 (const +GL-STENCIL-CLEAR-VALUE+			#x0B91)
@@ -132,9 +132,9 @@
 (const +GL-REPLACE+				#x1E01)
 (const +GL-INCR+				#x1E02)
 (const +GL-DECR+				#x1E03)
-;;}}}
 
-;;	TEXTURE MAPPING BITS	;; ;;{{{
+
+;;	TEXTURE MAPPING BITS	;; 
 (const +GL-TEXTURE-ENV+				#x2300)
 (const +GL-TEXTURE-ENV-MODE+			#x2200)
 (const +GL-TEXTURE-1D+				#x0DE0)
@@ -188,9 +188,9 @@
 (const +GL-LINEAR+				#x2601)
 (const +GL-EXP+					#x0800)
 (const +GL-EXP2+				#x0801)
-;;}}}
 
-;;	FRAMEBUFFER BIT FLAGS	;;;;{{{
+
+;;	FRAMEBUFFER BIT FLAGS	;;
 (const +GL-INVALID-FRAMEBUFFER-OPERATION+                   #x0506)
 (const +GL-FRAMEBUFFER-ATTACHMENT-COLOR-ENCODING+           #x8210)
 (const +GL-FRAMEBUFFER-ATTACHMENT-COMPONENT-TYPE+           #x8211)
@@ -262,9 +262,9 @@
 (const +GL-RENDERBUFFER-STENCIL-SIZE+                       #x8D55)
 (const +GL-FRAMEBUFFER-INCOMPLETE-MULTISAMPLE+              #x8D56)
 (const +GL-MAX-SAMPLES+                                     #x8D57)
-;;}}}
 
-;;	LIGHTING BIT FLAGS;;{{{
+
+;;	LIGHTING BIT FLAGS
 (const +GL-LIGHTING+				#x0B50)
 (const +GL-LIGHT0+				#x4000)
 (const +GL-LIGHT1+				#x4001)
@@ -298,4 +298,4 @@
 (const +GL-COLOR-MATERIAL+			#x0B57)
 (const +GL-COLOR-MATERIAL-FACE+			#x0B55)
 (const +GL-COLOR-MATERIAL-PARAMETER+		#x0B56)
-(const +GL-NORMALIZE+				#x0BA1);;}}}
+(const +GL-NORMALIZE+				#x0BA1)
